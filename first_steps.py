@@ -23,6 +23,10 @@ from parts_of_language import extract_pol
 from lemma import extract_lemma
 
 
+# Create text pipeline
+nlp = stanfordnlp.Pipeline(processors = "tokenize,mwt,lemma,pos")
+
+
 # Create a text pipeline
 doc = nlp('In daily life we must constantly adapt our movements to changes in the environment or changes in our body. To adapt movements is a fundamental property of the central nervous system.')
 # For some reason, including the word adaptation into the sentence leads to an error? Unclear why.
