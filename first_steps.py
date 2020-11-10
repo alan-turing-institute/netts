@@ -28,7 +28,11 @@ nlp = stanfordnlp.Pipeline(processors = "tokenize,mwt,lemma,pos")
 
 
 # Create a text pipeline
-doc = nlp('In daily life we must constantly adapt our movements to changes in the environment or changes in our body. To adapt movements is a fundamental property of the central nervous system.')
+doc = nlp("""In daily life we must constantly adapt our movements 
+to changes in the environment or changes in our body. 
+To adapt movements is a fundamental property of the central nervous system.""")
+
+doc = nlp("""Uh this has a kind of hypo  coughing. Maybe a big dagger. I don’t imagine what they’re doing on the  down and by, what’s clearly happening. Yeah I don't, I don’t know yeah. """)
 # For some reason, including the word adaptation into the sentence leads to an error? Unclear why.
 
 
@@ -40,3 +44,6 @@ extract_lemma(doc)
 
 # Parts of language (pol) tagging
 extract_pol(doc)
+
+# Dependency extraction: Get dependency relations for all of the words of a specific sentence:
+doc.sentences[0].print_dependencies()

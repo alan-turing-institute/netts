@@ -10,4 +10,4 @@
 # ------------------------------------------------------------------------------
 # to activate python environment, run:
 # source /Users/CN/Documents/Projects/Cambridge/language_analysis/venv/bin/activate
-# stanza.download('en')
+stanza.download('en')
