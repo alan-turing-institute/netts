@@ -31,10 +31,10 @@ f.close()
 
 with CoreNLPClient(
         annotators=['tokenize', 'ssplit', 'pos', 'lemma',
-                    'ner', 'parse', 'depparse', 'coref'],
+                    'ner', 'parse', 'depparse', 'coref', 'openie'],
         timeout=30000,
         memory='16G') as client:
-    ann = client.annotate(text)
+    ann2 = client.annotate(text)
 
 # --> The CoreNLP server will be automatically started in the background upon the instantiation of the client.
 

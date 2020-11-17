@@ -25,7 +25,8 @@ from lemma import extract_lemma
 
 
 # Create text pipeline
-nlp = stanza.Pipeline(processors="tokenize,mwt,lemma,pos")
+nlp = stanza.Pipeline()
+nlp = stanfordnlp.Pipeline(processors=",pos")
 
 
 # Create a text pipeline
