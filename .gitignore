@@ -132,3 +132,7 @@ dmypy.json
 stanfordnlp_resources
 stanford-corenlp-full-2018-10-05.zip
 stanford-corenlp-full-2018-10-05
+corenlp_server-*
+
+# OpenIE 5.1 resources
+OpenIE-standalone/

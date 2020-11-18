@@ -20,15 +20,6 @@ from stanza.server import CoreNLPClient
 import matplotlib.pyplot as plt
 
 
-example_sentence = 'A boy is sitting in a barn.'
-
-with CoreNLPClient(
-        annotators=['tokenize', 'ssplit', 'pos', 'lemma',
-                    'ner', 'parse', 'depparse', 'coref', 'openie'],
-        timeout=30000,
-        memory='16G') as client:
-    ann = client.annotate(example_sentence)
-
 # Create empty graph
 G = nx.Graph()
 
@@ -66,3 +57,16 @@ plt.axis('off')
 plt.show()
 
 # Plot example sentence from TAT: I see a man in the dark standing against a light post.
+edges = [['I', 'a man'], ['a man', 'the dark'], ['a man', 'light post']]
+G = nx.Graph()
+G.add_edges_from(edges)
+pos = nx.spring_layout(G)
+plt.figure()
+nx.draw(G, pos, edge_color='black', width=1, linewidths=1,
+        node_size=500, node_color='pink', alpha=0.9,
+        labels={node: node for node in G.nodes()})
+nx.draw_networkx_edge_labels(G, pos, edge_labels={('I', 'a man'): 'see',
+                                                  ('a man', 'the dark'): 'in the',
+                                                  ('a man', 'light post'): 'standing against'}, font_color='red')
+plt.axis('off')
+plt.show()
