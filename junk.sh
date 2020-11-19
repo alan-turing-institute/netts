@@ -1,83 +1,90 @@
-subject: "boy"
-relation: "is sitting in"
-object: "barn"
-confidence: 1.0
-tree {
-    node {
-        sentenceIndex: 0
-        index: 2
-    }
-    node {
-        sentenceIndex: 0
-        index: 3
-    }
-    node {
-        sentenceIndex: 0
-        index: 4
-    }
-    node {
-        sentenceIndex: 0
-        index: 5
-    }
-    node {
-        sentenceIndex: 0
-        index: 7
-    }
-    edge {
-        source: 4
-        target: 2
-        dep: "nsubj"
-        isExtra: false
-        sourceCopy: 0
-        targetCopy: 0
-        language: UniversalEnglish
-    }
-    edge {
-        source: 4
-        target: 3
-        dep: "aux"
-        isExtra: false
-        sourceCopy: 0
-        targetCopy: 0
-        language: UniversalEnglish
-    }
-    edge {
-        source: 4
-        target: 7
-        dep: "obl:in"
-        isExtra: false
-        sourceCopy: 0
-        targetCopy: 0
-        language: UniversalEnglish
-    }
-    edge {
-        source: 7
-        target: 5
-        dep: "case"
-        isExtra: false
-        sourceCopy: 0
-        targetCopy: 0
-        language: UniversalEnglish
-    }
-    root: 4
-}
-subjectTokens {
-    sentenceIndex: 0
-    tokenIndex: 1
-}
-relationTokens {
-    sentenceIndex: 0
-    tokenIndex: 2
-}
-relationTokens {
-    sentenceIndex: 0
-    tokenIndex: 3
-}
-relationTokens {
-    sentenceIndex: 0
-    tokenIndex: 4
-}
-objectTokens {
-    sentenceIndex: 0
-    tokenIndex: 6
-}
+
+[warn] Merging 'unfiltered/response/ResponseFilter$.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ResponseFilter$Filtering$$anon$1.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ResponseFilter$Filtering$class.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ResponseFilter$Filtering.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ResponseFilter$GZip$.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ResponseFilter.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ResponseFunction$$anon$1.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ResponseFunction$class.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ResponseFunction.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ResponseHeader$$anonfun$respond$1.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ResponseHeader$.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ResponseHeader.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ResponseStreamer$$anonfun$respond$1.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ResponseStreamer$class.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ResponseStreamer.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ResponseString$.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ResponseString.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ResponseWriter$class.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ResponseWriter.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/RetryAfter$.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ToCookies$$anonfun$1.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ToCookies$$anonfun$unfiltered$response$ToCookies$$add$1.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ToCookies$$anonfun$unfiltered$response$ToCookies$$append$1.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ToCookies$$anonfun$unfiltered$response$ToCookies$$append$2.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ToCookies$$anonfun$unfiltered$response$ToCookies$$append$3.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ToCookies$$anonfun$unfiltered$response$ToCookies$$append$4.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ToCookies$.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/ToCookies.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/TooManyConnections$.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/TooManyConnections.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/TooManyRequests$.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/TooManyRequests.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/Trailer$.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/Trailer.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/TransferEncoding$.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/TransferEncoding.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/Unauthorized$.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/Unauthorized.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/UnorderedCollection$.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/UnorderedCollection.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/UnprocessableEntity$.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/UnprocessableEntity.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/UnsupportedMediaType$.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/UnsupportedMediaType.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/UpdateRequired$.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/UpdateRequired.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/UseProxy$.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/UseProxy.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/VariantAlsoNegotiates$.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/VariantAlsoNegotiates.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/Vary$.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/Vary.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/VersionNotSupported$.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/VersionNotSupported.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/WWWAuthenticate$.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/WWWAuthenticate.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/Warning$.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/Warning.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/package$$anon$1.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/package$.class' with strategy 'first'
+[warn] Merging 'unfiltered/response/package.class' with strategy 'first'
+[warn] Merging 'unfiltered/util/Browser$.class' with strategy 'first'
+[warn] Merging 'unfiltered/util/Browser.class' with strategy 'first'
+[warn] Merging 'unfiltered/util/IO$.class' with strategy 'first'
+[warn] Merging 'unfiltered/util/IO$class.class' with strategy 'first'
+[warn] Merging 'unfiltered/util/IO.class' with strategy 'first'
+[warn] Merging 'unfiltered/util/MIMEType$$anonfun$toString$1.class' with strategy 'first'
+[warn] Merging 'unfiltered/util/MIMEType$$anonfun$unapply$1$$anonfun$1.class' with strategy 'first'
+[warn] Merging 'unfiltered/util/MIMEType$$anonfun$unapply$1.class' with strategy 'first'
+[warn] Merging 'unfiltered/util/MIMEType$.class' with strategy 'first'
+[warn] Merging 'unfiltered/util/MIMEType.class' with strategy 'first'
+[warn] Merging 'unfiltered/util/RunnableServer$class.class' with strategy 'first'
+[warn] Merging 'unfiltered/util/RunnableServer.class' with strategy 'first'
+[warn] Merging 'unfiltered/util/Server.class' with strategy 'first'
+[warn] Merging 'unfiltered/util/StartableServer.class' with strategy 'first'
+[warn] Merging 'unfiltered/util/control/NonFatal$.class' with strategy 'first'
+[warn] Merging 'unfiltered/util/control/NonFatal.class' with strategy 'first'
+[warn] Strategy 'concat' was applied to a file
+[info] Strategy 'deduplicate' was applied to 277 files (Run the task at debug level to see details)
+[warn] Strategy 'discard' was applied to 5 files
+[warn] Strategy 'filterDistinctLines' was applied to a file
+[warn] Strategy 'first' was applied to 15357 files
+[warn] Strategy 'rename' was applied to 14 files
+[info] SHA-1: 2acc0e86695fd422e5916fdbc9f838152926f93b
+[info] Packaging /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/OpenIE-standalone/target/scala-2.10/openie-assembly-5.0-SNAPSHOT.jar ...
+[info] Done packaging.
+
+
+
