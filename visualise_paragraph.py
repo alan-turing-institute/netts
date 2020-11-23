@@ -22,26 +22,51 @@ sys.path.append(
 from pyopenie import OpenIE5
 import matplotlib.pyplot as plt
 from copy import deepcopy
+from nlp_helper_functions import expand_contractions, process_sent
 
 # ------------------------------------------------------------------------------
 # Initiliase sentence
 # sentence = "the man on the picture seems to wear a hat and, and has a jacket on and he seems to have a hoodie on as well."
 sentence = "The picture is very, very mysterious, which I like about it, but for me I would like to understand more concept, context of the picture."
-
-
+"The picture is very mysterious"
+"I like about it"
+"I would like to understand more concept, context of the picture"
+text = "I see a man in the dark standing against a light post. It seems to be in the middle of the night; I think because the lightbulb is working. On the picture there seems to be like a park and Or trees but in those trees there are little balls of light reflections as well. I cannot see the Anything else because it’s very dark. But the man on the picture seems to wear a hat and, and has a jacket on and he seems to have a hoodie on as well. The picture is very, very mysterious, which I like about it, but for me I would like to understand more concept, context of the picture."
 # ------------------------------------------------------------------------------
-# Initiliase Stanford CoreNLP server and OpenIE5 server
+# ------- Extract relations with Stanford CoreNLP (Stanza) -------
+
+# Initiliase Stanford CoreNLP server
 client = CoreNLPClient(annotators=['tokenize', 'ssplit', 'pos', 'lemma', 'ner', 'parse', 'depparse', 'coref', 'openie'],
                        timeout=30000,
                        memory='16G')
-extractorIE5 = OpenIE5('http://localhost:6000')
-# Annotate with Stanford CoreNLP and extract with OpenIE5
-# extractions = extractorIE5.extract(text)
+# Annotate with Stanford CoreNLP
 annotations = client.annotate(text)
+
+# for i, extract in enumerate(extractions):
+#     print('\n {} \t: {} - {} - {}'.format(
+#         extract['confidence'],
+#         extract['extraction']['arg1']['text'],
+#         extract['extraction']['rel']['text'],
+#         extract['extraction']['arg2s'][0]['text'],
+#     ))
+# ------------------------------------------------------------------------------
+# ------- Extract relations with OpenIE5 (Ollie) -------
+
+# Initialize Ollie
+extractorIE5 = OpenIE5('http://localhost:6000')
+# Ollie cannot handle this symbol ’ so replace with symbol that Ollie can handle '
+text_clean = text.replace('’', "'")
+
+# Ollie can only handle one sentence at a time (CHECK THIS AGAIN)
+extractions = []
+for sentence in text_clean.split('.'):
+    sentence = sentence.strip()
+    if len(sentence) > 1:
+        extraction = extractorIE5.extract(sentence)
+        extractions = extractions + extraction
 
 
 # ------------------------------------------------------------------------------
-
 
 # Find edges and edge labels extracted by OpenIE5
 ollie_edges = []
@@ -86,7 +111,7 @@ for sentence in annotations.sentence:
 # Compare stanza and openie5 edges and add any edges that Openie5 did not pick up
 edges = ollie_edges
 edge_labels = ollie_edge_labels
-stanza_edges
+
 
 # ------------------------------------------------------------------------------
 # ------- Merge nodes that are separate mentions of the same entity -------
@@ -191,12 +216,3 @@ nx.draw_networkx_edge_labels(
     G_orig, pos, edge_labels=orig_edge_labels, font_color='red')
 plt.axis('off')
 plt.show()
-
-
-for i, extract in enumerate(extractions):
-    print('\n {} \t: {} - {} - {}'.format(
-        extract['confidence'],
-        extract['extraction']['arg1']['text'],
-        extract['extraction']['rel']['text'],
-        extract['extraction']['arg2s'][0]['text'],
-    ))
