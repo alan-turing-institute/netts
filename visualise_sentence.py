@@ -20,6 +20,7 @@ sys.path.append(
     '/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/')
 from pyopenie import OpenIE5
 import matplotlib.pyplot as plt
+from copy import deepcopy
 
 # ------------------------------------------------------------------------------
 # Initiliase sentence
@@ -60,24 +61,18 @@ for e, extract in enumerate(extractions):
         edge_labels[(node1, node2)] = extract['extraction']['rel']['text']
 
 
-# # ------------------------------------------------------------------------------
-# # Construct Speech Graph
-# G_orig = nx.Graph()
-# G_orig.add_edges_from(edges)
-# pos = nx.spring_layout(G_orig)
-
-# # Plot graph
-# plt.figure()
-# nx.draw(G_orig, pos, edge_color='black', width=1, linewidths=1,
-#         node_size=500, node_color='pink', alpha=0.9,
-#         labels={node: node for node in G_orig.nodes()})
-# nx.draw_networkx_edge_labels(
-#     G_orig, pos, edge_labels=edge_labels, font_color='red')
-# plt.axis('off')
-# plt.show()
-
 # ------------------------------------------------------------------------------
-# Merge nodes that are separate mentions of the same entity
+# ------- Merge nodes that are separate mentions of the same entity -------
+
+# First extract a list of determinants present in the text that need to be ignored when matching (You don't want to match "the picture" and "the dog" on "the")
+list_of_DTs = []
+for sentence in annotations.sentence:
+    for token in sentence.token:
+        if token.pos == "DT":
+            # print(token.lemma)
+            if token.lemma not in list_of_DTs:
+                list_of_DTs.append(token.lemma)
+
 
 # Extract proper node name and alternative node names
 proper_nn = []
@@ -111,41 +106,62 @@ for mention in annotations.corefChain[0].mention:
 
 # Replace node name with proper node name and edge_label
 # Method: test if node text appears in list of alternative node names or is part of the proper node name and replace with the full proper node name
+orig_edge_labels = deepcopy(edge_labels)
+orig_edges = deepcopy(edges)
+
 new_edge_labels = {}
 for e, edge in enumerate(edges):
     rel = edge_labels[tuple(edge)]
     for n, node in enumerate(edge):
+        #
+        found_match = []
         for node_token in node.split(' '):
-            # Test if node is the same as proper node name
-            if node_token in proper_nn:
-                # print('{} is in {}'.format(node, proper_nn))
+            # If token is a determinant, move on to the next one.
+            if node_token in list_of_DTs:
+                print('Node is determinant: {}'.format(node_token))
+                continue
+            # Replace with proper node name if node is the same as proper node name
+            elif node_token in proper_nn:
                 edges[e][n] = proper_nn[0]
-                new_edge_labels[tuple(edges[e])] = rel
-            # Test if node is part of the proper node name (do any of the proper node name words match the chosen node)
+                continue
+            # Replace with proper node name if node is part of the proper node name (do any of the proper node name words match the chosen node)
             elif node_token in proper_nn[0].split(' '):
                 edges[e][n] = proper_nn[0]
-                new_edge_labels[tuple(edges[e])] = rel
+                continue
+            # Replace with proper node name if node is part of the alternative node name
             elif node_token in alt_nn:
-                # print('{} is in {}'.format(node, alt_nn))
                 edges[e][n] = proper_nn[0]
-                new_edge_labels[tuple(edges[e])] = rel
+                continue
             else:
-                print('{} NOT in {}'.format(node, alternative_node_name))
-                new_edge_labels[tuple(edges[e])] = rel
+                found_match = False
+    new_edge_labels[tuple(edges[e])] = rel
 
 # ------------------------------------------------------------------------------
 # Construct Speech Graph
 G = nx.Graph()
 G.add_edges_from(edges)
 pos = nx.spring_layout(G)
-
-# Plot graph
+# Plot
 plt.figure()
 nx.draw(G, pos, edge_color='black', width=1, linewidths=1,
         node_size=500, node_color='pink', alpha=0.9,
         labels={node: node for node in G.nodes()})
 nx.draw_networkx_edge_labels(
     G, pos, edge_labels=new_edge_labels, font_color='red')
+plt.axis('off')
+plt.show()
+
+# Original Speech Graph (before merging)
+G_orig = nx.Graph()
+G_orig.add_edges_from(orig_edges)
+pos = nx.spring_layout(G_orig)
+# Plot
+plt.figure()
+nx.draw(G_orig, pos, edge_color='black', width=1, linewidths=1,
+        node_size=500, node_color='pink', alpha=0.9,
+        labels={node: node for node in G.nodes()})
+nx.draw_networkx_edge_labels(
+    G_orig, pos, edge_labels=orig_edge_labels, font_color='red')
 plt.axis('off')
 plt.show()
 
