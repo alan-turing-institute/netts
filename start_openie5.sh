@@ -13,7 +13,7 @@ cd /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/OpenIE-sta
 
 ## Start standalone version OR HTTP server (For use with python wrapper, you need to start HTTP server)
 # Running from a stand-alone jar.
-java -Xmx10g -XX:+UseConcMarkSweepGC -jar openie-assembly-5.0-SNAPSHOT.jar
+# java -Xmx10g -XX:+UseConcMarkSweepGC -jar openie-assembly-5.0-SNAPSHOT.jar
 # Running as HTTP Server
 java -Xmx10g -XX:+UseConcMarkSweepGC -jar openie-assembly-5.0-SNAPSHOT.jar --httpPort 8000
 
