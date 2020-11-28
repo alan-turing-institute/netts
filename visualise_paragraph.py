@@ -1,6 +1,6 @@
 #!/Users/CN/Documents/Projects/Cambridge/language_analysis/venv python
 # ------------------------------------------------------------------------------
-# Script name:  visualise_sentence.py
+# Script name:  visualise_paragraph.py
 #
 # Description:
 #               Script to visualise sentence using OpenIE5 and Stanford CoreNLP
@@ -10,6 +10,12 @@
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # source /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/venv/bin/activate
+# TO DO
+#   - Add sentence index to Ollie extractions such that I can keep track which sentence an extraction is from
+#   - Add MultiGraph functionality
+#   - Add Directionality to relations
+#   - Fix missing extractions from paragraph
+#   - Fix faulty extrcations from paragraph
 import networkx as nx
 import os
 import os.path as op
@@ -22,11 +28,19 @@ sys.path.append(
 from pyopenie import OpenIE5
 import matplotlib.pyplot as plt
 from copy import deepcopy
-from nlp_helper_functions import expand_contractions, process_sent
+# from nlp_helper_functions import expand_contractions, process_sent
 
 # ------------------------------------------------------------------------------
 # Initiliase sentence
 # sentence = "the man on the picture seems to wear a hat and, and has a jacket on and he seems to have a hoodie on as well."
+data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
+file = '3138838-TAT13.txt'
+file = '3145067-TAT30.txt'
+f = open(op.join(data_dir, 'Kings',
+                 'Prolific_pilot_all_transcripts', file), 'r')
+text = f.read()
+f.close()
+
 sentence = "The picture is very, very mysterious, which I like about it, but for me I would like to understand more concept, context of the picture."
 "The picture is very mysterious"
 "I like about it"
@@ -49,6 +63,7 @@ annotations = client.annotate(text)
 #         extract['extraction']['rel']['text'],
 #         extract['extraction']['arg2s'][0]['text'],
 #     ))
+
 # ------------------------------------------------------------------------------
 # ------- Extract relations with OpenIE5 (Ollie) -------
 
@@ -56,6 +71,7 @@ annotations = client.annotate(text)
 extractorIE5 = OpenIE5('http://localhost:6000')
 # Ollie cannot handle this symbol ’ so replace with symbol that Ollie can handle '
 text_clean = text.replace('’', "'")
+text_clean = text_clean.replace('...', " ")
 
 # Ollie can only handle one sentence at a time (CHECK THIS AGAIN)
 extractions = []
@@ -64,7 +80,6 @@ for sentence in text_clean.split('.'):
     if len(sentence) > 1:
         extraction = extractorIE5.extract(sentence)
         extractions = extractions + extraction
-
 
 # ------------------------------------------------------------------------------
 
