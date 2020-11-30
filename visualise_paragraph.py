@@ -41,6 +41,13 @@ f = open(op.join(data_dir, 'Kings',
 text = f.read()
 f.close()
 
+
+# # To print corenlp to text file if you need to search through it
+# sys.stdout = open(op.join(data_dir, 'Kings',
+#                           'Prolific_pilot_all_transcripts', file + '_corenlp_extraction.txt'), 'w')
+# print(annotations)
+# sys.stdout.close()
+
 sentence = "The picture is very, very mysterious, which I like about it, but for me I would like to understand more concept, context of the picture."
 "The picture is very mysterious"
 "I like about it"
@@ -73,7 +80,7 @@ extractorIE5 = OpenIE5('http://localhost:6000')
 text_clean = text.replace('’', "'")
 text_clean = text_clean.replace('...', " ")
 
-# Ollie can only handle one sentence at a time (CHECK THIS AGAIN)
+# Ollie can handle more than one sentence at a time, but need to loop through sentences to keep track of sentence index
 extractions = []
 for sentence in text_clean.split('.'):
     sentence = sentence.strip()
@@ -81,6 +88,9 @@ for sentence in text_clean.split('.'):
         extraction = extractorIE5.extract(sentence)
         extractions = extractions + extraction
 
+
+example = 'On the picture there seems to be a park and trees, but in those trees there are little balls of light reflections'
+ex = extractorIE5.extract(text_clean)
 # ------------------------------------------------------------------------------
 
 # Find edges and edge labels extracted by OpenIE5
@@ -109,6 +119,9 @@ for e, extract in enumerate(extractions):
                           ] = extract['extraction']['rel']['text']
         ollie_edges_text_excerpts.append(edge_text)
 
+edges = ollie_edges
+edge_labels = ollie_edge_labels
+
 
 # Find edges and edge labels extracted by Stanza OpeniIE
 stanza_edges = []
@@ -124,8 +137,6 @@ for sentence in annotations.sentence:
         stanza_edges_text_excerpts.append((' ').join([node1, relation, node2]))
 
 # Compare stanza and openie5 edges and add any edges that Openie5 did not pick up
-edges = ollie_edges
-edge_labels = ollie_edge_labels
 
 
 # ------------------------------------------------------------------------------
@@ -142,33 +153,59 @@ for sentence in annotations.sentence:
 
 
 # Extract proper node name and alternative node names
-proper_nn = []
-alt_nn = []
-for mention in annotations.corefChain[0].mention:
-    if mention.mentionType == "NOMINAL" or mention.mentionType == "PROPER":
-        # Make the "proper" or "nominal" mention the node label
-        node_name = [node_part.originalText.lower() for node_part in annotations.sentence[mention.sentenceIndex]
-                     .token[mention.beginIndex: mention.endIndex]]
-        # Concatenate node names that consist of several tokens
-        if len(node_name) > 1:
-            node_name = (' ').join(node_name)
+node_name_synonyms = {}
+
+for coreference in annotations.corefChain:
+    proper_nn = []
+    alt_nn = []
+    for mention in coreference.mention:
+        if mention.mentionType == "NOMINAL" or mention.mentionType == "PROPER":
+            # Make the "proper" or "nominal" mention the node label
+            node_name = [node_part.originalText.lower() for node_part in annotations.sentence[mention.sentenceIndex]
+                         .token[mention.beginIndex: mention.endIndex] if node_part.originalText not in list_of_DTs]
+            # Concatenate node names that consist of several tokens
+            if len(node_name) > 1:
+                node_name = (' ').join(node_name)
+            else:
+                node_name = node_name[0]
+            #
+            # Append proper node name only if it is different from all other proper node names
+            if node_name not in proper_nn:
+                proper_nn.append(node_name)
         else:
-            node_name = node_name[0]
-        #
-        # Append proper node name only if it is different from all other proper node names
-        if node_name not in proper_nn:
-            proper_nn.append(node_name)
-    else:
-        alternative_node_name = [node_part.originalText.lower() for node_part in annotations.sentence[mention.sentenceIndex]
-                                 .token[mention.beginIndex: mention.endIndex]]
-        if len(alternative_node_name) > 1:
-            alternative_node_name = (' ').join(alternative_node_name)
-        else:
-            alternative_node_name = alternative_node_name[0]
-        #
-        # Append alternative node name only if it is different from all other alternative node names
-        if alternative_node_name not in alt_nn:
-            alt_nn.append(alternative_node_name)
+            alternative_node_name = [node_part.originalText.lower() for node_part in annotations.sentence[mention.sentenceIndex]
+                                     .token[mention.beginIndex: mention.endIndex] if node_part.originalText not in list_of_DTs]
+            if len(alternative_node_name) > 1:
+                alternative_node_name = (' ').join(alternative_node_name)
+            else:
+                alternative_node_name = alternative_node_name[0]
+            #
+            # Append alternative node name only if it is different from all other alternative node names
+            if alternative_node_name not in alt_nn:
+                alt_nn.append(alternative_node_name)
+    if proper_nn == []:
+        for mention in coreference.mention:
+            for token in annotations.sentence[mention.sentenceIndex].token[mention.beginIndex: mention.endIndex]:
+                if token.lemma == token.originalText:
+                    proper_nn.append(token.originalText)
+                    continue
+    node_name_synonyms[proper_nn[0]] = alt_nn
+
+
+# Clean node names that include more than one node (for example "the man on the picture" make into "man")
+for n in range(1, len(node_name_synonyms)):
+    node = list(node_name_synonyms)[n]
+    if len(node.split(' ')) > 2:
+        # get nodes that are not current node
+        keys_without_n = [x for i, x in enumerate(
+            list(node_name_synonyms)) if i != n]
+        for key in keys_without_n:
+            match = node.find(key)
+            if match != -1:
+                matched_key = key
+                new_node_name = node.split(matched_key)[0].strip()
+                node_name_synonyms[new_node_name] = node_name_synonyms.pop(
+                    node)
 
 
 # Replace node name with proper node name and edge_label
@@ -181,26 +218,30 @@ for e, edge in enumerate(edges):
     rel = edge_labels[tuple(edge)]
     for n, node in enumerate(edge):
         #
-        found_match = []
+        found_match = False
         for node_token in node.split(' '):
-            # If token is a determinant, move on to the next one.
-            if node_token in list_of_DTs:
-                # print('Node is determinant: {}'.format(node_token))
-                continue
-            # Replace with proper node name if node is the same as proper node name
-            elif node_token in proper_nn:
-                edges[e][n] = proper_nn[0]
-                continue
-            # Replace with proper node name if node is part of the proper node name (do any of the proper node name words match the chosen node)
-            elif node_token in proper_nn[0].split(' '):
-                edges[e][n] = proper_nn[0]
-                continue
-            # Replace with proper node name if node is part of the alternative node name
-            elif node_token in alt_nn:
-                edges[e][n] = proper_nn[0]
-                continue
+            if found_match == False:
+                if node_token in list_of_DTs:
+                    # If token is a determinant, move on to the next one.
+                    continue
+                elif node_token in list(node_name_synonyms.keys()):
+                    # Replace with proper node name if node is the same as proper node name
+                    proper_node_name = list(node_name_synonyms.keys())[
+                        list(node_name_synonyms.keys()).index(node_token)]
+                    print("Replace \t '{}' \t\t with \t\t'{}' in {}". format(
+                        node, proper_node_name, edge))
+                    edges[e][n] = proper_node_name
+                    found_match = True
+                for ann, alternative_node_name in enumerate(list(node_name_synonyms.values())):
+                    if node_token in alternative_node_name:
+                        # Replace with proper node name if node is part of one of the alternative node names
+                        proper_node_name = list(node_name_synonyms.keys())[ann]
+                        print("Replace \t '{}' \t\t with \t\t'{}' in {}".format(
+                            node, proper_node_name, edge))
+                        edges[e][n] = proper_node_name
+                        found_match = True
             else:
-                found_match = False
+                print('Moving on...')
     new_edge_labels[tuple(edges[e])] = rel
 
 # ------------------------------------------------------------------------------
