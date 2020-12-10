@@ -63,14 +63,17 @@ def process_sent(sent):
 #     return text
 
 def remove_interjections(text):
-    #
-    interjections = ['Um', 'um', 'Uh', 'uh', 'Eh', 'eh', 'Ehm', 'Em', 'em', 'Mmm', 'mmm',
-                     'ah', 'Ah', 'Aah', 'aah', 'hmm', 'hmmm', 'Hmm', 'Hmmm', 'inaudible', 'Inaudible']
+    """
+    @author: by Dr. Caro Nettekoven, 2020
+    Note: The interjections removed by this funciton are specific for English. Applying this to other languages may cause problems (For example in German "um" is a presposition)
+    """
+    english_interjections = ['Um', 'um', 'Uh', 'uh', 'Eh', 'eh', 'Ehm', 'Em', 'em', 'Mmm', 'mmm',
+                             'ah', 'Ah', 'Aah', 'aah', 'hmm', 'hmmm', 'Hmm', 'Hmmm', 'inaudible', 'Inaudible']
     #
     sent2 = expand_contractions(text)  # expand contractions
     tokens = nltk.word_tokenize(sent2)
     # remove interjections
-    tokens = [w for w in tokens if not w in interjections]
+    tokens = [w for w in tokens if not w in english_interjections]
     sent3 = ' '.join(tokens)
     return sent3
 
