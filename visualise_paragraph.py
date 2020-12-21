@@ -60,7 +60,7 @@ input_file = op.join(
 with open(input_file, 'r') as fh:
     orig_text = fh.read()
 
-orig_text = 'we show images to patients and ask them to describe them'
+# orig_text = 'we show images to patients and ask them to describe them'
 # ------------------------------------------------------------------------------
 # ------- Clean text -------
 # Need to replace problematic symbols before ANYTHING ELSE, because other tools cannot work with problematic symbols
@@ -109,42 +109,65 @@ for i, sentence in enumerate(ex_stanza.sentence):
 # Find edges and edge labels extracted by OpenIE5
 ollie_edges = []
 ollie_edges_text_excerpts = []
+ollie_one_node_edges = []
+ollie_one_node_edges_text_excerpts = []
 # Create nodes and edges
 for e, extract_val in enumerate(list(ex_ollie.values())):
     if extract_val != []:
         for extract in extract_val:
-            # print(e, extract)
+            # Get node 1
             node1 = extract['extraction']['arg1']['text']
-            node2 = ''
-            # Concatenate all text of argument 2
-            for arg2_no, arg2 in enumerate(extract['extraction']['arg2s']):
-                # print(arg2_no, arg2['text'])
-                node2 = node2 + ' ' + arg2['text']
-                # print(node2)
-            # Add nodes (arg1, arg2 and relationship)
             node1 = node1.lower().strip()
-            node2 = node2.lower().strip()
+            # Get relation
             relation = extract['extraction']['rel']['text'].lower().strip()
-            edge_text = (' ').join([node1, relation, node2])
+            # Get additional info
             context = extract['extraction']['context']
             if context != None:
                 context = context['text']
-            # If edge has two nodes and is not duplicate of previous edge, add edge
-            if node2 != '' and edge_text not in ollie_edges_text_excerpts:
-                # ollie_edges.append([node1, node2])
-                ollie_edges_text_excerpts.append(edge_text)
-                a = (node1, node2, {'relation': relation,
-                                    'confidence': extract['confidence'],
-                                    'context': context,
-                                    'negated': extract['extraction']['negated'],
-                                    'passive': extract['extraction']['passive'],
-                                    'extractor': 'ollie',
-                                    'sentence': e
-                                    })
-                ollie_edges.append(a)
-            elif node2 == '':
-                print('Discarding edge without second node: \t  {} || {} '.format(
-                    node1, relation))
+            # Get node 2
+            node2 = ''
+            node2_args = []
+            #
+            # Concatenate all text of argument 2
+            for arg2_no, arg2 in enumerate(extract['extraction']['arg2s']):
+                # print(arg2_no, arg2['text'])
+                # node2 = node2 + ' ' + arg2['text']
+                node2_args.append(arg2['text'])
+                # print(node2)
+            edge_text = (' ').join([node1, relation])
+            if not node2_args:
+                ollie_one_node_edges_text_excerpts.append(edge_text)
+                a = (node1, '', {'relation': relation,
+                                 'confidence': extract['confidence'],
+                                 'context': context,
+                                 'negated': extract['extraction']['negated'],
+                                 'passive': extract['extraction']['passive'],
+                                 'extractor': 'ollie',
+                                 'sentence': e,
+                                 })
+                ollie_one_node_edges.append(a)
+            else:
+                node2 = node2_args[0]
+                node2_args.pop(0)
+                # Add nodes (arg1, arg2 and relationship)
+                node2 = node2.lower().strip()
+                edge_text = (' ').join([node1, relation, node2])
+                # If edge has two nodes and is not duplicate of previous edge, add edge
+                if edge_text not in ollie_edges_text_excerpts:
+                    # ollie_edges.append([node1, node2])
+                    ollie_edges_text_excerpts.append(edge_text)
+                    a = (node1, node2, {'relation': relation,
+                                        'confidence': extract['confidence'],
+                                        'context': context,
+                                        'negated': extract['extraction']['negated'],
+                                        'passive': extract['extraction']['passive'],
+                                        'extractor': 'ollie',
+                                        'sentence': e,
+                                        'node2_args': node2_args
+                                        })
+                    ollie_edges.append(a)
+                    # print('Discarding edge without second node: \t  {} || {} '.format(
+                    # node1, relation))
 
 
 edges = ollie_edges
@@ -293,6 +316,55 @@ for idx_sentence, sentence in enumerate(ex_stanza.sentence):
 
 
 # ------------------------------------------------------------------------------
+# ------- Extract oblique relations -------
+# Get a list of obliques and track where they point to
+obliques = []
+oblique_edges = []
+
+for idx_sentence, sentence in enumerate(ex_stanza.sentence):
+    for word in sentence.enhancedDependencies.edge:
+        if word.dep.split(':')[0] == 'obl':
+            source_idx = word.source - 1
+            target_idx = word.target - 1
+            extractor_type = 'oblique'
+            oblique = word.dep.split(':')[1]
+            source_word = sentence.token[source_idx].originalText
+            target_word = sentence.token[target_idx].originalText
+            oblique_info = (source_word, target_word, {'relation': oblique,
+                                                       #    'confidence': None,
+                                                       #    'context': None,
+                                                       #    'negated': None,
+                                                       #    'passive': None,
+                                                       'extractor': extractor_type,
+                                                       'sentence': idx_sentence
+                                                       })
+            obliques.append(oblique)
+            oblique_edges.append(oblique_info)
+
+
+# ------------------------------------------------------------------------------
+# ------- Add oblique relations that were also extracted by ollie -------
+for o, oblique_edge in enumerate(oblique_edges):
+    oblique_edge_text = (' ').join(
+        [oblique_edge[2]['relation'], oblique_edge[1]])
+    for e, edge_info in enumerate(edges):
+        edge = edge_info[:2]
+        if edge_info[2]['relation'] == oblique_edge[0] and edge_info[2]['node2_args'][0] == oblique_edge_text:
+            print('{} : {} \t {} : {}'.format(
+                edge_info[2]['relation'], oblique_edge[0], edge_info[2]['node2_args'][0], oblique_edge_text))
+            new_oblique_edge = (edge[1], oblique_edge[1], {
+                'relation': oblique_edge[2]['relation'],
+                #    'confidence': None,
+                #    'context': None,
+                #    'negated': None,
+                #    'passive': None,
+                'extractor': 'oblique',
+                'sentence': oblique_edge[2]['sentence']
+            })
+            if new_oblique_edge not in edges:
+                edges.append(new_oblique_edge)
+
+# ------------------------------------------------------------------------------
 # ------- Find node name synonyms in coreference chain -------
 # Extract proper node name and alternative node names
 node_name_synonyms = {}
@@ -388,9 +460,9 @@ for e, edge_info in enumerate(edges):
                         p1_list.append(p1 not in x.split(' '))
                 if any(p1_list and p2_list):
                     print(preposition_edge)
-    edges[e] = tuple(new_edge)
-    if preposition_edge not in edges:
-        edges.append(preposition_edge)
+            edges[e] = tuple(new_edge)
+            if preposition_edge not in edges:
+                edges.append(preposition_edge)
 
 
 # ------------------------------------------------------------------------------
@@ -466,7 +538,7 @@ if add_adjective_edges:
 
 # --------------------------------------------------------------------------------------------
 # ------- Add all other preposition edges
-add_all_preposition_edges = False
+add_all_preposition_edges = True
 if add_all_preposition_edges:
     for preposition_edge in preposition_edges:
         if preposition_edge not in edges:
@@ -477,6 +549,7 @@ if add_all_preposition_edges:
 list_of_nodes = []
 for edge in edges:
     list_of_nodes.extend([edge[0], edge[1]])
+
 for orig_edge in orig_edges:
     list_of_nodes.extend([orig_edge[0], orig_edge[1]])
 

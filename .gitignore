@@ -136,3 +136,9 @@ corenlp_server-*
 
 # OpenIE 5.1 resources
 OpenIE-standalone/
+
+# Alternative POS tagging models
+alternative_pos_taggers/
+
+# Private scripts
+private/
