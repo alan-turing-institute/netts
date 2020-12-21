@@ -11,6 +11,7 @@
 # ------------------------------------------------------------------------------
 # source /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/venv/bin/activate
 # TO DO
+#   - Instead of merging all of the arg2s text together, take advantage of the separation of the second node into parts: is there an edge between the parts? If so, add that edge
 #   - Merge on either plural or singular nodes
 #   - Sanity check: Is each relation represented only once in the edge? (Also check parallel edges in multiedge graph)
 #   - Plot graphs coloured by confidence / extraction type
@@ -52,13 +53,14 @@ from nlp_helper_functions import expand_contractions, remove_interjections, repl
 
 # ------------------------------------------------------------------------------
 # Get sentence
-selected_file = 11
+selected_file = 2
 data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
 input_file = op.join(
     data_dir, 'Kings', 'Prolific_pilot_all_transcripts', files[selected_file])
 with open(input_file, 'r') as fh:
     orig_text = fh.read()
 
+orig_text = 'we show images to patients and ask them to describe them'
 # ------------------------------------------------------------------------------
 # ------- Clean text -------
 # Need to replace problematic symbols before ANYTHING ELSE, because other tools cannot work with problematic symbols
@@ -70,11 +72,17 @@ text = text.strip()  # remove trailing and leading whitespace
 # ------------------------------------------------------------------------------
 # ------- Run Stanford CoreNLP (Stanza) -------
 # Annotate and extract with Stanford CoreNLP
-with CoreNLPClient(
-        annotators=['tokenize', 'ssplit', 'pos', 'lemma',
-                    'ner', 'parse', 'depparse', 'coref', 'openie'],
-        timeout=30000,
-        memory='16G') as client:
+# with CoreNLPClient(
+#         annotators=['tokenize', 'ssplit', 'pos', 'lemma',
+#                     'ner', 'parse', 'depparse', 'coref', 'openie'],
+#         timeout=30000,
+#         memory='16G') as client:
+#     ex_stanza = client.annotate(text)
+
+with CoreNLPClient(properties={
+    'annotators': 'tokenize,ssplit,pos,lemma,ner,parse,depparse,coref,openie',
+    'pos.model': '/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/OpenIE-standalone/target/streams/$global/assemblyOption/$global/streams/assembly/8a3bd51fe5c1bb09a51f326fa358947f6dc78463_8e7f18d9ae73e8daf5ee4d4e11167e10f8827888_da39a3ee5e6b4b0d3255bfef95601890afd80709/edu/stanford/nlp/models/pos-tagger/english-bidirectional/english-bidirectional-distsim.tagger'
+}) as client:
     ex_stanza = client.annotate(text)
 
 
