@@ -139,6 +139,7 @@ OpenIE-standalone/
 
 # Alternative POS tagging models
 alternative_pos_taggers/
+alternative_corefs/
 
 # Private scripts
 private/
