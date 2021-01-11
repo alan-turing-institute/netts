@@ -1,4 +1,4 @@
-#!/Users/CN/Documents/Projects/Cambridge/language_analysis/venv python
+#!/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/venv python
 # ------------------------------------------------------------------------------
 # Script name:  visualise_paragraph.py
 #
@@ -11,7 +11,6 @@
 # ------------------------------------------------------------------------------
 # source /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/venv/bin/activate
 # TO DO
-#   - Instead of merging all of the arg2s text together, take advantage of the separation of the second node into parts: is there an edge between the parts? If so, add that edge
 #   - Merge on either plural or singular nodes
 #   - Sanity check: Is each relation represented only once in the edge? (Also check parallel edges in multiedge graph)
 #   - Plot graphs coloured by confidence / extraction type
@@ -344,25 +343,25 @@ for idx_sentence, sentence in enumerate(ex_stanza.sentence):
 
 # ------------------------------------------------------------------------------
 # ------- Add oblique relations that were also extracted by ollie -------
-for o, oblique_edge in enumerate(oblique_edges):
+for oblique_edge in oblique_edges:
     oblique_edge_text = (' ').join(
         [oblique_edge[2]['relation'], oblique_edge[1]])
-    for e, edge_info in enumerate(edges):
-        edge = edge_info[:2]
-        if edge_info[2]['relation'] == oblique_edge[0] and edge_info[2]['node2_args'][0] == oblique_edge_text:
-            print('{} : {} \t {} : {}'.format(
-                edge_info[2]['relation'], oblique_edge[0], edge_info[2]['node2_args'][0], oblique_edge_text))
-            new_oblique_edge = (edge[1], oblique_edge[1], {
-                'relation': oblique_edge[2]['relation'],
-                #    'confidence': None,
-                #    'context': None,
-                #    'negated': None,
-                #    'passive': None,
-                'extractor': 'oblique',
-                'sentence': oblique_edge[2]['sentence']
-            })
-            if new_oblique_edge not in edges:
-                edges.append(new_oblique_edge)
+    for edge_info in edges:
+        if not edge_info[2]['node2_args'] == []:
+            if edge_info[2]['relation'] == oblique_edge[0] and edge_info[2]['node2_args'][0] == oblique_edge_text:
+                print('{} : {} \t {} : {}'.format(
+                    edge_info[2]['relation'], oblique_edge[0], edge_info[2]['node2_args'][0], oblique_edge_text))
+                new_oblique_edge = (edge_info[1], oblique_edge[1], {
+                    'relation': oblique_edge[2]['relation'],
+                    #    'confidence': None,
+                    #    'context': None,
+                    #    'negated': None,
+                    #    'passive': None,
+                    'extractor': 'oblique',
+                    'sentence': oblique_edge[2]['sentence']
+                })
+                if new_oblique_edge not in edges:
+                    edges.append(new_oblique_edge)
 
 # ------------------------------------------------------------------------------
 # ------- Find node name synonyms in coreference chain -------
