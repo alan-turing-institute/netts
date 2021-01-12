@@ -56,11 +56,8 @@ def create_edges_ollie(ex_ollie):
                 node2_args = []
                 #
                 # Concatenate all text of argument 2
-                for arg2_no, arg2 in enumerate(extract['extraction']['arg2s']):
-                    # print(arg2_no, arg2['text'])
-                    # node2 = node2 + ' ' + arg2['text']
+                for arg2 in extract['extraction']['arg2s']:
                     node2_args.append(arg2['text'])
-                    # print(node2)
                 edge_text = (' ').join([node1, relation])
                 if not node2_args:
                     ollie_one_node_edges_text_excerpts.append(edge_text)
@@ -359,13 +356,12 @@ def get_node_synonyms(ex_stanza, no_noun):
 # ------- Split nodes in node_name_synonyms -------
 # splits nodes that are joined by preposition and adds preposition edge to graph
 def split_node_synonyms(node_name_synonyms, preposition_edges, edges):
-    for p, preposition_edge in enumerate(preposition_edges):
+    for preposition_edge in preposition_edges:
         preposition = preposition_edge[2]['relation']
         for proper_nn in list(node_name_synonyms.keys()):
             if preposition in proper_nn:
                 part1 = proper_nn.split(preposition)[0].strip()
-                part2 = proper_nn.split(preposition)[1].strip()
-                # print(proper_nn.split(preposition))
+                # part2 = proper_nn.split(preposition)[1].strip()
                 node_name_synonyms[part1] = node_name_synonyms.pop(
                     proper_nn)  # Set first part of preposition-joined node name as name
                 edges.append(preposition_edge)
@@ -386,10 +382,10 @@ def split_nodes(edges, preposition_edges, no_noun):
         other_edges = list(chain.from_iterable(other_edges))
         for n, node in enumerate(edge):
             # Test if node includes preposition
-            for p, preposition_edge in enumerate(preposition_edges):
+            for preposition_edge in preposition_edges:
                 preposition = preposition_edge[2]['relation']
-                preposition_match_idx = [m for m, match in enumerate(
-                    node.split(' ')) if preposition == match]
+                # preposition_match_idx = [m for m, match in enumerate(
+                #     node.split(' ')) if preposition == match]
                 match_idx = []
                 match_idx = [m for m, match in enumerate(
                     node.split(' ')) if preposition == match and m > 1]
@@ -509,8 +505,6 @@ def add_adj_edges(edges, adjective_edges, add_adjective_edges):
     return edges
 
 
-# edges = add_adj_edges(edges, adjective_edges, add_adjective_edges=True)
-
 # --------------------------------------------------------------------------------------------
 # ------- Add all other preposition edges
 
@@ -538,7 +532,7 @@ def get_unconnected_nodes(edges, orig_edges, nouns):
     # # ------------------------------------------------------------------------------
     # ------- Get list of unconnected nodes -------
     unconnected_nodes = []
-    for n, noun in enumerate(nouns):
+    for noun in nouns:
         node_is_in_network = any(noun.lower() in node.lower()
                                  for node in list_of_nodes)
         if not node_is_in_network:
