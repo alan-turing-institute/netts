@@ -90,8 +90,8 @@ def create_edges_ollie(ex_ollie):
                                             'node2_args': node2_args
                                             })
                         ollie_edges.append(a)
-                        # print('Discarding edge without second node: \t  {} || {} '.format(
-                        # node1, relation))
+                        print('  {} | {} | {}'.format(
+                            node1, relation, node2))
     print('++++ Created {} edges (ollie) ++++'.format(len(ollie_edges)))
     return ollie_edges, ollie_edges_text_excerpts, ollie_one_node_edges, ollie_one_node_edges_text_excerpts
 
@@ -117,7 +117,9 @@ def create_edges_stanza(ex_stanza):
             stanza_edges.append(a)
             stanza_edges_text_excerpts.append(
                 (' ').join([node1, relation, node2]))
-    print('++++ Created {} edges (stanza) ++++'.format(len(stanza_edges)))
+            print('  {} | {} | {}'.format(
+                node1, relation, node2))
+    # print('++++ Created {} edges (stanza) ++++'.format(len(stanza_edges)))
     return stanza_edges, stanza_edges_text_excerpts
 
 # ------------------------------------------------------------------------------
@@ -181,8 +183,8 @@ def get_adj_edges(ex_stanza):
                 # if sentence.token[target_idx].pos == ""
                 # print('{}'.format((' ').join(
                 #     [token.word.lower() for token in sentence.token if token.word.lower()])))
-                print(' {} {} {}'.format(
-                    sentence.token[source_idx].word.lower(), relation, sentence.token[target_idx].word.lower()))
+                print(' {} | {} | {}'.format(
+                    source_word, relation, target_word))
                 adjective_info = (source_word, target_word, {'relation': relation,
                                                              #    'confidence': None,
                                                              #    'context': None,
@@ -220,9 +222,11 @@ def get_prep_edges(ex_stanza):
                 target_word = sentence.token[target_idx].word.lower()
                 # print('{}'.format((' ').join(
                 #     [token.word.lower() for token in sentence.token if token.word.lower()])))
-                # print(' {} {} {}'.format(
+                # print('  {} | {} | {}'.format(
                 #     sentence.token[source_idx].word.lower(), preposition, sentence.token[target_idx].word.lower()))
                 # Do not extract "kind of". Leads to cluttering.
+                print('  {} | {} | {}'.format(
+                    source_word, preposition, target_word))
                 if source_word != 'kind' and preposition != 'of':
                     preposition_info = (source_word, target_word, {'relation': preposition,
                                                                    #    'confidence': None,
@@ -258,6 +262,8 @@ def get_obl_edges(ex_stanza):
                 oblique = word.dep.split(':')[1]
                 source_word = sentence.token[source_idx].word.lower()
                 target_word = sentence.token[target_idx].word.lower()
+                print(' {} | {} | {}'.format(
+                    source_word, oblique, target_word))
                 oblique_info = (source_word, target_word, {'relation': oblique,
                                                            #    'confidence': None,
                                                            #    'context': None,
@@ -348,6 +354,8 @@ def get_node_synonyms(ex_stanza, no_noun):
                         proper_nn.append(token.lemma.lower())
                         continue
         node_name_synonyms[proper_nn[0]] = alt_nn
+    print('  {} : {} '.format(
+        proper_nn[0], alt_nn))
     print('++++ Obtained {} node synonyms ++++'.format(len(node_name_synonyms)))
     return node_name_synonyms
 
@@ -444,7 +452,7 @@ def merge_corefs(edges, node_name_synonyms, no_noun):
                         # Replace with proper node name if node is the same as proper node name
                         proper_node_name = list(node_name_synonyms.keys())[
                             list(node_name_synonyms.keys()).index(node_token)]
-                        print("Replace '{}' with '{}' in \t {}". format(
+                        print("Replaced '{}' with '{}' in {}". format(
                             node, proper_node_name, edge))
                         new_edge[n] = proper_node_name
                         found_match = True
@@ -455,7 +463,7 @@ def merge_corefs(edges, node_name_synonyms, no_noun):
                                 # Replace with proper node name if node is part of one of the alternative node names
                                 proper_node_name = list(
                                     node_name_synonyms.keys())[ann]
-                                print("Replace '{}' with '{}' in \t {}".format(
+                                print("Replaced '{}' with '{}' in {}".format(
                                     node, proper_node_name, edge))
                                 new_edge[n] = proper_node_name
                                 found_match = True

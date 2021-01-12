@@ -55,7 +55,7 @@ import time
 start_time = time.time()
 # ------------------------------------------------------------------------------
 # Get sentence
-selected_file = 1
+selected_file = 6
 data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
 input_file = op.join(
     data_dir, 'Kings', 'Prolific_pilot_all_transcripts', files[selected_file])
@@ -69,7 +69,6 @@ text = replace_problematic_symbols(orig_text)  # replace ’ with '
 text = expand_contractions(text)  # expand it's to it is
 text = remove_interjections(text)  # remove Ums and Mmms
 text = text.strip()  # remove trailing and leading whitespace
-
 # ------------------------------------------------------------------------------
 # ------- Run Stanford CoreNLP (Stanza) -------
 # Annotate and extract with Stanford CoreNLP
@@ -80,6 +79,9 @@ with CoreNLPClient(properties={
 }, be_quiet=True) as client:
     ex_stanza = client.annotate(text)
 
+# ------------------------------------------------------------------------------
+# ------- Print cleaned text -------
+print("\n+++ Paragraph: +++ \n\n %s \n\n+++++++++++++++++++" % (text))
 
 # ------------------------------------------------------------------------------
 # ------- Run OpenIE5 (Ollie) -------
@@ -98,7 +100,7 @@ for i, sentence in enumerate(ex_stanza.sentence):
     else:
         print('====== Skipping sentence {}: Sentence has too few tokens: "{}" ======='.format(i + 1, (' ').join(
             [token.originalText for token in sentence.token if token.originalText])))
-
+print('+++++++++++++++++++\n')
 # --------------------- Create ollie edges ---------------------------------------
 ollie_edges, ollie_edges_text_excerpts, ollie_one_node_edges, ollie_one_node_edges_text_excerpts = create_edges_ollie(
     ex_ollie)
@@ -146,7 +148,7 @@ edges = add_prep_edges(edges, preposition_edges,
 
 unconnected_nodes = get_unconnected_nodes(edges, orig_edges, nouns)
 # --------------------- Print execution time ---------------------------------------
-print("Process finished --- %s seconds ---" % (time.time() - start_time))
+print("Process finished in --- %s seconds ---" % (time.time() - start_time))
 # --------------------- Speech Graph ---------------------------------------
 # Construct Speech Graphs
 G = nx.MultiDiGraph()
