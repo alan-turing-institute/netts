@@ -11,7 +11,6 @@
 # ------------------------------------------------------------------------------
 # source /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/venv/bin/activate
 # TO DO
-#   - Merge on either plural or singular nodes
 #   - Sanity check: Is each relation represented only once in the edge? (Also check parallel edges in multiedge graph)
 #   - Plot graphs coloured by confidence / extraction type
 import networkx as nx
@@ -100,12 +99,6 @@ def create_edges_ollie(ex_ollie):
     return ollie_edges, ollie_edges_text_excerpts, ollie_one_node_edges, ollie_one_node_edges_text_excerpts
 
 
-# ollie_edges, ollie_edges_text_excerpts, ollie_one_node_edges, ollie_one_node_edges_text_excerpts = create_edges_ollie(
-#     ex_ollie)
-
-# edges = ollie_edges
-
-
 def create_edges_stanza(ex_stanza):
     # Find edges and edge labels extracted by Stanza OpeniIE
     stanza_edges = []
@@ -130,12 +123,11 @@ def create_edges_stanza(ex_stanza):
     print('++++ Created {} edges (stanza) ++++'.format(len(stanza_edges)))
     return stanza_edges, stanza_edges_text_excerpts
 
-
-# stanza_edges, stanza_edges_text_excerpts = create_edges_stanza(ex_stanza)
-
 # ------------------------------------------------------------------------------
 # ------- Get word types -------
 # First extract a list of determiners present in the text that need to be ignored when matching (You don't want to match "the picture" and "the dog" on "the")
+
+
 def get_word_types(ex_stanza):
     no_noun = []
     poss_pronouns = []
@@ -169,13 +161,7 @@ def get_word_types(ex_stanza):
     print('++++ Obtained word types ++++')
     return no_noun, poss_pronouns, dts, nouns, nouns_origtext, adjectives
 
-
-# no_noun, poss_pronouns, dts, nouns, nouns_origtext, adjectives = get_word_types(
-#     ex_stanza)
-
 # # ------- Extract adjective relations -------
-# for adjective_edge in adjective_edges:
-#     edges.append(adjective_edge)
 
 
 def get_adj_edges(ex_stanza):
@@ -214,8 +200,6 @@ def get_adj_edges(ex_stanza):
         print('++++ Created {} adj edges ++++'.format(len(adjective_edges)))
         return adjectives, adjective_edges
 
-
-# adjectives, adjective_edges = get_adj_edges(ex_stanza)
 # ------------------------------------------------------------------------------
 # ------- Extract preposition relations -------
 # Separate any preposition relations in node name synonyms
@@ -253,15 +237,16 @@ def get_prep_edges(ex_stanza):
                                                                    })
                     prepositions.append(preposition)
                     preposition_edges.append(preposition_info)
-    print('++++ Created {} perposition edges ++++'.format(len(preposition_edges)))
+    print('++++ Created {} preposition edges ++++'.format(len(preposition_edges)))
     return prepositions, preposition_edges
-
-
-# prepositions, preposition_edges = get_prep_edges(ex_stanza)
 
 # ------------------------------------------------------------------------------
 # ------- Extract oblique relations -------
 # Get a list of obliques and track where they point to
+# N.B. The oblique relation is used for a nominal (noun, pronoun, noun phrase) functioning as a non-core (oblique) argument or adjunct.
+# This means that it functionally corresponds to an adverbial attaching to a verb, adjective or other adverb.
+# More info: https://universaldependencies.org/u/dep/obl.html
+# Example: 'The cat was chased by the dog.' Cat --obl--> dog
 
 
 def get_obl_edges(ex_stanza):
@@ -288,9 +273,6 @@ def get_obl_edges(ex_stanza):
                 oblique_edges.append(oblique_info)
     print('++++ Created {} oblique edges ++++'.format(len(oblique_edges)))
     return obliques, oblique_edges
-
-
-# obliques, oblique_edges = get_obl_edges(ex_stanza)
 
 # ------------------------------------------------------------------------------
 # ------- Add oblique relations that were also extracted by ollie -------
@@ -321,11 +303,6 @@ def add_obl_edges(edges, oblique_edges):
                         edges.append(new_oblique_edge)
     print('++++ Added {} oblique edges. Total edges: {} ++++'.format(len(oblique_edges), len(edges)))
     return edges
-
-
-# add_obl_edges(edges, oblique_edges)
-
-# edges = add_obl_edges(edges, oblique_edges)
 
 # ------------------------------------------------------------------------------
 # ------- Find node name synonyms in coreference chain -------
@@ -378,9 +355,6 @@ def get_node_synonyms(ex_stanza, no_noun):
     return node_name_synonyms
 
 
-# node_name_synonyms = get_node_synonyms(ex_stanza, no_noun)
-
-
 # --------------------------------------------------------------------------------------------
 # ------- Split nodes in node_name_synonyms -------
 # splits nodes that are joined by preposition and adds preposition edge to graph
@@ -398,9 +372,6 @@ def split_node_synonyms(node_name_synonyms, preposition_edges, edges):
     print('++++ Split node name synonyms on prepositions. ++++')
     return edges, node_name_synonyms
 
-
-# edges, node_name_synonyms = split_node_synonyms(
-#     node_name_synonyms, preposition_edges, edges)
 
 # --------------------------------------------------------------------------------------------
 # ------- Split nodes in edges -------
@@ -451,7 +422,6 @@ def split_nodes(edges, preposition_edges, no_noun):
     return edges
 
 
-# edges = split_nodes(edges, preposition_edges)
 # ------------------------------------------------------------------------------
 # ------- Merge coreferenced nodes -------
 # Merge nodes that are separate mentions of the same entity using the coreference relations chain
@@ -478,7 +448,7 @@ def merge_corefs(edges, node_name_synonyms, no_noun):
                         # Replace with proper node name if node is the same as proper node name
                         proper_node_name = list(node_name_synonyms.keys())[
                             list(node_name_synonyms.keys()).index(node_token)]
-                        print("Replace \t '{}' \t\t with \t\t'{}' in {}". format(
+                        print("Replace '{}' with '{}' in \t {}". format(
                             node, proper_node_name, edge))
                         new_edge[n] = proper_node_name
                         found_match = True
@@ -489,7 +459,7 @@ def merge_corefs(edges, node_name_synonyms, no_noun):
                                 # Replace with proper node name if node is part of one of the alternative node names
                                 proper_node_name = list(
                                     node_name_synonyms.keys())[ann]
-                                print("Replace \t '{}' \t\t with \t\t'{}' in {}".format(
+                                print("Replace '{}' with '{}' in \t {}".format(
                                     node, proper_node_name, edge))
                                 new_edge[n] = proper_node_name
                                 found_match = True
@@ -499,8 +469,6 @@ def merge_corefs(edges, node_name_synonyms, no_noun):
     print('++++ Merged nodes that are referenced several times. ++++')
     return edges, orig_edges
 
-
-# edges, orig_edges = merge_corefs(edges, node_name_synonyms)
 
 # --------------------------------------------------------------------------------------------
 # ------- Clean nodes -------
@@ -529,8 +497,6 @@ def clean_nodes(edges, nouns, adjectives):
     return edges
 
 
-# edges = clean_nodes(edges)
-
 # --------------------------------------------------------------------------------------------
 # ------- Add adjective edges
 
@@ -558,10 +524,6 @@ def add_prep_edges(edges, preposition_edges, add_all_preposition_edges):
     return edges
 
 
-# edges = add_prep_edges(edges, preposition_edges,
-#                        add_all_preposition_edges=True)
-
-
 # --------------------------------------------------------------------------------------------
 # ------- Get list of connected and unconnected nodes -------
 
@@ -583,6 +545,3 @@ def get_unconnected_nodes(edges, orig_edges, nouns):
             unconnected_nodes.append(noun)
     print('++++ Obtained unconnected nodes ++++')
     return unconnected_nodes
-
-
-# unconnected_nodes = get_unconnected_nodes(edges, orig_edges)

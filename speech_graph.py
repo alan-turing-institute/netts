@@ -11,7 +11,6 @@
 # ------------------------------------------------------------------------------
 # source /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/venv/bin/activate
 # TO DO
-#   - Merge on either plural or singular nodes
 #   - Sanity check: Is each relation represented only once in the edge? (Also check parallel edges in multiedge graph)
 #   - Plot graphs coloured by confidence / extraction type
 
@@ -50,9 +49,13 @@ from itertools import chain
 import numpy as np
 from nlp_helper_functions import expand_contractions, remove_interjections, replace_problematic_symbols, process_sent, files
 from visualise_paragraph_functions import create_edges_ollie, create_edges_stanza, get_word_types, get_adj_edges, get_prep_edges, get_obl_edges, add_obl_edges, get_node_synonyms, split_node_synonyms, split_nodes, merge_corefs, clean_nodes, add_adj_edges, add_prep_edges, get_unconnected_nodes
+import time
+# ------------------------------------------------------------------------------
+# Time execution of script
+start_time = time.time()
 # ------------------------------------------------------------------------------
 # Get sentence
-selected_file = 8
+selected_file = 1
 data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
 input_file = op.join(
     data_dir, 'Kings', 'Prolific_pilot_all_transcripts', files[selected_file])
@@ -142,6 +145,8 @@ edges = add_prep_edges(edges, preposition_edges,
                        add_all_preposition_edges=True)
 
 unconnected_nodes = get_unconnected_nodes(edges, orig_edges, nouns)
+# --------------------- Print execution time ---------------------------------------
+print("Process finished --- %s seconds ---" % (time.time() - start_time))
 # --------------------- Speech Graph ---------------------------------------
 # Construct Speech Graphs
 G = nx.MultiDiGraph()
@@ -159,21 +164,21 @@ plt.axis('off')
 plt.show()
 
 
-# MultiDiGraph
-G = nx.MultiDiGraph()
-G.add_edges_from(edges)
-font_size = 10
-node_size = 2000
-add_unconnected_nodes = False
-if add_unconnected_nodes:
-    G.add_nodes_from(unconnected_nodes)  # Add unconnected nodes
+# # MultiDiGraph
+# G = nx.MultiDiGraph()
+# G.add_edges_from(edges)
+# font_size = 10
+# node_size = 2000
+# add_unconnected_nodes = False
+# if add_unconnected_nodes:
+#     G.add_nodes_from(unconnected_nodes)  # Add unconnected nodes
 
-pos = nx.spring_layout(G)
-nx.draw(G, pos, with_labels=True, edge_color='black',
-        node_color='pink', connectionstyle='arc3, rad = 0.1', font_size=font_size, node_size=node_size)
-edge_labels = dict([((u, v,), d['relation'])
-                    for u, v, d in G.edges(data=True)])
-nx.draw_networkx_edge_labels(
-    G, pos, edge_labels=edge_labels, font_color='black', font_size=font_size)
-figure = plt.gcf()
-plt.show()
+# pos = nx.spring_layout(G)
+# nx.draw(G, pos, with_labels=True, edge_color='black',
+#         node_color='pink', connectionstyle='arc3, rad = 0.1', font_size=font_size, node_size=node_size)
+# edge_labels = dict([((u, v,), d['relation'])
+#                     for u, v, d in G.edges(data=True)])
+# nx.draw_networkx_edge_labels(
+#     G, pos, edge_labels=edge_labels, font_color='black', font_size=font_size)
+# figure = plt.gcf()
+# plt.show()
