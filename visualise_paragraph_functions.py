@@ -131,14 +131,11 @@ def create_edges_stanza(ex_stanza):
     return stanza_edges, stanza_edges_text_excerpts
 
 
-
 # stanza_edges, stanza_edges_text_excerpts = create_edges_stanza(ex_stanza)
 
 # ------------------------------------------------------------------------------
 # ------- Get word types -------
 # First extract a list of determiners present in the text that need to be ignored when matching (You don't want to match "the picture" and "the dog" on "the")
-
-
 def get_word_types(ex_stanza):
     no_noun = []
     poss_pronouns = []
@@ -152,15 +149,15 @@ def get_word_types(ex_stanza):
             if token.pos == "PRP" or token.pos == "NN" or token.pos == "NNS":
                 if token.lemma not in nouns:
                     nouns.append(token.lemma)
-                    nouns_origtext.append(token.originalText)
+                    nouns_origtext.append(token.word.lower())
             # Add everything that is not noun to list of words that should not get merged on later
             else:
                 if token.lemma not in no_noun:
                     # print(token.lemma, ' \t', token.pos)
                     if token.pos == "PRP$":
                         # Lemma for poss pronoun 'his' is 'he', but 'he' counts as noun, therefore add orginial text for poss pronoun
-                        no_noun.append(token.originalText)
-                        poss_pronouns.append(token.originalText)
+                        no_noun.append(token.word.lower())
+                        poss_pronouns.append(token.word.lower())
                     else:
                         no_noun.append(token.lemma)
                 # get determiners
@@ -191,18 +188,18 @@ def get_adj_edges(ex_stanza):
                 source_idx = word.source - 1
                 target_idx = word.target - 1
                 # Test if source word is plural
-                if sentence.token[source_idx].lemma == sentence.token[source_idx].originalText:
+                if sentence.token[source_idx].lemma == sentence.token[source_idx].word.lower():
                     relation = 'is'
                 else:
                     relation = 'are'
                 relation = '(' + relation + ')'
-                source_word = sentence.token[source_idx].originalText
-                target_word = sentence.token[target_idx].originalText
+                source_word = sentence.token[source_idx].word.lower()
+                target_word = sentence.token[target_idx].word.lower()
                 # if sentence.token[target_idx].pos == ""
                 # print('{}'.format((' ').join(
-                #     [token.originalText for token in sentence.token if token.originalText])))
+                #     [token.word.lower() for token in sentence.token if token.word.lower()])))
                 print(' {} {} {}'.format(
-                    sentence.token[source_idx].originalText, relation, sentence.token[target_idx].originalText))
+                    sentence.token[source_idx].word.lower(), relation, sentence.token[target_idx].word.lower()))
                 adjective_info = (source_word, target_word, {'relation': relation,
                                                              #    'confidence': None,
                                                              #    'context': None,
@@ -238,12 +235,12 @@ def get_prep_edges(ex_stanza):
                 if preposition == 'poss':
                     preposition = '(of) [poss]'
                     extractor_type = 'possession'
-                source_word = sentence.token[source_idx].originalText
-                target_word = sentence.token[target_idx].originalText
+                source_word = sentence.token[source_idx].word.lower()
+                target_word = sentence.token[target_idx].word.lower()
                 # print('{}'.format((' ').join(
-                #     [token.originalText for token in sentence.token if token.originalText])))
+                #     [token.word.lower() for token in sentence.token if token.word.lower()])))
                 # print(' {} {} {}'.format(
-                #     sentence.token[source_idx].originalText, preposition, sentence.token[target_idx].originalText))
+                #     sentence.token[source_idx].word.lower(), preposition, sentence.token[target_idx].word.lower()))
                 # Do not extract "kind of". Leads to cluttering.
                 if source_word != 'kind' and preposition != 'of':
                     preposition_info = (source_word, target_word, {'relation': preposition,
@@ -277,8 +274,8 @@ def get_obl_edges(ex_stanza):
                 target_idx = word.target - 1
                 extractor_type = 'oblique'
                 oblique = word.dep.split(':')[1]
-                source_word = sentence.token[source_idx].originalText
-                target_word = sentence.token[target_idx].originalText
+                source_word = sentence.token[source_idx].word.lower()
+                target_word = sentence.token[target_idx].word.lower()
                 oblique_info = (source_word, target_word, {'relation': oblique,
                                                            #    'confidence': None,
                                                            #    'context': None,
@@ -341,10 +338,11 @@ def get_node_synonyms(ex_stanza, no_noun):
         proper_nn = []
         alt_nn = []
         for mention in coreference.mention:
+            mention_info = ex_stanza.sentence[mention.sentenceIndex].token[mention.beginIndex: mention.endIndex]
             if mention.mentionType == "NOMINAL" or mention.mentionType == "PROPER":
                 # Make the "proper" or "nominal" mention the node label
-                node_name_list = [node_part.lemma for node_part in ex_stanza.sentence[mention.sentenceIndex]
-                                  .token[mention.beginIndex: mention.endIndex] if not node_part.pos == 'PRP$']
+                node_name_list = [
+                    node_part.word.lower() for node_part in mention_info if not node_part.pos == 'PRP$']
                 # Concatenate node names that consist of several tokens
                 if len(node_name_list) > 1:
                     node_name = (' ').join(node_name_list)
@@ -355,22 +353,25 @@ def get_node_synonyms(ex_stanza, no_noun):
                 if node_name not in proper_nn:
                     proper_nn.append(node_name)
             else:
-                alternative_node_name = [node_part.lemma for node_part in ex_stanza.sentence[mention.sentenceIndex]
-                                         .token[mention.beginIndex: mention.endIndex] if node_part.lemma not in no_noun]
+                alternative_node_name = [
+                    node_part.word.lower() for node_part in mention_info if node_part.word.lower() not in no_noun]
                 if len(alternative_node_name) > 1:
                     alternative_node_name = (' ').join(alternative_node_name)
                 elif alternative_node_name != []:
                     alternative_node_name = alternative_node_name[0]
-                elif alternative_node_name == []:
-                    continue
+                elif alternative_node_name == [] and len(mention_info) == 1 and mention_info[0].pos[0:3] == 'PRP':
+                    # Mentions that only consist of one possessive pronoun are still valid mentions ("my"/"me" should be merged with "I").
+                    # (But mentions that consist of a pronoun plus another noun should be cleaned of the pronoun ("his hands" should only be merged with another mention of "hands", and not with another mention of "him").)
+                    alternative_node_name = mention_info[0].word.lower()
                 #
                 # Keep track of sentence the reference appeared in
                 alt_nn.append((mention.sentenceIndex, alternative_node_name))
         if proper_nn == []:
             for mention in coreference.mention:
-                for token in ex_stanza.sentence[mention.sentenceIndex].token[mention.beginIndex: mention.endIndex]:
-                    if token.lemma == token.originalText:
-                        proper_nn.append(token.originalText)
+                mention_info = ex_stanza.sentence[mention.sentenceIndex].token[mention.beginIndex: mention.endIndex]
+                for token in mention_info:
+                    if token.lemma.lower() == token.word.lower():
+                        proper_nn.append(token.lemma.lower())
                         continue
         node_name_synonyms[proper_nn[0]] = alt_nn
     print('++++ Obtained {} node synonyms ++++'.format(len(node_name_synonyms)))
@@ -416,7 +417,6 @@ def split_nodes(edges, preposition_edges, no_noun):
             # Test if node includes preposition
             for p, preposition_edge in enumerate(preposition_edges):
                 preposition = preposition_edge[2]['relation']
-                preposition_match_idx = []
                 preposition_match_idx = [m for m, match in enumerate(
                     node.split(' ')) if preposition == match]
                 match_idx = []

@@ -74,7 +74,7 @@ text = text.strip()  # remove trailing and leading whitespace
 with CoreNLPClient(properties={
     'annotators': 'tokenize,ssplit,pos,lemma,ner,parse,depparse,coref,openie',
     'pos.model': '/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/OpenIE-standalone/target/streams/$global/assemblyOption/$global/streams/assembly/8a3bd51fe5c1bb09a51f326fa358947f6dc78463_8e7f18d9ae73e8daf5ee4d4e11167e10f8827888_da39a3ee5e6b4b0d3255bfef95601890afd80709/edu/stanford/nlp/models/pos-tagger/english-bidirectional/english-bidirectional-distsim.tagger'
-}, be_quiet = True) as client:
+}, be_quiet=True) as client:
     ex_stanza = client.annotate(text)
 
 
@@ -106,8 +106,11 @@ stanza_edges, stanza_edges_text_excerpts = create_edges_stanza(ex_stanza)
 # --------------------- Get word types ---------------------------------------
 no_noun, poss_pronouns, dts, nouns, nouns_origtext, adjectives = get_word_types(
     ex_stanza)
+
 adjectives, adjective_edges = get_adj_edges(ex_stanza)
+
 prepositions, preposition_edges = get_prep_edges(ex_stanza)
+
 obliques, oblique_edges = get_obl_edges(ex_stanza)
 # --------------------- Add oblique edges ---------------------------------------
 edges = add_obl_edges(edges, oblique_edges)
@@ -116,15 +119,28 @@ node_name_synonyms = get_node_synonyms(ex_stanza, no_noun)
 # --------------------- Split nodes connected by preposition ---------------------------------------
 edges, node_name_synonyms = split_node_synonyms(
     node_name_synonyms, preposition_edges, edges)
+
 edges = split_nodes(edges, preposition_edges, no_noun)
 # --------------------- Merge coreferenced nodes ---------------------------------------
 edges, orig_edges = merge_corefs(edges, node_name_synonyms, no_noun)
+
+preposition_edges, orig_preposition_edges = merge_corefs(
+    preposition_edges, node_name_synonyms, no_noun)
+
+adjective_edges, orig_adjective_edges = merge_corefs(
+    adjective_edges, node_name_synonyms, no_noun)
+
+oblique_edges, orig_oblique_edges = merge_corefs(
+    oblique_edges, node_name_synonyms, no_noun)
+
 # --------------------- Clean nodes ---------------------------------------
 edges = clean_nodes(edges, nouns, adjectives)
 # --------------------- Add adjective edges / preposition edges / unconnected nodes ---------------------------------------
 edges = add_adj_edges(edges, adjective_edges, add_adjective_edges=True)
+
 edges = add_prep_edges(edges, preposition_edges,
                        add_all_preposition_edges=True)
+
 unconnected_nodes = get_unconnected_nodes(edges, orig_edges, nouns)
 # --------------------- Speech Graph ---------------------------------------
 # Construct Speech Graphs
