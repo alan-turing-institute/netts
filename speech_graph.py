@@ -55,7 +55,7 @@ import time
 start_time = time.time()
 # ------------------------------------------------------------------------------
 # Get sentence
-selected_file = 6
+selected_file = 1
 data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
 input_file = op.join(
     data_dir, 'Kings', 'Prolific_pilot_all_transcripts', files[selected_file])
@@ -127,19 +127,20 @@ edges, node_name_synonyms = split_node_synonyms(
 
 edges = split_nodes(edges, preposition_edges, no_noun)
 # --------------------- Merge coreferenced nodes ---------------------------------------
-edges, orig_edges = merge_corefs(edges, node_name_synonyms, no_noun)
+edges, orig_edges = merge_corefs(
+    edges, node_name_synonyms, no_noun, poss_pronouns)
 
 preposition_edges, orig_preposition_edges = merge_corefs(
-    preposition_edges, node_name_synonyms, no_noun)
+    preposition_edges, node_name_synonyms, no_noun, poss_pronouns)
 
 adjective_edges, orig_adjective_edges = merge_corefs(
-    adjective_edges, node_name_synonyms, no_noun)
+    adjective_edges, node_name_synonyms, no_noun, poss_pronouns)
 
 oblique_edges, orig_oblique_edges = merge_corefs(
-    oblique_edges, node_name_synonyms, no_noun)
+    oblique_edges, node_name_synonyms, no_noun, poss_pronouns)
 
 # --------------------- Clean nodes ---------------------------------------
-edges = clean_nodes(edges, nouns, adjectives)
+# edges = clean_nodes(edges, nouns, adjectives)
 # --------------------- Add adjective edges / preposition edges / unconnected nodes ---------------------------------------
 edges = add_adj_edges(edges, adjective_edges, add_adjective_edges=True)
 
@@ -160,6 +161,7 @@ nx.draw(G, pos, edge_color='black', width=1, linewidths=1,
         labels={node: node for node in G.nodes()})
 edge_labels = dict([((u, v,), d['relation'])
                     for u, v, d in G.edges(data=True)])
+
 nx.draw_networkx_edge_labels(
     G, pos, edge_labels=edge_labels, font_color='red')
 plt.axis('off')

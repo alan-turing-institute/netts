@@ -227,7 +227,8 @@ def get_prep_edges(ex_stanza):
                 # Do not extract "kind of". Leads to cluttering.
                 print('  {} | {} | {}'.format(
                     source_word, preposition, target_word))
-                if source_word != 'kind' and preposition != 'of':
+                invalid_preposition_edges = ['kind of', 'sort of', 'type of']
+                if (' ').join([source_word, preposition]) not in invalid_preposition_edges:
                     preposition_info = (source_word, target_word, {'relation': preposition,
                                                                    #    'confidence': None,
                                                                    #    'context': None,
@@ -332,6 +333,8 @@ def get_node_synonyms(ex_stanza, no_noun):
                 # Append proper node name only if it is different from all other proper node names
                 if node_name not in proper_nn:
                     proper_nn.append(node_name)
+                    alt_nn.append(
+                        (mention.sentenceIndex, node_name))
             else:
                 alternative_node_name = [
                     node_part.word.lower() for node_part in mention_info if node_part.word.lower() not in no_noun]
@@ -395,6 +398,7 @@ def split_nodes(edges, preposition_edges, no_noun):
                 # preposition_match_idx = [m for m, match in enumerate(
                 #     node.split(' ')) if preposition == match]
                 match_idx = []
+                # Split on preposition
                 match_idx = [m for m, match in enumerate(
                     node.split(' ')) if preposition == match and m > 1]
                 if match_idx != []:
@@ -419,6 +423,16 @@ def split_nodes(edges, preposition_edges, no_noun):
                             p1_list.append(p1 not in x.split(' '))
                     if any(p1_list and p2_list):
                         print(preposition_edge)
+                # Split on implied preposition (if edge is possessive pronoun edge: 'their hats' => 'their' --(of)[poss]--> 'hats')
+                elif match_idx == [] and '[poss]' in preposition and len(node.split(' ')) > 1:
+                    match_idx = [m for m, match in enumerate(node.split(
+                        ' ')) if match == preposition_edge[1] and node.split(' ')[m + 1] == preposition_edge[0]]
+                    if match_idx != []:
+                        m = match_idx[0]
+                        part1 = (' ').join(node.split(' ')[:m + 1]).strip()
+                        part2 = (' ').join(node.split(' ')[m + 1:]).strip()
+                        new_edge[n] = part1
+                        print(part1, ' \t\t|\t ', part2)
                 edges[e] = tuple(new_edge)
                 if preposition_edge not in edges:
                     edges.append(preposition_edge)
@@ -433,7 +447,7 @@ def split_nodes(edges, preposition_edges, no_noun):
 # Method: test if node text appears in list of alternative node names or is part of the proper node name and replace with the full proper node name
 
 
-def merge_corefs(edges, node_name_synonyms, no_noun):
+def merge_corefs(edges, node_name_synonyms, no_noun, poss_pronouns):
     orig_edges = deepcopy(edges)
     for e, edge_info in enumerate(edges):
         # print(e, edge)
@@ -446,8 +460,11 @@ def merge_corefs(edges, node_name_synonyms, no_noun):
             for node_token in node.split(' '):
                 if found_match == False:
                     if node_token in no_noun:
-                        # If token is anything other than a noun, move on to the next one.
-                        continue
+                        if node_token in poss_pronouns and len(node.split(' ')) == 1:
+                            pass  # Continue searching for match of a non-noun word if this node only consists of a pronoun
+                        else:
+                            # If token is anything other than a noun or a possessive pronoun, move on to the next token.
+                            continue
                     elif node_token in list(node_name_synonyms.keys()):
                         # Replace with proper node name if node is the same as proper node name
                         proper_node_name = list(node_name_synonyms.keys())[
@@ -459,21 +476,34 @@ def merge_corefs(edges, node_name_synonyms, no_noun):
                     for ann, alternative_mentions in enumerate(list(node_name_synonyms.values())):
                         for sentence_idx_mention, mention in alternative_mentions:
                             # print(sentence_idx_mention, mention)
-                            if node_token == mention and sentence_idx_edge == sentence_idx_mention:
-                                # Replace with proper node name if node is part of one of the alternative node names
-                                proper_node_name = list(
-                                    node_name_synonyms.keys())[ann]
-                                print("Replaced '{}' with '{}' in {}".format(
-                                    node, proper_node_name, edge))
-                                new_edge[n] = proper_node_name
-                                found_match = True
+                            for mention_part in mention.split(' '):
+                                if mention_part == node_token and sentence_idx_edge == sentence_idx_mention:
+                                    # Replace with proper node name if node is part of one of the alternative node names
+                                    proper_node_name = list(
+                                        node_name_synonyms.keys())[ann]
+                                    print("Replaced '{}' with '{}' in {}".format(
+                                        node, proper_node_name, edge))
+                                    new_edge[n] = proper_node_name
+                                    found_match = True
                 else:
-                    print('Moving on...')
+                    # print('Moving on...')
+                    pass
         edges[e] = tuple(new_edge)
     print('++++ Merged nodes that are referenced several times. ++++')
     return edges, orig_edges
 
 
+# for mention_part in mention.split(' '):
+#     if mention_part == node_token and sentence_idx_edge == sentence_idx_mention:
+#         proper_node_name = list(
+#             node_name_synonyms.keys())[ann]
+#         print("Replaced '{}' with '{}' in {}".format(
+#             node, proper_node_name, edge))
+#     else:
+#         proper_node_name = list(
+#             node_name_synonyms.keys())[ann]
+#         print("Does not match '{}' with '{}' in {}".format(
+#             node, proper_node_name, edge))
 # --------------------------------------------------------------------------------------------
 # ------- Clean nodes -------
 # Clean node names from determiners, adjectives and other nouns appearing after first noun in the node
