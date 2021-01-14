@@ -357,8 +357,7 @@ def get_node_synonyms(ex_stanza, no_noun):
                         proper_nn.append(token.lemma.lower())
                         continue
         node_name_synonyms[proper_nn[0]] = alt_nn
-    print('  {} : {} '.format(
-        proper_nn[0], alt_nn))
+    print(node_name_synonyms)
     print('++++ Obtained {} node synonyms ++++'.format(len(node_name_synonyms)))
     return node_name_synonyms
 
@@ -367,28 +366,34 @@ def get_node_synonyms(ex_stanza, no_noun):
 # ------- Split nodes in node_name_synonyms -------
 # splits nodes that are joined by preposition and adds preposition edge to graph
 def split_node_synonyms(node_name_synonyms, preposition_edges, edges):
-    keys = list(node_name_synonyms.keys())
-    values = list(node_name_synonyms.values())
     for preposition_edge in preposition_edges:
         preposition = preposition_edge[2]['relation']
+        keys = list(node_name_synonyms.keys())
+        values = list(node_name_synonyms.values())
         for proper_nn in keys:
-            if preposition in proper_nn:
+            if preposition in proper_nn.split(' '):
                 part1 = proper_nn.split(preposition)[0].strip()
                 # part2 = proper_nn.split(preposition)[1].strip()
                 node_name_synonyms[part1] = node_name_synonyms.pop(
                     proper_nn)  # Set first part of preposition-joined node name as name
+                for n, key in enumerate(keys):
+                    if key == proper_nn:
+                        keys[n] = part1
                 if preposition_edge not in edges:
                     edges.append(preposition_edge)
         for synonym_idx, alt_nns in enumerate(values):
-            print(synonym_idx, alt_nns)
+            # print(synonym_idx, alt_nns)
             for a, (sentence_idx, alt_nn) in enumerate(alt_nns):
                 # print(sentence_idx, alt_nn)
-                if preposition in alt_nn and sentence_idx == preposition_edge[2]['sentence']:
+                if preposition in alt_nn.split(' ') and sentence_idx == preposition_edge[2]['sentence']:
                     part1 = alt_nn.split(preposition)[0].strip()
-                    alt_nns_new = alt_nns[:a - 1] + \
-                        [(sentence_idx, part1)] + alt_nns[a:]
+                    alt_nns_new = alt_nns[:a] + \
+                        [(sentence_idx, part1)] + alt_nns[a + 1:]
                     # part2 = alt_nn.split(preposition)[1].strip()
                     node_name_synonyms[keys[synonym_idx]] = alt_nns_new
+                    for n, value in enumerate(values):
+                        if value == alt_nns:
+                            value[n] = alt_nns_new
                     if preposition_edge not in edges:
                         edges.append(preposition_edge)
     print('++++ Split node name synonyms on prepositions. ++++')

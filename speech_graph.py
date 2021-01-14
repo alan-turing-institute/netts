@@ -149,8 +149,6 @@ unconnected_nodes = get_unconnected_nodes(edges, orig_edges, nouns)
 
 # --------------------- Clean nodes ---------------------------------------
 edges = clean_nodes(edges, nouns, adjectives)
-# --------------------- Print execution time ---------------------------------------
-print("Process finished in --- %s seconds ---" % (time.time() - start_time))
 # --------------------- Speech Graph ---------------------------------------
 # Construct Speech Graphs
 G = nx.MultiDiGraph()
@@ -166,6 +164,11 @@ edge_labels = dict([((u, v,), d['relation'])
 nx.draw_networkx_edge_labels(
     G, pos, edge_labels=edge_labels, font_color='red')
 plt.axis('off')
+# --------------------- Print resulting edges ---------------------------------------
+print("\n+++ Edges: +++ \n\n %s \n\n+++++++++++++++++++" % (edge_labels))
+# --------------------- Print execution time ---------------------------------------
+print("Process finished in --- %s seconds ---" % (time.time() - start_time))
+# --------------------- Show plot ---------------------------------------
 plt.show()
 
 
