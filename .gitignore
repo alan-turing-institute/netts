@@ -143,3 +143,9 @@ alternative_corefs/
 
 # Private scripts
 private/
+
+# Figure folder
+figures/
+
+# VScode settings
+.vscode/
