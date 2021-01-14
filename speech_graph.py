@@ -52,6 +52,7 @@ import numpy as np
 from nlp_helper_functions import expand_contractions, remove_interjections, replace_problematic_symbols, process_sent, files
 from visualise_paragraph_functions import create_edges_ollie, create_edges_stanza, get_word_types, get_adj_edges, get_prep_edges, get_obl_edges, add_obl_edges, get_node_synonyms, split_node_synonyms, split_nodes, merge_corefs, clean_nodes, add_adj_edges, add_prep_edges, get_unconnected_nodes
 import time
+import datetime
 # ------------------------------------------------------------------------------
 # Time execution of script
 start_time = time.time()
@@ -153,6 +154,9 @@ unconnected_nodes = get_unconnected_nodes(edges, orig_edges, nouns)
 # --------------------- Clean nodes ---------------------------------------
 edges = clean_nodes(edges, nouns, adjectives)
 # --------------------- Speech Graph ---------------------------------------
+fig = plt.figure(figsize=(25.6, 9.6))
+
+
 # Construct Speech Graphs
 G = nx.MultiDiGraph()
 # G = nx.Graph()
@@ -163,33 +167,20 @@ nx.draw(G, pos, edge_color='black', width=1, linewidths=1,
         labels={node: node for node in G.nodes()})
 edge_labels = dict([((u, v,), d['relation'])
                     for u, v, d in G.edges(data=True)])
-
 nx.draw_networkx_edge_labels(
     G, pos, edge_labels=edge_labels, font_color='red')
+
 plt.axis('off')
 # --------------------- Print resulting edges ---------------------------------------
 print("\n+++ Edges: +++ \n\n %s \n\n+++++++++++++++++++" % (edge_labels))
 # --------------------- Print execution time ---------------------------------------
-print("Process finished in --- %s seconds ---" % (time.time() - start_time))
+print("Processing transcript %s finished in --- %s seconds ---" %
+      (files[selected_file], time.time() - start_time))
+# --------------------- Save graph ---------------------------------------
+# # Initialize output
+output_dir = '/Users/CN/Dropbox/speech_graphs/'
+output = op.join(output_dir, 'SpeechGraph_{0:04d}_{1}'.format(
+    selected_file, str(datetime.date.today())))
+plt.savefig(output)
 # --------------------- Show plot ---------------------------------------
-plt.show()
-
-
-# # MultiDiGraph
-# G = nx.MultiDiGraph()
-# G.add_edges_from(edges)
-# font_size = 10
-# node_size = 2000
-# add_unconnected_nodes = False
-# if add_unconnected_nodes:
-#     G.add_nodes_from(unconnected_nodes)  # Add unconnected nodes
-
-# pos = nx.spring_layout(G)
-# nx.draw(G, pos, with_labels=True, edge_color='black',
-#         node_color='pink', connectionstyle='arc3, rad = 0.1', font_size=font_size, node_size=node_size)
-# edge_labels = dict([((u, v,), d['relation'])
-#                     for u, v, d in G.edges(data=True)])
-# nx.draw_networkx_edge_labels(
-#     G, pos, edge_labels=edge_labels, font_color='black', font_size=font_size)
-# figure = plt.gcf()
-# plt.show()
+plt.show(block=False)

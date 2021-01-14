@@ -451,7 +451,7 @@ def split_nodes(edges, preposition_edges, no_noun):
                         m = match_idx[0]
                         part1 = (' ').join(node.split(' ')[:m + 1]).strip()
                         part2 = (' ').join(node.split(' ')[m + 1:]).strip()
-                        new_edge[n] = part1
+                        new_edge[n] = part2
                         print('{} \t\t|\t {}  -- Adding {}'.format(part1,
                                                                    part2, preposition_edge))
                 edges[e] = tuple(new_edge)
