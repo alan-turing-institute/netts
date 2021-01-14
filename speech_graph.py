@@ -10,6 +10,8 @@
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # source /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/venv/bin/activate
+# Usage: python ./speech_graph.py 3
+#        tat=3; python -u ./speech_graph.py ${tat} > figures/SpeechGraph_log_${tat}_`date +%F` # (pipe output to text file)
 # TO DO
 #   - Sanity check: Is each relation represented only once in the edge? (Also check parallel edges in multiedge graph)
 #   - Plot graphs coloured by confidence / extraction type
@@ -55,7 +57,8 @@ import time
 start_time = time.time()
 # ------------------------------------------------------------------------------
 # Get sentence
-selected_file = 2
+# selected_file = 2
+selected_file = int(sys.argv[1])
 data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
 input_file = op.join(
     data_dir, 'Kings', 'Prolific_pilot_all_transcripts', files[selected_file])
