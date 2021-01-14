@@ -367,15 +367,30 @@ def get_node_synonyms(ex_stanza, no_noun):
 # ------- Split nodes in node_name_synonyms -------
 # splits nodes that are joined by preposition and adds preposition edge to graph
 def split_node_synonyms(node_name_synonyms, preposition_edges, edges):
+    keys = list(node_name_synonyms.keys())
+    values = list(node_name_synonyms.values())
     for preposition_edge in preposition_edges:
         preposition = preposition_edge[2]['relation']
-        for proper_nn in list(node_name_synonyms.keys()):
+        for proper_nn in keys:
             if preposition in proper_nn:
                 part1 = proper_nn.split(preposition)[0].strip()
                 # part2 = proper_nn.split(preposition)[1].strip()
                 node_name_synonyms[part1] = node_name_synonyms.pop(
                     proper_nn)  # Set first part of preposition-joined node name as name
-                edges.append(preposition_edge)
+                if preposition_edge not in edges:
+                    edges.append(preposition_edge)
+        for synonym_idx, alt_nns in enumerate(values):
+            print(synonym_idx, alt_nns)
+            for a, (sentence_idx, alt_nn) in enumerate(alt_nns):
+                # print(sentence_idx, alt_nn)
+                if preposition in alt_nn and sentence_idx == preposition_edge[2]['sentence']:
+                    part1 = alt_nn.split(preposition)[0].strip()
+                    alt_nns_new = alt_nns[:a - 1] + \
+                        [(sentence_idx, part1)] + alt_nns[a:]
+                    # part2 = alt_nn.split(preposition)[1].strip()
+                    node_name_synonyms[keys[synonym_idx]] = alt_nns_new
+                    if preposition_edge not in edges:
+                        edges.append(preposition_edge)
     print('++++ Split node name synonyms on prepositions. ++++')
     return edges, node_name_synonyms
 
@@ -405,8 +420,6 @@ def split_nodes(edges, preposition_edges, no_noun):
                     m = match_idx[0]
                     part1 = (' ').join(node.split(' ')[:m]).strip()
                     part2 = (' ').join(node.split(' ')[m:]).strip()
-                    new_edge[n] = part1
-                    print(part1, ' \t\t|\t ', part2)
                     # If second part of node is anywhere else in edges, then split
                     # Find where part1 does not appear in node but part2 appears (something other than prepositions or no_noun element)
                     p2_words = [w for w in part2.split(
@@ -422,7 +435,9 @@ def split_nodes(edges, preposition_edges, no_noun):
                         for p1 in p1_words:
                             p1_list.append(p1 not in x.split(' '))
                     if any(p1_list and p2_list):
-                        print(preposition_edge)
+                        print('{} \t\t|\t {}  -- Adding {}'.format(part1,
+                                                                   part2, preposition_edge))
+                        new_edge[n] = part1
                 # Split on implied preposition (if edge is possessive pronoun edge: 'their hats' => 'their' --(of)[poss]--> 'hats')
                 elif match_idx == [] and '[poss]' in preposition and len(node.split(' ')) > 1:
                     match_idx = [m for m, match in enumerate(node.split(
@@ -432,7 +447,8 @@ def split_nodes(edges, preposition_edges, no_noun):
                         part1 = (' ').join(node.split(' ')[:m + 1]).strip()
                         part2 = (' ').join(node.split(' ')[m + 1:]).strip()
                         new_edge[n] = part1
-                        print(part1, ' \t\t|\t ', part2)
+                        print('{} \t\t|\t {}  -- Adding {}'.format(part1,
+                                                                   part2, preposition_edge))
                 edges[e] = tuple(new_edge)
                 if preposition_edge not in edges:
                     edges.append(preposition_edge)

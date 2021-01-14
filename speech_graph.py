@@ -55,7 +55,7 @@ import time
 start_time = time.time()
 # ------------------------------------------------------------------------------
 # Get sentence
-selected_file = 1
+selected_file = 2
 data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
 input_file = op.join(
     data_dir, 'Kings', 'Prolific_pilot_all_transcripts', files[selected_file])
@@ -139,8 +139,6 @@ adjective_edges, orig_adjective_edges = merge_corefs(
 oblique_edges, orig_oblique_edges = merge_corefs(
     oblique_edges, node_name_synonyms, no_noun, poss_pronouns)
 
-# --------------------- Clean nodes ---------------------------------------
-# edges = clean_nodes(edges, nouns, adjectives)
 # --------------------- Add adjective edges / preposition edges / unconnected nodes ---------------------------------------
 edges = add_adj_edges(edges, adjective_edges, add_adjective_edges=True)
 
@@ -148,6 +146,9 @@ edges = add_prep_edges(edges, preposition_edges,
                        add_all_preposition_edges=True)
 
 unconnected_nodes = get_unconnected_nodes(edges, orig_edges, nouns)
+
+# --------------------- Clean nodes ---------------------------------------
+edges = clean_nodes(edges, nouns, adjectives)
 # --------------------- Print execution time ---------------------------------------
 print("Process finished in --- %s seconds ---" % (time.time() - start_time))
 # --------------------- Speech Graph ---------------------------------------
