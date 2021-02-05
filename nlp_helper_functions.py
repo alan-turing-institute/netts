@@ -67,7 +67,7 @@ def remove_interjections(text):
     @author: by Dr. Caro Nettekoven, 2020
     Note: The interjections removed by this funciton are specific for English. Applying this to other languages may cause problems (For example in German "um" is a presposition)
     """
-    english_interjections = ['Um', 'um', 'Uh', 'uh', 'Eh', 'eh', 'Ehm', 'Em', 'em', 'Mmm', 'mmm',
+    english_interjections = ['Um', 'um', 'Uh', 'uh', 'Eh', 'eh', 'Ehm', 'Em', 'em', 'Erm', 'erm', 'Ehhm', 'ehhm', 'Ehm', 'ehm', 'Mmm', 'mmm', 'Yeah', 'yeah',
                              'ah', 'Ah', 'Aah', 'aah', 'hmm', 'hmmm', 'Hmm', 'Hmmm', 'inaudible', 'Inaudible']
     #
     sent2 = expand_contractions(text)  # expand contractions
@@ -86,6 +86,8 @@ def replace_problematic_symbols(text):
         # '...': " ",
         # '....': " ",
         '…': "...",
+        '‘': "'",
+        "–": "-",
         '\n': " "}
     #
     # replace symbols
@@ -95,7 +97,7 @@ def replace_problematic_symbols(text):
     return text
 
 
-files = [
+tat_pilot_files = [
     '3138838-TAT10.txt',
     '3138838-TAT13.txt',
     '3138838-TAT30.txt',
@@ -215,3 +217,11 @@ files = [
     '3984259-TAT13.txt',
     '3984259-TAT24.txt',
     '3984259-TAT30.txt']
+
+
+hbn_movie_files = [
+    'NDARAA948VFH_MRI_recording_excerpt.txt',
+    'NDARAC853DTE_MRI_recording_excerpt.txt',
+    'NDARAC904DMU_MRI_recording_excerpt.txt',
+    'NDARAD232HVV_MRI_recording_excerpt.txt',
+    'NDARAD774HAZ_MRI_recording_excerpt.txt']

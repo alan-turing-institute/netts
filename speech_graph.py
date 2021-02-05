@@ -49,7 +49,7 @@ import matplotlib.pyplot as plt
 from copy import deepcopy
 from itertools import chain
 import numpy as np
-from nlp_helper_functions import expand_contractions, remove_interjections, replace_problematic_symbols, process_sent, files
+from nlp_helper_functions import expand_contractions, remove_interjections, replace_problematic_symbols, process_sent, tat_pilot_files, hbn_movie_files
 from visualise_paragraph_functions import create_edges_ollie, create_edges_stanza, get_word_types, get_adj_edges, get_prep_edges, get_obl_edges, add_obl_edges, get_node_synonyms, split_node_synonyms, split_nodes, merge_corefs, clean_nodes, add_adj_edges, add_prep_edges, get_unconnected_nodes
 import time
 import datetime
@@ -58,11 +58,16 @@ import datetime
 start_time = time.time()
 # ------------------------------------------------------------------------------
 # Get sentence
-# selected_file = 2
+# selected_file = 104
 selected_file = int(sys.argv[1])
 data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
-input_file = op.join(
-    data_dir, 'Kings', 'Prolific_pilot_all_transcripts', files[selected_file])
+tat_data_dir = op.join(data_dir, 'Kings', 'Prolific_pilot_all_transcripts')
+input_file = op.join(tat_data_dir, tat_pilot_files[selected_file])
+
+# hbn_data_dir = op.join(data_dir, 'HBN', 'movie_descriptions')
+# input_file = op.join(hbn_data_dir, hbn_movie_files[selected_file])
+
+
 with open(input_file, 'r') as fh:
     orig_text = fh.read()
 
@@ -104,6 +109,7 @@ for i, sentence in enumerate(ex_stanza.sentence):
     else:
         print('====== Skipping sentence {}: Sentence has too few tokens: "{}" ======='.format(i + 1, (' ').join(
             [token.originalText for token in sentence.token if token.originalText])))
+
 print('+++++++++++++++++++\n')
 # --------------------- Create ollie edges ---------------------------------------
 ollie_edges, ollie_edges_text_excerpts, ollie_one_node_edges, ollie_one_node_edges_text_excerpts = create_edges_ollie(
@@ -162,8 +168,13 @@ G = nx.MultiDiGraph()
 # G = nx.Graph()
 G.add_edges_from(edges)
 pos = nx.spring_layout(G)
-nx.draw(G, pos, edge_color='black', width=1, linewidths=1,
-        node_size=500, node_color='pink', alpha=0.9,
+nx.draw(G, pos,
+        edge_color='black',
+        width=1,
+        linewidths=1,
+        node_size=500,
+        node_color='pink',
+        alpha=0.9,
         labels={node: node for node in G.nodes()})
 edge_labels = dict([((u, v,), d['relation'])
                     for u, v, d in G.edges(data=True)])
@@ -175,12 +186,15 @@ plt.axis('off')
 print("\n+++ Edges: +++ \n\n %s \n\n+++++++++++++++++++" % (edge_labels))
 # --------------------- Print execution time ---------------------------------------
 print("Processing transcript %s finished in --- %s seconds ---" %
-      (files[selected_file], time.time() - start_time))
-# --------------------- Save graph ---------------------------------------
+      (tat_pilot_files[selected_file], time.time() - start_time))
+# --------------------- Save graph image ---------------------------------------
 # # Initialize output
 output_dir = '/Users/CN/Dropbox/speech_graphs/'
 output = op.join(output_dir, 'SpeechGraph_{0:04d}_{1}'.format(
     selected_file, str(datetime.date.today())))
 plt.savefig(output)
-# --------------------- Show plot ---------------------------------------
+# --------------------- Save graph object ---------------------------------------
+nx.write_gpickle(G, output + ".gpickle")
+
+# --------------------- Show graph ---------------------------------------
 plt.show(block=False)

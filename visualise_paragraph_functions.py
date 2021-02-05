@@ -27,7 +27,7 @@ import matplotlib.pyplot as plt
 from copy import deepcopy
 from itertools import chain
 import numpy as np
-from nlp_helper_functions import expand_contractions, remove_interjections, replace_problematic_symbols, process_sent, files
+
 
 # ------------------------------------------------------------------------------
 # Find edges and edge labels extracted by OpenIE5
@@ -288,7 +288,7 @@ def add_obl_edges(edges, oblique_edges):
             [oblique_edge[2]['relation'], oblique_edge[1]])
         # print(oblique_edge_text)
         for edge_info in edges:
-            if not edge_info[2]['node2_args'] == []:
+            if 'node2_args' in edge_info[2] and edge_info[2]['node2_args'] != []:
                 # print(oblique_edge[0])
                 # print(edge_info[2]['node2_args'][0])
                 if edge_info[2]['relation'] == oblique_edge[0] and edge_info[2]['node2_args'][0] == oblique_edge_text:
@@ -342,7 +342,7 @@ def get_node_synonyms(ex_stanza, no_noun):
                     alternative_node_name = (' ').join(alternative_node_name)
                 elif alternative_node_name != []:
                     alternative_node_name = alternative_node_name[0]
-                elif alternative_node_name == [] and len(mention_info) == 1 and mention_info[0].pos[0:3] == 'PRP':
+                elif alternative_node_name == [] and len(mention_info) == 1 and (mention_info[0].pos[0:3] == 'PRP' or mention_info[0].pos[0:3] == 'DT'):
                     # Mentions that only consist of one possessive pronoun are still valid mentions ("my"/"me" should be merged with "I").
                     # (But mentions that consist of a pronoun plus another noun should be cleaned of the pronoun ("his hands" should only be merged with another mention of "hands", and not with another mention of "him").)
                     alternative_node_name = mention_info[0].word.lower()
@@ -356,6 +356,9 @@ def get_node_synonyms(ex_stanza, no_noun):
                     if token.lemma.lower() == token.word.lower():
                         proper_nn.append(token.lemma.lower())
                         continue
+            if proper_nn == []:
+                # If no proper node name could be found (either as noun or as lemma), set first mention of node as proper node name
+                proper_nn.append(alt_nn[0][1])
         node_name_synonyms[proper_nn[0]] = alt_nn
     print(node_name_synonyms)
     print('++++ Obtained {} node synonyms ++++'.format(len(node_name_synonyms)))
@@ -393,7 +396,7 @@ def split_node_synonyms(node_name_synonyms, preposition_edges, edges):
                     node_name_synonyms[keys[synonym_idx]] = alt_nns_new
                     for n, value in enumerate(values):
                         if value == alt_nns:
-                            value[n] = alt_nns_new
+                            values[n] = alt_nns_new
                     if preposition_edge not in edges:
                         edges.append(preposition_edge)
     print('++++ Split node name synonyms on prepositions. ++++')
@@ -446,7 +449,7 @@ def split_nodes(edges, preposition_edges, no_noun):
                 # Split on implied preposition (if edge is possessive pronoun edge: 'their hats' => 'their' --(of)[poss]--> 'hats')
                 elif match_idx == [] and '[poss]' in preposition and len(node.split(' ')) > 1:
                     match_idx = [m for m, match in enumerate(node.split(
-                        ' ')) if match == preposition_edge[1] and node.split(' ')[m + 1] == preposition_edge[0]]
+                        ' ')) if match == preposition_edge[1] and len(node.split(' ')) > m + 1 and node.split(' ')[m + 1] == preposition_edge[0]]
                     if match_idx != []:
                         m = match_idx[0]
                         part1 = (' ').join(node.split(' ')[:m + 1]).strip()
