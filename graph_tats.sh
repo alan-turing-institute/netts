@@ -20,9 +20,9 @@ cd /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/
 # for tat in `seq -s ' ' 0 118`; do
 25 28 30 44
 
-for tat in 25 28 30 44 ; do
+for tat in `seq -s ' ' 0 118` ; do
     python -u ./speech_graph.py ${tat} \
-    > /Users/CN/Dropbox/speech_graphs/SpeechGraph_`zeropad ${tat} 4`_`date +%F`.txt 2>&1 # (pipe output and error msgs to text file)
+    > /Users/CN/Dropbox/speech_graphs/pilot/SpeechGraph_`zeropad ${tat} 4`_`date +%F`.txt 2>&1 # (pipe output and error msgs to text file)
 done
 
 

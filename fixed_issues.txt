@@ -1,0 +1,66 @@
+SpeechGraph_0013_2021-01-14.txt
+++++ Split node name synonyms on prepositions. ++++
+ 
+SpeechGraph_0019_2021-01-14.txt
+Ehm , this one , it is very hard to make out the context of this image ‘ cause I can only see a dogs face .
+
+SpeechGraph_0048_2021-01-14.txt
+uses : uses      on the : on the
+
+ 
+SpeechGraph_0061_2021-01-14.txt
+her             |        mother  -- Adding ('mother', 'her', {'relation': '(of) [poss]', 'extractor': 'possession', 'sentence': 3})
+ 
+SpeechGraph_0062_2021-01-14.txt
+, there is an older woman on the right , which – on the left , which could be a mother .
+ 
+SpeechGraph_0104_2021-01-14.txt
+The young girl is looking away from the woman as if she is either being told of or sort of trying to get away and being told something that she does not necessarily like .
+
+
+----- issue 2 -----
+
+SpeechGraph_0036_2021-01-14.txt
+++++ Obtained 4 node synonyms ++++
+SpeechGraph_0037_2021-01-14.txt
+++++ Obtained 5 node synonyms ++++
+SpeechGraph_0059_2021-01-14.txt
+++++ Obtained 4 node synonyms ++++
+SpeechGraph_0063_2021-01-14.txt
+++++ Obtained 3 node synonyms ++++
+SpeechGraph_0064_2021-01-14.txt
+++++ Obtained 5 node synonyms ++++
+SpeechGraph_0069_2021-01-14.txt
+++++ Obtained 3 node synonyms ++++
+SpeechGraph_0087_2021-01-14.txt
+++++ Obtained 6 node synonyms ++++
+SpeechGraph_0093_2021-01-14.txt
+++++ Obtained 2 node synonyms ++++
+SpeechGraph_0106_2021-01-14.txt
+++++ Obtained 4 node synonyms ++++
+SpeechGraph_0111_2021-01-14.txt
+++++ Obtained 4 node synonyms ++++
+ 
+
+----- issue 3 -----
+
+SpeechGraph_0025_2021-01-14.txt
+ lying | on | top
+SpeechGraph_0028_2021-01-14.txt
+ sat | on | armchair
+SpeechGraph_0030_2021-01-14.txt
+ make | because_of | shading
+SpeechGraph_0044_2021-01-14.txt
+ someones | in | picture
+SpeechGraph_0103_2021-01-14.txt
+ see | in | image
+
+----- Coreferencing issue -----
+SpeechGraph_0012_2021-01-14.txt
+++++ Added 10 oblique edges. Total edges: 6 ++++
+SpeechGraph_0042_2021-01-14.txt
+++++ Added 9 oblique edges. Total edges: 20 ++++
+SpeechGraph_0076_2021-01-14.txt
+++++ Added 6 oblique edges. Total edges: 6 ++++
+SpeechGraph_0113_2021-01-14.txt
+++++ Added 2 oblique edges. Total edges: 7 ++++

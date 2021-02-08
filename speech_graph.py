@@ -58,17 +58,24 @@ import datetime
 start_time = time.time()
 # ------------------------------------------------------------------------------
 # Get sentence
-# selected_file = 104
+# selected_file = 82
 selected_file = int(sys.argv[1])
-data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
-# tat_data_dir = op.join(data_dir, 'Kings', 'Prolific_pilot_all_transcripts')
-genpub_data_dir = op.join(data_dir, 'Kings', 'general_public_tat')
-# input_file = op.join(tat_data_dir, tat_pilot_files[selected_file])
-input_file = op.join(genpub_data_dir, genpub_files[selected_file])
 
+# ++++++++ TAT Data: Pilot ++++++++
+data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
+output_dir = '/Users/CN/Dropbox/speech_graphs/pilot'
+tat_data_dir = op.join(data_dir, 'Kings', 'Prolific_pilot_all_transcripts')
+input_file = op.join(tat_data_dir, tat_pilot_files[selected_file])
+
+# ++++++++ TAT Data: General Public ++++++++
+# genpub_data_dir = op.join(data_dir, 'Kings', 'general_public_tat')
+# input_file = op.join(genpub_data_dir, genpub_files[selected_file])
+# output_dir = '/Users/CN/Dropbox/speech_graphs/general_public_tat/'
+
+# ++++++++ HBN Data ++++++++
 # hbn_data_dir = op.join(data_dir, 'HBN', 'movie_descriptions')
 # input_file = op.join(hbn_data_dir, hbn_movie_files[selected_file])
-
+# output_dir = '/Users/CN/Dropbox/speech_graphs/general_public_tat/hbn'
 
 with open(input_file, 'r') as fh:
     orig_text = fh.read()
@@ -85,8 +92,8 @@ text = text.strip()  # remove trailing and leading whitespace
 # Annotate and extract with Stanford CoreNLP
 
 with CoreNLPClient(properties={
-    'annotators': 'tokenize,ssplit,pos,lemma,ner,parse,depparse,coref,openie',
-    'pos.model': '/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/OpenIE-standalone/target/streams/$global/assemblyOption/$global/streams/assembly/8a3bd51fe5c1bb09a51f326fa358947f6dc78463_8e7f18d9ae73e8daf5ee4d4e11167e10f8827888_da39a3ee5e6b4b0d3255bfef95601890afd80709/edu/stanford/nlp/models/pos-tagger/english-bidirectional/english-bidirectional-distsim.tagger'
+    'annotators': 'tokenize,ssplit,pos,lemma,parse,depparse,coref,openie',
+    # 'pos.model': '/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/OpenIE-standalone/target/streams/$global/assemblyOption/$global/streams/assembly/8a3bd51fe5c1bb09a51f326fa358947f6dc78463_8e7f18d9ae73e8daf5ee4d4e11167e10f8827888_da39a3ee5e6b4b0d3255bfef95601890afd80709/edu/stanford/nlp/models/pos-tagger/english-bidirectional/english-bidirectional-distsim.tagger'
 }, be_quiet=True) as client:
     ex_stanza = client.annotate(text)
 
@@ -129,6 +136,7 @@ adjectives, adjective_edges = get_adj_edges(ex_stanza)
 prepositions, preposition_edges = get_prep_edges(ex_stanza)
 
 obliques, oblique_edges = get_obl_edges(ex_stanza)
+
 # --------------------- Add oblique edges ---------------------------------------
 edges = add_obl_edges(edges, oblique_edges)
 # --------------------- Get node name synonyms ---------------------------------------
@@ -191,9 +199,9 @@ print("Processing transcript %s finished in --- %s seconds ---" %
       (tat_pilot_files[selected_file], time.time() - start_time))
 # --------------------- Save graph image ---------------------------------------
 # # Initialize output
-output_dir = '/Users/CN/Dropbox/speech_graphs/general_public_tat/'
+# output_dir = '/Users/CN/Dropbox/speech_graphs/general_public_tat/'
 output = op.join(output_dir, 'SpeechGraph_{0:04d}_{1}_{2}'.format(
-    selected_file, genpub_files[selected_file].strip('.txt')[0], str(datetime.date.today())))
+    selected_file, tat_pilot_files[selected_file].strip('.txt')[0], str(datetime.date.today())))
 plt.savefig(output)
 # --------------------- Save graph object ---------------------------------------
 nx.write_gpickle(G, output + ".gpickle")

@@ -210,7 +210,7 @@ def get_prep_edges(ex_stanza):
     preposition_edges = []
     for idx_sentence, sentence in enumerate(ex_stanza.sentence):
         for word in sentence.enhancedDependencies.edge:
-            if word.dep.split(':')[0] == 'nmod':
+            if word.dep.split(':')[0] == 'nmod' and len(word.dep.split(':')) > 1:
                 source_idx = word.source - 1
                 target_idx = word.target - 1
                 extractor_type = 'preposition'
@@ -256,13 +256,22 @@ def get_obl_edges(ex_stanza):
     oblique_edges = []
     for idx_sentence, sentence in enumerate(ex_stanza.sentence):
         for word in sentence.enhancedDependencies.edge:
-            if word.dep.split(':')[0] == 'obl':
-                source_idx = word.source - 1
+            if word.dep.split(':')[0] == 'obl' and len(word.dep.split(':')) > 1:
                 target_idx = word.target - 1
                 extractor_type = 'oblique'
                 oblique = word.dep.split(':')[1]
-                source_word = sentence.token[source_idx].word.lower()
                 target_word = sentence.token[target_idx].word.lower()
+                # Find word that points to oblique edge source - that's the actual source word of this edge ("man[source] leaning against[oblique relation] wall[target]")
+                intermediate_source_idx = word.source
+                source_word = [sentence.token[dependency.target - 1].word.lower()
+                               for dependency in sentence.enhancedDependencies.edge
+                               if dependency.source == intermediate_source_idx and dependency.dep == "nsubj"
+                               ]
+                # and (sentence.token[dependency.target].pos == "PRP" or sentence.token[dependency.target].pos == "NN" or sentence.token[dependency.target].pos == "NNS")
+                if source_word == []:
+                    continue
+                else:
+                    source_word = source_word[0]
                 print(' {} | {} | {}'.format(
                     source_word, oblique, target_word))
                 oblique_info = (source_word, target_word, {'relation': oblique,
