@@ -49,7 +49,7 @@ import matplotlib.pyplot as plt
 from copy import deepcopy
 from itertools import chain
 import numpy as np
-from nlp_helper_functions import expand_contractions, remove_interjections, replace_problematic_symbols, process_sent, tat_pilot_files, hbn_movie_files
+from nlp_helper_functions import expand_contractions, remove_interjections, replace_problematic_symbols, process_sent, tat_pilot_files, hbn_movie_files, genpub_files
 from visualise_paragraph_functions import create_edges_ollie, create_edges_stanza, get_word_types, get_adj_edges, get_prep_edges, get_obl_edges, add_obl_edges, get_node_synonyms, split_node_synonyms, split_nodes, merge_corefs, clean_nodes, add_adj_edges, add_prep_edges, get_unconnected_nodes
 import time
 import datetime
@@ -61,8 +61,10 @@ start_time = time.time()
 # selected_file = 104
 selected_file = int(sys.argv[1])
 data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
-tat_data_dir = op.join(data_dir, 'Kings', 'Prolific_pilot_all_transcripts')
-input_file = op.join(tat_data_dir, tat_pilot_files[selected_file])
+# tat_data_dir = op.join(data_dir, 'Kings', 'Prolific_pilot_all_transcripts')
+genpub_data_dir = op.join(data_dir, 'Kings', 'general_public_tat')
+# input_file = op.join(tat_data_dir, tat_pilot_files[selected_file])
+input_file = op.join(genpub_data_dir, genpub_files[selected_file])
 
 # hbn_data_dir = op.join(data_dir, 'HBN', 'movie_descriptions')
 # input_file = op.join(hbn_data_dir, hbn_movie_files[selected_file])
@@ -189,9 +191,9 @@ print("Processing transcript %s finished in --- %s seconds ---" %
       (tat_pilot_files[selected_file], time.time() - start_time))
 # --------------------- Save graph image ---------------------------------------
 # # Initialize output
-output_dir = '/Users/CN/Dropbox/speech_graphs/'
-output = op.join(output_dir, 'SpeechGraph_{0:04d}_{1}'.format(
-    selected_file, str(datetime.date.today())))
+output_dir = '/Users/CN/Dropbox/speech_graphs/general_public_tat/'
+output = op.join(output_dir, 'SpeechGraph_{0:04d}_{1}_{2}'.format(
+    selected_file, genpub_files[selected_file].strip('.txt')[0], str(datetime.date.today())))
 plt.savefig(output)
 # --------------------- Save graph object ---------------------------------------
 nx.write_gpickle(G, output + ".gpickle")

@@ -16,11 +16,11 @@ cd /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/
 # source /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/venv/bin/activate
 # Usage: python ./speech_graph.py 3
 #        tat=3; python -u ./speech_graph.py ${tat} > figures/SpeechGraph_log_${tat}_`date +%F` # (pipe output to text file)
-# ------------------------------------------------------------------------------
-# for tat in `seq -s ' ' 100 119`; do
-19 48 61 62 104
+# ------------------------------------------------------------------------------B
+# for tat in `seq -s ' ' 0 118`; do
+25 28 30 44
 
-for tat in `seq -s ' ' 0 119`; do
+for tat in 25 28 30 44 ; do
     python -u ./speech_graph.py ${tat} \
     > /Users/CN/Dropbox/speech_graphs/SpeechGraph_`zeropad ${tat} 4`_`date +%F`.txt 2>&1 # (pipe output and error msgs to text file)
 done
