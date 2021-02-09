@@ -1,39 +1,23 @@
 #!/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/venv python
 # ------------------------------------------------------------------------------
-# Script name:  speech_graph.py
+# Script name:  analyse_graphs.py
 #
 # Description:
-#               Script to visualise sentence using OpenIE5 and Stanford CoreNLP
+#               Script to analyse semantic speech graphs
 #
-# Author:       Caroline Nettekoven, 2020
+# Author:       Caroline Nettekoven, 2021
 #
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
-# source /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/venv/bin/activate
-# Usage: python ./speech_graph.py 3
-#        tat=3; python -u ./speech_graph.py ${tat} > figures/SpeechGraph_log_${tat}_`date +%F` # (pipe graph to text file)
-# TO DO
-#   - Sanity check: Is each relation represented only once in the edge? (Also check parallel edges in multiedge graph)
-#   - Plot graphs coloured by confidence / extraction type
-
-# ------------------------------------------------------------------------------
-#
-#                                               EXAMPLE TRANSCRIPTS
-#                                               ===================
-# Property                                  Topic                                       Index       Name
-# ________________________________________________________________________________________________________________
-# ambiguous coreferencing:                  (two women)                                 0       3138838-TAT10
-# ambiguous coreferencing:                  (four men lying on field)                   1       3138838-TAT13
-# clear text and very connected network:    (man wearing jacket, hat and hoodie)        2       3138838-TAT30
-# network as one long, connected line       (women and child at home)                   3       3138849-TAT10
-
-# many synonyms for picture:                (picture, photograph, photo)                10      3138883-TAT30
-# many adjectives:                          (picture, photograph, photo)                11      3138910-TAT24
-
-# many adjectives:                          (snowy day)                                 41      3145067-TAT30
-# many self-references                      (history major)                             8       3138883-TAT13
-# faulty transcript                         (clasped hands)                             9       3138883-TAT24
-
+# Number of Tats for each stimulus
+# TAT8    28
+# TAT10   68
+# TAT13   61
+# TAT19   32
+# TAT21   13
+# TAT24   43
+# TAT27   0
+# TAT30   43
 
 import networkx as nx
 import os
@@ -43,18 +27,18 @@ import sys
 sys.path.append(
     '/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/')
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import numpy as np
 import datetime
 import glob
+import re
 
 graph_dir = '/Users/CN/Dropbox/speech_graphs/'
 # ------------------------------------------------------------------------------
-# Index file
-selected_file = 1
-graph = op.join(graph_dir, 'SpeechGraph_{0:04d}_{1}'.format(
-    selected_file, str(datetime.date.today())))
-G = nx.read_gpickle((graph + ".gpickle"))
 # --------------------- Read several graphs ---------------------------------------
-filelist = sorted(glob.glob(graph_dir + '*.gpickle'))
+filelist = sorted(glob.glob(op.join(graph_dir, 'pilot', '*.gpickle')))
+filelist.extend(
+    sorted(glob.glob(op.join(graph_dir, 'general_public_tat', '*.gpickle'))))
 graphs = []
 for filename in filelist:
     # print(f, filename)
@@ -65,33 +49,152 @@ for G in graphs:
     # Node number & Edge number
     print('Nodes: {} \t Edges: {}'.format(len(G.nodes()), G.size()))
 
+
 g_properties = []
-for G in graphs:
+for g, G in enumerate(graphs):
+    filename = filelist[g]
+    # find tat index (two-digit combination from 00 to 39 after word "TAT")
+    tat = re.findall(r"([0-3][0-9])\D", filename.split('TAT')[1])[0]
+    # find subject id (7 digit combination before word "TAT")
+    subj = filename.split('-TAT')[0][-7:]
+    # Get basic graph descriptors
     n_nodes = len(G.nodes())
     n_edges = G.size()
-    G = nx.DiGraph(G)
+    # Get number of parallel edges
+    arr = nx.to_numpy_matrix(G)
+    num_multiedges = np.sum(arr >= 2)
+    # --- Properties that are only defined for non-multi Graphs ---
+    # G = nx.DiGraph(G)
     # nx.clustering(G)
-    avg_clustering = nx.average_clustering(G)
+    # avg_clustering = nx.average_clustering(G)
     # nx.average_degree_connectivity(G)
     # nx.average_neighbor_degree(G)
-    avg_node_conn = nx.average_node_connectivity(G)
+    # avg_node_conn = nx.average_node_connectivity(G)
     g_properties.append([
+        subj,
+        tat,
         n_nodes,
         n_edges,
-        avg_clustering,
-        avg_node_conn
+        num_multiedges,
+        # avg_clustering,
+        # avg_node_conn
     ])
 
+# for g, G in enumerate(graphs):
+# Plot graph as matrix
+fig, ax = plt.subplots()
+arr = nx.to_numpy_matrix(G)
+im = plt.imshow(arr, interpolation='nearest', cmap='gray')
+node_labels = list(G.nodes())
+ax.set_xticks(np.arange(len(node_labels)))
+ax.set_xticklabels(node_labels)
+ax.set_yticks(np.arange(len(node_labels)))
+ax.set_yticklabels(node_labels)
+plt.show()
+
+# Print all parallel edge data
+for g, G in enumerate(graphs):
+    arr = nx.to_numpy_matrix(G)
+    boo = (arr >= 2)
+    if boo.any():
+        parallel_edges = np.where(arr >= 2)
+        node_labels = list(G.nodes())
+        if isinstance(parallel_edges, tuple):
+            continue
+            # print(node_labels[parallel_edges[0][0]],
+            #       node_labels[parallel_edges[1][0]])
+            # print(G.get_edge_data(
+            #     node_labels[parallel_edges[0][0]], node_labels[parallel_edges[1][0]]))
+        else:
+            for par in parallel_edges:
+                print(node_labels[par[0]], node_labels[par[1]])
+                print(G.get_edge_data(
+                    node_labels[par[0]], node_labels[par[1]]))
+
+edge_labels = dict([((u, v,), d['relation'])
+                    for u, v, d in G.edges(data=True)])
+
+
 df = pd.DataFrame(g_properties, columns=[
-    'nodes', 'edges', 'cc',
-    'node_conn'])
+    'subj', 'tat',
+    'nodes', 'edges', 'num_multiedges',
+    # 'cc','node_conn'
+])
 
-plt.scatter(df.nodes, df.edges, c="g", alpha=0.5,
-            label="Luck")
-df.describe(include='all')
+# ----------- Plot nodes vs edges -----------
+tats = df.tat.unique()
+colors = cm.rainbow(np.linspace(0, 1, len(tats)))
+fig, ax = plt.subplots()
+for t, c in zip(tats, colors):
+    plt.scatter(df[df.tat == t].nodes, df[df.tat == t].edges, color=c, label=t)
 
-# length = nx.all_pairs_shortest_path_length(G)
+ax.legend(title="TAT")
+plt.title('Nodes vs. Edges')
+plt.xlabel('Nodes')
+plt.ylabel('Edges')
+plt.show()
+# ----------- How many parallel edges? -----------
+print('{0:f} % have at least one parallel edge. Mean number of parallel edges that are parallel in those: {1:f}'.format(
+    len(df[df.num_multiedges > 0]) / len(df) * 100, df[df.num_multiedges > 0].num_multiedges.mean()))
+# ----------- Histogram Nodes -----------
+# Set up the plot
+ax = plt.subplot(2, 2, 1)
+hist, bin_edges = np.histogram(df.nodes, bins=1000)
+# plt.figure(figsize=[10, 8])
+plt.bar(bin_edges[:-1], hist, width=5, color='#0504aa', alpha=0.7)
+plt.xlim(min(bin_edges), max(bin_edges))
+plt.grid(axis='y', alpha=0.75)
+# plt.xlabel('Nodes', fontsize=15)
+plt.ylabel('Frequency', fontsize=15)
+plt.xticks(fontsize=15)
+plt.yticks(fontsize=15)
+plt.ylabel('Frequency', fontsize=15)
+plt.title('Nodes', fontsize=15)
+# ----------- Histogram Edges -----------
+ax = plt.subplot(2, 2, 2)
+hist, bin_edges = np.histogram(df.edges, bins=1000)
+# plt.figure(figsize=[10, 8])
+plt.bar(bin_edges[:-1], hist, width=5, color='#0504aa', alpha=0.7)
+plt.xlim(min(bin_edges), max(bin_edges))
+plt.grid(axis='y', alpha=0.75)
+# plt.xlabel('Edges', fontsize=15)
+plt.ylabel('Frequency', fontsize=15)
+plt.xticks(fontsize=15)
+plt.yticks(fontsize=15)
+plt.ylabel('Frequency', fontsize=15)
+plt.title('Edges', fontsize=15)
+# ----------- Histogram Nodes/Edges ratio -----------
+ax = plt.subplot(2, 2, 3)
+hist, bin_edges = np.histogram(df.nodes / df.edges, bins=10000)
+# plt.figure(figsize=[10, 8])
+plt.bar(bin_edges[:-1], hist, width=5, color='#0504aa', alpha=0.7)
+plt.xlim(min(bin_edges), max(bin_edges))
+plt.grid(axis='y', alpha=0.75)
+# plt.xlabel('Nodes / Edges', fontsize=15)
+plt.ylabel('Frequency', fontsize=15)
+plt.xticks(fontsize=15)
+plt.yticks(fontsize=15)
+plt.title('Nodes / Edges', fontsize=15)
+# ----------- Parallel edges -----------
+ax = plt.subplot(2, 2, 4)
+hist, bin_edges = np.histogram(df.num_multiedges, bins=10000)
+# plt.figure(figsize=[10, 8])
+plt.bar(bin_edges[:-1], hist, width=5, color='#0504aa', alpha=0.7)
+plt.xlim(min(bin_edges), max(bin_edges))
+plt.grid(axis='y', alpha=0.75)
+# plt.xlabel('No of parallel edges', fontsize=15)
+plt.ylabel('Frequency', fontsize=15)
+plt.xticks(fontsize=15)
+plt.yticks(fontsize=15)
+plt.title('No of parallel edges', fontsize=15)
+plt.show()
 
+# ----------- Size of largest connected component -----------
+# Not implemented for directed graphs. See:
+# https://stackoverflow.com/questions/47283612/networkx-node-connected-component-not-implemented-for-directed-type
+# ----------- Average size of most connected component -----------
+# ----------- Motifs -----------
+# ----------- XX -----------
 for m, M in enumerate(graphs):
     print(' ')
     DG = nx.DiGraph()

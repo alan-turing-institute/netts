@@ -144,7 +144,7 @@ def get_word_types(ex_stanza):
             # Add everything that is not noun to list of words that should not get merged on later
             else:
                 if token.lemma not in no_noun:
-                    # print(token.lemma, ' \t', token.pos)
+                    # get words that are not proper nouns (includes pronouns)
                     if token.pos == "PRP$":
                         # Lemma for poss pronoun 'his' is 'he', but 'he' counts as noun, therefore add orginial text for poss pronoun
                         no_noun.append(token.word.lower())
