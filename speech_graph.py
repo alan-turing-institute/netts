@@ -58,19 +58,19 @@ import datetime
 start_time = time.time()
 # ------------------------------------------------------------------------------
 # Get sentence
-# selected_file = 0
+selected_file = 6
 selected_file = int(sys.argv[1])
 data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
 
 # ++++++++ TAT Data: Pilot ++++++++
-# output_dir = '/Users/CN/Dropbox/speech_graphs/pilot'
-# tat_data_dir = op.join(data_dir, 'Kings', 'Prolific_pilot_all_transcripts')
-# input_file = op.join(tat_data_dir, tat_pilot_files[selected_file])
+output_dir = '/Users/CN/Dropbox/speech_graphs/pilot'
+tat_data_dir = op.join(data_dir, 'Kings', 'Prolific_pilot_all_transcripts')
+input_file = op.join(tat_data_dir, tat_pilot_files[selected_file])
 
-# ++++++++ TAT Data: General Public ++++++++
-output_dir = '/Users/CN/Dropbox/speech_graphs/general_public_tat/'
-genpub_data_dir = op.join(data_dir, 'Kings', 'general_public_tat')
-input_file = op.join(genpub_data_dir, genpub_files[selected_file])
+# # ++++++++ TAT Data: General Public ++++++++
+# output_dir = '/Users/CN/Dropbox/speech_graphs/general_public_tat/'
+# genpub_data_dir = op.join(data_dir, 'Kings', 'general_public_tat')
+# input_file = op.join(genpub_data_dir, genpub_files[selected_file])
 
 
 # ++++++++ HBN Data ++++++++
@@ -201,11 +201,11 @@ print("Processing transcript %s finished in --- %s seconds ---" %
 # --------------------- Save graph image ---------------------------------------
 # # Initialize output
 # output_dir = '/Users/CN/Dropbox/speech_graphs/general_public_tat/'
-output = op.join(output_dir, 'SpeechGraph_{0:04d}_{1}_{2}'.format(
-    selected_file + 119, genpub_files[selected_file].strip('.txt'), str(datetime.date.today())))
-plt.savefig(output)
-# --------------------- Save graph object ---------------------------------------
-nx.write_gpickle(G, output + ".gpickle")
+# output = op.join(output_dir, 'SpeechGraph_{0:04d}_{1}_{2}'.format(
+#     selected_file + 119, genpub_files[selected_file].strip('.txt'), str(datetime.date.today())))
+# plt.savefig(output)
+# # --------------------- Save graph object ---------------------------------------
+# nx.write_gpickle(G, output + ".gpickle")
 
 # --------------------- Show graph ---------------------------------------
 plt.show(block=False)

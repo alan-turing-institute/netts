@@ -9,6 +9,8 @@
 #
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
+# source /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/venv/bin/activate
+
 # Number of Tats for each stimulus
 # TAT8    28
 # TAT10   68
@@ -32,9 +34,9 @@ import numpy as np
 import datetime
 import glob
 import re
+from pprint import pprint
 
 graph_dir = '/Users/CN/Dropbox/speech_graphs/'
-# ------------------------------------------------------------------------------
 # --------------------- Read several graphs ---------------------------------------
 filelist = sorted(glob.glob(op.join(graph_dir, 'pilot', '*.gpickle')))
 filelist.extend(
@@ -49,7 +51,7 @@ for G in graphs:
     # Node number & Edge number
     print('Nodes: {} \t Edges: {}'.format(len(G.nodes()), G.size()))
 
-
+# --------------------- Collect properties ---------------------------------------
 g_properties = []
 for g, G in enumerate(graphs):
     filename = filelist[g]
@@ -80,6 +82,8 @@ for g, G in enumerate(graphs):
         # avg_node_conn
     ])
 
+
+# --------------------- Visualise parallel edges-----------------------------------
 # for g, G in enumerate(graphs):
 # Plot graph as matrix
 fig, ax = plt.subplots()
@@ -92,29 +96,34 @@ ax.set_yticks(np.arange(len(node_labels)))
 ax.set_yticklabels(node_labels)
 plt.show()
 
+# --------------------- Print parallel edges ---------------------------------------
 # Print all parallel edge data
 for g, G in enumerate(graphs):
+    print('\n', filelist[g].split('SpeechGraph_')[1])
     arr = nx.to_numpy_matrix(G)
     boo = (arr >= 2)
     if boo.any():
-        parallel_edges = np.where(arr >= 2)
+        parallel_edges = np.where(boo)
         node_labels = list(G.nodes())
-        if isinstance(parallel_edges, tuple):
-            continue
-            # print(node_labels[parallel_edges[0][0]],
-            #       node_labels[parallel_edges[1][0]])
-            # print(G.get_edge_data(
-            #     node_labels[parallel_edges[0][0]], node_labels[parallel_edges[1][0]]))
-        else:
-            for par in parallel_edges:
-                print(node_labels[par[0]], node_labels[par[1]])
-                print(G.get_edge_data(
-                    node_labels[par[0]], node_labels[par[1]]))
+        # print info for all parallel edges
+        for p in range(0, parallel_edges[0].shape[0]):
+            node1 = node_labels[parallel_edges[0][p]]
+            node2 = node_labels[parallel_edges[1][p]]
+            # print('\n', node1, node2)
+            print(node1, node2)
+            par_edges_info = G.get_edge_data(node1, node2)
+            print([edge_info['confidence']
+                   for edge_info in par_edges_info.values()])
+            print([edge_info['relation']
+                   for edge_info in par_edges_info.values()])
+            # pprint(par_edges_info)
 
+
+# --------------------- Make dataframe ---------------------------------------
 edge_labels = dict([((u, v,), d['relation'])
                     for u, v, d in G.edges(data=True)])
 
-
+# --------------------- Make dataframe ---------------------------------------
 df = pd.DataFrame(g_properties, columns=[
     'subj', 'tat',
     'nodes', 'edges', 'num_multiedges',
