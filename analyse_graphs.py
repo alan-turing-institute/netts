@@ -75,11 +75,11 @@ for g, G in enumerate(graphs):
     lcc = len(max(nx.weakly_connected_components(G), key=len))
     # LSC
     lsc = len(max(nx.strongly_connected_components(G), key=len))
-    if lsc == 1:
-        print('=======================')
-        print(max(nx.strongly_connected_components(G), key=len))
-        print('-----------')
-        print(list(nx.selfloop_edges(G, data=True)))
+    # if lsc == 1:
+    #     print('=======================')
+    #     print(max(nx.strongly_connected_components(G), key=len))
+    #     print('-----------')
+    #     print(list(nx.selfloop_edges(G, data=True)))
     #     break
     # --- Properties that are only defined for non-multi Graphs ---
     # G = nx.DiGraph(G)
@@ -120,7 +120,7 @@ for g, G in enumerate(graphs):
 # --------------------- Print parallel edges ---------------------------------------
 # Print all parallel edge data
 for g, G in enumerate(graphs):
-    print('\n', filelist[g].split('SpeechGraph_')[1])
+    # print('\n', filelist[g].split('SpeechGraph_')[1])
     arr = nx.to_numpy_matrix(G)
     boo = (arr >= 2)
     if boo.any():
@@ -138,7 +138,7 @@ for g, G in enumerate(graphs):
             # print([edge_info['relation']
             #        for edge_info in par_edges_info.values()])
             #             pprint(par_edges_info)
-
+# ---> There are no parallel edges after the edge cleaning!
 
 # # --------------------- Get edge labels ---------------------------------------
 # edge_labels = dict([((u, v,), d['relation'])
