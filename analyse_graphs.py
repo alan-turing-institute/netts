@@ -35,12 +35,16 @@ import datetime
 import glob
 import re
 from pprint import pprint
+import seaborn as sns
+
 
 graph_dir = '/Users/CN/Dropbox/speech_graphs/'
 # --------------------- Read several graphs ---------------------------------------
-filelist = sorted(glob.glob(op.join(graph_dir, 'pilot', '*.gpickle')))
-filelist.extend(
-    sorted(glob.glob(op.join(graph_dir, 'general_public_tat', '*.gpickle'))))
+filelist = sorted(glob.glob(op.join(graph_dir, 'all_tats', '*.gpickle')))
+
+# filelist = sorted(glob.glob(op.join(graph_dir, 'pilot', '*.gpickle')))
+# filelist.extend(
+#     sorted(glob.glob(op.join(graph_dir, 'general_public_tat', '*.gpickle'))))
 graphs = []
 for filename in filelist:
     # print(f, filename)
@@ -59,12 +63,24 @@ for g, G in enumerate(graphs):
     tat = re.findall(r"([0-3][0-9])\D", filename.split('TAT')[1])[0]
     # find subject id (7 digit combination before word "TAT")
     subj = filename.split('-TAT')[0][-7:]
+    # Convert graph to MultiDiGraph
+    G = nx.MultiDiGraph(G)  # (only for current versions of the gpickle graphs)
     # Get basic graph descriptors
     n_nodes = len(G.nodes())
     n_edges = G.size()
     # Get number of parallel edges
     arr = nx.to_numpy_matrix(G)
     num_multiedges = np.sum(arr >= 2)
+    # LCC
+    lcc = len(max(nx.weakly_connected_components(G), key=len))
+    # LSC
+    lsc = len(max(nx.strongly_connected_components(G), key=len))
+    if lsc == 1:
+        print('=======================')
+        print(max(nx.strongly_connected_components(G), key=len))
+        print('-----------')
+        print(list(nx.selfloop_edges(G, data=True)))
+    #     break
     # --- Properties that are only defined for non-multi Graphs ---
     # G = nx.DiGraph(G)
     # nx.clustering(G)
@@ -78,23 +94,28 @@ for g, G in enumerate(graphs):
         n_nodes,
         n_edges,
         num_multiedges,
+        lcc,
+        lsc
         # avg_clustering,
         # avg_node_conn
     ])
 
-
-# --------------------- Visualise parallel edges-----------------------------------
-# for g, G in enumerate(graphs):
-# Plot graph as matrix
-fig, ax = plt.subplots()
-arr = nx.to_numpy_matrix(G)
-im = plt.imshow(arr, interpolation='nearest', cmap='gray')
-node_labels = list(G.nodes())
-ax.set_xticks(np.arange(len(node_labels)))
-ax.set_xticklabels(node_labels)
-ax.set_yticks(np.arange(len(node_labels)))
-ax.set_yticklabels(node_labels)
-plt.show()
+# for i in nx.weakly_connected_components(G):
+#     print(i)
+# for c in sorted(nx.weakly_connected_components(G), key=len, reverse=True):
+#     print(nx.average_shortest_path_length(c))
+# # --------------------- Visualise parallel edges-----------------------------------
+# # for g, G in enumerate(graphs):
+# # Plot graph as matrix
+# fig, ax = plt.subplots()
+# arr = nx.to_numpy_matrix(G)
+# im = plt.imshow(arr, interpolation='nearest', cmap='gray')
+# node_labels = list(G.nodes())
+# ax.set_xticks(np.arange(len(node_labels)))
+# ax.set_xticklabels(node_labels)
+# ax.set_yticks(np.arange(len(node_labels)))
+# ax.set_yticklabels(node_labels)
+# plt.show()
 
 # --------------------- Print parallel edges ---------------------------------------
 # Print all parallel edge data
@@ -109,26 +130,83 @@ for g, G in enumerate(graphs):
         for p in range(0, parallel_edges[0].shape[0]):
             node1 = node_labels[parallel_edges[0][p]]
             node2 = node_labels[parallel_edges[1][p]]
-            # print('\n', node1, node2)
-            print(node1, node2)
-            par_edges_info = G.get_edge_data(node1, node2)
-            print([edge_info['confidence']
-                   for edge_info in par_edges_info.values()])
-            print([edge_info['relation']
-                   for edge_info in par_edges_info.values()])
-            # pprint(par_edges_info)
+            print('\n', g, ' : ', node1, node2)
+            # print(node1, node2)
+            # par_edges_info = G.get_edge_data(node1, node2)
+            # print([edge_info['confidence']
+            #        for edge_info in par_edges_info.values()])
+            # print([edge_info['relation']
+            #        for edge_info in par_edges_info.values()])
+            #             pprint(par_edges_info)
 
 
-# --------------------- Make dataframe ---------------------------------------
-edge_labels = dict([((u, v,), d['relation'])
-                    for u, v, d in G.edges(data=True)])
+# # --------------------- Get edge labels ---------------------------------------
+# edge_labels = dict([((u, v,), d['relation'])
+#                     for u, v, d in G.edges(data=True)])
 
 # --------------------- Make dataframe ---------------------------------------
 df = pd.DataFrame(g_properties, columns=[
     'subj', 'tat',
-    'nodes', 'edges', 'num_multiedges',
+    'nodes', 'edges', 'num_multiedges', 'lcc', 'lsc'
     # 'cc','node_conn'
 ])
+
+# ----------- LCC -----------
+# Set up the plot
+ax = plt.subplot(1, 2, 1)
+hist, bin_edges = np.histogram(df.lcc, bins=1000)
+# plt.figure(figsize=[10, 8])
+plt.bar(bin_edges[:-1], hist, color='#0504aa', alpha=0.7)
+plt.xlim(min(bin_edges), max(bin_edges))
+plt.grid(axis='y', alpha=0.75)
+# plt.xlabel('Nodes', fontsize=15)
+plt.ylabel('Frequency', fontsize=15)
+plt.xticks(fontsize=15)
+plt.yticks(fontsize=15)
+plt.ylabel('Frequency', fontsize=15)
+plt.title('LCC', fontsize=15)
+# ----------- LSC -----------
+# Set up the plot
+ax = plt.subplot(1, 2, 2)
+hist, bin_edges = np.histogram(df.lsc, bins=1000)
+# plt.figure(figsize=[10, 8])
+plt.bar(bin_edges[:-1], hist, color='#0504aa', alpha=0.7)
+plt.xlim(min(bin_edges), max(bin_edges))
+plt.grid(axis='y', alpha=0.75)
+# plt.xlabel('Nodes', fontsize=15)
+plt.ylabel('Frequency', fontsize=15)
+plt.xticks(fontsize=15)
+plt.yticks(fontsize=15)
+plt.ylabel('Frequency', fontsize=15)
+plt.title('LSC', fontsize=15)
+plt.show()
+
+# ----------- LCC, LSC, Nodes, Edges by TAT -----------
+ax = plt.subplot(2, 2, 1)
+sns.boxplot(y='lcc', x='tat',
+            data=df,
+            palette="colorblind",
+            # hue='year'
+            )
+ax = plt.subplot(2, 2, 2)
+sns.boxplot(y='lsc', x='tat',
+            data=df,
+            palette="colorblind",
+            # hue='year'
+            )
+ax = plt.subplot(2, 2, 3)
+sns.boxplot(y='nodes', x='tat',
+            data=df,
+            palette="colorblind",
+            # hue='year'
+            )
+ax = plt.subplot(2, 2, 4)
+sns.boxplot(y='edges', x='tat',
+            data=df,
+            palette="colorblind",
+            # hue='year'
+            )
+plt.show()
 
 # ----------- Plot nodes vs edges -----------
 tats = df.tat.unique()
@@ -150,7 +228,7 @@ print('{0:f} % have at least one parallel edge. Mean number of parallel edges th
 ax = plt.subplot(2, 2, 1)
 hist, bin_edges = np.histogram(df.nodes, bins=1000)
 # plt.figure(figsize=[10, 8])
-plt.bar(bin_edges[:-1], hist, width=5, color='#0504aa', alpha=0.7)
+plt.bar(bin_edges[:-1], hist, color='#0504aa', alpha=0.7)
 plt.xlim(min(bin_edges), max(bin_edges))
 plt.grid(axis='y', alpha=0.75)
 # plt.xlabel('Nodes', fontsize=15)
@@ -163,7 +241,7 @@ plt.title('Nodes', fontsize=15)
 ax = plt.subplot(2, 2, 2)
 hist, bin_edges = np.histogram(df.edges, bins=1000)
 # plt.figure(figsize=[10, 8])
-plt.bar(bin_edges[:-1], hist, width=5, color='#0504aa', alpha=0.7)
+plt.bar(bin_edges[:-1], hist, color='#0504aa', alpha=0.7)
 plt.xlim(min(bin_edges), max(bin_edges))
 plt.grid(axis='y', alpha=0.75)
 # plt.xlabel('Edges', fontsize=15)
@@ -174,9 +252,9 @@ plt.ylabel('Frequency', fontsize=15)
 plt.title('Edges', fontsize=15)
 # ----------- Histogram Nodes/Edges ratio -----------
 ax = plt.subplot(2, 2, 3)
-hist, bin_edges = np.histogram(df.nodes / df.edges, bins=10000)
+hist, bin_edges = np.histogram(df.nodes / df.edges, bins=50000)
 # plt.figure(figsize=[10, 8])
-plt.bar(bin_edges[:-1], hist, width=5, color='#0504aa', alpha=0.7)
+plt.bar(bin_edges[:-1], hist, color='#0504aa', alpha=0.7)
 plt.xlim(min(bin_edges), max(bin_edges))
 plt.grid(axis='y', alpha=0.75)
 # plt.xlabel('Nodes / Edges', fontsize=15)
@@ -188,7 +266,7 @@ plt.title('Nodes / Edges', fontsize=15)
 ax = plt.subplot(2, 2, 4)
 hist, bin_edges = np.histogram(df.num_multiedges, bins=10000)
 # plt.figure(figsize=[10, 8])
-plt.bar(bin_edges[:-1], hist, width=5, color='#0504aa', alpha=0.7)
+plt.bar(bin_edges[:-1], hist, color='#0504aa', alpha=0.7)
 plt.xlim(min(bin_edges), max(bin_edges))
 plt.grid(axis='y', alpha=0.75)
 # plt.xlabel('No of parallel edges', fontsize=15)
@@ -198,10 +276,17 @@ plt.yticks(fontsize=15)
 plt.title('No of parallel edges', fontsize=15)
 plt.show()
 
+# ----------- Get largest connected component -----------
+largest = max(nx.strongly_connected_components(G), key=len)
+weakest = max(nx.weakly_connected_components(G), key=len)
+
 # ----------- Size of largest connected component -----------
 # Not implemented for directed graphs. See:
 # https://stackoverflow.com/questions/47283612/networkx-node-connected-component-not-implemented-for-directed-type
 # ----------- Average size of most connected component -----------
+# ----------- Average shortest path length for each connected component -----------
+for C in (G.subgraph(c).copy() for c in nx.strongly_connected_components(G)):
+    print(nx.average_shortest_path_length(C))
 # ----------- Motifs -----------
 # ----------- XX -----------
 for m, M in enumerate(graphs):
@@ -330,3 +415,19 @@ options_edge_label = {
 nx.draw_networkx_edge_labels(G, pos, **options_edge_label)
 plt.axis('off')
 plt.show()
+
+# --------------------- Plot graph ---------------------------------------
+pos = nx.spring_layout(G)
+nx.draw(G, pos,
+        edge_color='black',
+        width=1,
+        linewidths=1,
+        node_size=500,
+        node_color='pink',
+        alpha=0.9,
+        labels={node: node for node in G.nodes()})
+edge_labels = dict([((u, v,), d['relation'])
+                    for u, v, d in G.edges(data=True)])
+nx.draw_networkx_edge_labels(
+    G, pos, edge_labels=edge_labels, font_color='red')
+plt.show(block=False)

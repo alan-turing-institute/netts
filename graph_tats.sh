@@ -20,15 +20,21 @@ cd /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/
 # for tat in `seq -s ' ' 0 118`; do
 # 25 28 30 44
 
-for tat in `seq -s ' ' 0 175`; do
-    n=$(( tat + 119))
+# for tat in `seq -s ' ' 51 175`; do
+#     n=$(( tat + 119))
+#     python -u ./speech_graph.py ${tat} \
+#     > /Users/CN/Dropbox/speech_graphs/general_public_tat/SpeechGraph_`zeropad ${n} 4`_`date +%F`.txt 2>&1 # (pipe output and error msgs to text file)
+# done
+
+for tat in `seq -s ' ' 0 295`; do
+    n=$(( tat ))
     python -u ./speech_graph.py ${tat} \
-    > /Users/CN/Dropbox/speech_graphs/general_public_tat/SpeechGraph_`zeropad ${n} 4`_`date +%F`.txt 2>&1 # (pipe output and error msgs to text file)
+    > /Users/CN/Dropbox/speech_graphs/all_tats/SpeechGraph_`zeropad ${n} 4`_`date +%F`.txt 2>&1 # (pipe output and error msgs to text file)
 done
 
+# Confirm all tats are processed
+ls /Users/CN/Dropbox/speech_graphs/all_tats/*.txt |wc
 
-# for i in SpeechGraph_*_2021-01-14*; do
-#     new=${i%*_2021*}
-#     new=${new#*SpeechGraph_*}
-#     echo mv $i SpeechGraph_`zeropad ${new} 4`${i#*SpeechGraph_*}
-# done
+for i in /Users/CN/Dropbox/speech_graphs/all_tats/*.txt; do
+    sed -n '/^++++ Obtained unconnected nodes/,/^++++ Cleaned parallel edges from duplicates/p' $i
+done

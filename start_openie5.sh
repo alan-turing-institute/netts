@@ -18,4 +18,4 @@ cd /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/OpenIE-sta
 java -Xmx10g -XX:+UseConcMarkSweepGC -jar openie-assembly-5.0-SNAPSHOT.jar --httpPort 6000
 
 # To see options, run
-java -jar openie-assembly-5.0-SNAPSHOT.jar --usage
+# java -jar openie-assembly-5.0-SNAPSHOT.jar --usage

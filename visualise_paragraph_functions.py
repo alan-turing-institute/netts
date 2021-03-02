@@ -564,6 +564,76 @@ def clean_nodes(edges, nouns, adjectives):
     return edges
 
 
+# --------------------- Clean parallel edges ---------------------------------------
+# Check that each parallel edges (i.e. where node1 and node2 are connected by several relations) are not duplicates of each other, but in fact represent different relations of the same pair of nodes
+def clean_parallel_edges(edges):
+    #
+    # Loop through parallel edges and leave parallel edges only if they represent different relations
+    #
+    node1 = [edge[0] for edge in edges]
+    node2 = [edge[1] for edge in edges]
+    relations = [edge[2]['relation'] for edge in edges]
+    extractors = [edge[2]['extractor'] for edge in edges]
+    confidence = [edge[2]['confidence'] if 'confidence' in edge[2].keys() else 0
+                  for edge in edges]
+    #
+    # Construct dataframe of edges to find duplicate rows
+    df = pd.DataFrame({
+        'n1': node1,
+        'n2': node2,
+        'relation': relations,
+        'extractor': extractors,
+        'confidence': confidence
+    })
+    #
+    # Find duplicate rows
+    boo_same = np.where(df.duplicated())
+    boo_similar = np.where(df.duplicated(
+        subset=['n1', 'n2', 'relation']).values)
+    #
+    # Of the duplicate rows, pick the row that most represents the proper relation (highest confidence in Ollie for example)
+    all_chosen_rows = []
+    for b in range(0, boo_similar[0].shape[0]):
+        # If both extracted by Ollie, keep the one with the higher confidence
+        dupl = df.iloc[boo_similar[0][b]]
+        n1 = dupl["n1"]
+        n2 = dupl["n2"]
+        relation = dupl["relation"]
+        extractor = dupl["extractor"]
+        duplicate_rows = df.query(
+            'n1 == @n1 & n2 == @n2 & relation == @relation')
+        if len(duplicate_rows) == len(duplicate_rows.query('extractor == "ollie"')):
+            # If all duplicate rows were extracted by ollie, take the extraction with the highest confidence
+            chosen_row = duplicate_rows.index[(
+                duplicate_rows.confidence == max(duplicate_rows.confidence))][0]
+            if chosen_row not in all_chosen_rows:
+                all_chosen_rows.append(chosen_row)
+                continue
+        elif len(duplicate_rows) == len(duplicate_rows.duplicated(keep=False)):
+            # If all duplicate rows have exactly the same values in all of the rows, then choose the last of the rows
+            chosen_row = duplicate_rows.index[-1]
+            if chosen_row not in all_chosen_rows:
+                all_chosen_rows.append(chosen_row)
+                print('\n--- Duplicates ---{}\n --- Chosen --- :\n{}'.format(duplicate_rows,
+                                                                             duplicate_rows.iloc[-1].to_frame().T))
+                continue
+    #
+    # Remove all duplicate edges
+    all_duplicate_rows = df.duplicated(
+        subset=['n1', 'n2', 'relation'], keep=False)
+    all_duplicate_rows = np.where(all_duplicate_rows)[0].tolist()
+    clean_edges = [edge for e, edge in enumerate(
+        edges) if e not in all_duplicate_rows]
+    #
+    # Add chosen edges of the duplicate edges
+    for row in all_chosen_rows:
+        clean_edges.append(edges[row])
+    #
+    # Return edges without duplicates
+    print('++++ Cleaned parallel edges from duplicates. ++++')
+    return clean_edges
+
+
 # --------------------------------------------------------------------------------------------
 # ------- Add adjective edges
 

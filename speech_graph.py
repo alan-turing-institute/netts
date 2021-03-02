@@ -49,8 +49,8 @@ import matplotlib.pyplot as plt
 from copy import deepcopy
 from itertools import chain
 import numpy as np
-from nlp_helper_functions import expand_contractions, remove_interjections, replace_problematic_symbols, process_sent, tat_pilot_files, hbn_movie_files, genpub_files
-from visualise_paragraph_functions import create_edges_ollie, create_edges_stanza, get_word_types, get_adj_edges, get_prep_edges, get_obl_edges, add_obl_edges, get_node_synonyms, split_node_synonyms, split_nodes, merge_corefs, clean_nodes, add_adj_edges, add_prep_edges, get_unconnected_nodes
+from nlp_helper_functions import expand_contractions, remove_interjections, replace_problematic_symbols, process_sent, tat_pilot_files, hbn_movie_files, genpub_files, all_tat_files
+from visualise_paragraph_functions import create_edges_ollie, create_edges_stanza, get_word_types, get_adj_edges, get_prep_edges, get_obl_edges, add_obl_edges, get_node_synonyms, split_node_synonyms, split_nodes, merge_corefs, clean_nodes, clean_parallel_edges, add_adj_edges, add_prep_edges, get_unconnected_nodes
 import time
 import datetime
 # ------------------------------------------------------------------------------
@@ -58,14 +58,14 @@ import datetime
 start_time = time.time()
 # ------------------------------------------------------------------------------
 # Get sentence
-selected_file = 6
+# selected_file = 47
 selected_file = int(sys.argv[1])
 data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
 
 # ++++++++ TAT Data: Pilot ++++++++
-output_dir = '/Users/CN/Dropbox/speech_graphs/pilot'
-tat_data_dir = op.join(data_dir, 'Kings', 'Prolific_pilot_all_transcripts')
-input_file = op.join(tat_data_dir, tat_pilot_files[selected_file])
+# output_dir = '/Users/CN/Dropbox/speech_graphs/pilot'
+# tat_data_dir = op.join(data_dir, 'Kings', 'Prolific_pilot_all_transcripts')
+# input_file = op.join(tat_data_dir, tat_pilot_files[selected_file])
 
 # # ++++++++ TAT Data: General Public ++++++++
 # output_dir = '/Users/CN/Dropbox/speech_graphs/general_public_tat/'
@@ -77,6 +77,16 @@ input_file = op.join(tat_data_dir, tat_pilot_files[selected_file])
 # hbn_data_dir = op.join(data_dir, 'HBN', 'movie_descriptions')
 # input_file = op.join(hbn_data_dir, hbn_movie_files[selected_file])
 # output_dir = '/Users/CN/Dropbox/speech_graphs/general_public_tat/hbn'
+
+# ++++++++ All TAT files ++++++++
+output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/'
+if selected_file < 119:
+    tat_data_dir = op.join(data_dir, 'Kings', 'Prolific_pilot_all_transcripts')
+    input_file = op.join(tat_data_dir, all_tat_files[selected_file])
+else:
+    genpub_data_dir = op.join(data_dir, 'Kings', 'general_public_tat')
+    input_file = op.join(genpub_data_dir, all_tat_files[selected_file])
+
 
 with open(input_file, 'r') as fh:
     orig_text = fh.read()
@@ -168,14 +178,24 @@ edges = add_prep_edges(edges, preposition_edges,
 
 unconnected_nodes = get_unconnected_nodes(edges, orig_edges, nouns)
 
-# --------------------- Clean nodes ---------------------------------------
+# --------------------- Clean nodes & edges ---------------------------------------
 edges = clean_nodes(edges, nouns, adjectives)
+
+edges = clean_parallel_edges(edges)
+
+
 # --------------------- Speech Graph ---------------------------------------
 fig = plt.figure(figsize=(25.6, 9.6))
 
 
 # Construct Speech Graphs
 G = nx.MultiDiGraph()
+# Add number of words in transcript as graph property
+no_of_tokens = [len(sentence.token) for sentence in ex_stanza.sentence]
+no_of_tokens = sum(no_of_tokens)
+G = nx.MultiDiGraph(transcript_tokens=no_of_tokens)
+# Add unconnected nodes as graph property
+G = nx.MultiDiGraph(unconnected_nodes=unconnected_nodes)
 # G = nx.Graph()
 G.add_edges_from(edges)
 pos = nx.spring_layout(G)
@@ -197,15 +217,17 @@ plt.axis('off')
 print("\n+++ Edges: +++ \n\n %s \n\n+++++++++++++++++++" % (edge_labels))
 # --------------------- Print execution time ---------------------------------------
 print("Processing transcript %s finished in --- %s seconds ---" %
-      (genpub_files[selected_file], time.time() - start_time))
+      (all_tat_files[selected_file], time.time() - start_time))
 # --------------------- Save graph image ---------------------------------------
-# # Initialize output
-# output_dir = '/Users/CN/Dropbox/speech_graphs/general_public_tat/'
+# Initialize output
+output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/'
 # output = op.join(output_dir, 'SpeechGraph_{0:04d}_{1}_{2}'.format(
 #     selected_file + 119, genpub_files[selected_file].strip('.txt'), str(datetime.date.today())))
-# plt.savefig(output)
-# # --------------------- Save graph object ---------------------------------------
-# nx.write_gpickle(G, output + ".gpickle")
+output = op.join(output_dir, 'SpeechGraph_{0:04d}_{1}_{2}'.format(
+    selected_file, all_tat_files[selected_file].strip('.txt'), str(datetime.date.today())))
+plt.savefig(output)
+# --------------------- Save graph object ---------------------------------------
+nx.write_gpickle(G, output + ".gpickle")
 
 # --------------------- Show graph ---------------------------------------
 plt.show(block=False)

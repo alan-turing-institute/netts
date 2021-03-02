@@ -407,3 +407,6 @@ genpub_files = [
     'BQ22895-20-task-kkdc-6378927-TAT13-4-1-converted(1).txt',
     'BQ22895-20-task-kkdc-6379888-TAT10-2-1-converted (1).txt',
 ]
+
+
+all_tat_files = tat_pilot_files + genpub_files
