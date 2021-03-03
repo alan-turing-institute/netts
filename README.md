@@ -9,5 +9,5 @@ Toolbox creates semantic speech graphs from transcribed speech. Speech transcrip
 Below is the semantic speech graph constructed from this text.
 
 ![Semantic speech graph example](semantic_speech_graph_example.png)
-*Figure 1. Example Speech Network. Nodes represents an entity mentioned by the speaker (e.g. I, man, jacket). Edges represent relations between nodes mentioned by the speaker (e.g. see, has on).*
+*Figure 1. Example Speech Graph. Nodes represents an entity mentioned by the speaker (e.g. I, man, jacket). Edges represent relations between nodes mentioned by the speaker (e.g. see, has on).*
 
