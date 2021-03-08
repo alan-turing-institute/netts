@@ -35,8 +35,9 @@ import datetime
 import glob
 import re
 from pprint import pprint
-import seaborn as sb
+import seaborn as sns
 import word2vec as w2v
+import gensim
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import collections
 import stanza
@@ -57,16 +58,20 @@ for filename in filelist:
     graph = op.join(graph_dir, filename)
     graphs.append(nx.read_gpickle((graph)))
 
-for G in graphs:
-    # Node number & Edge number
-    print('Nodes: {} \t Edges: {}'.format(len(G.nodes()), G.size()))
+# for G in graphs:
+#     # Node number & Edge number
+#     print('Nodes: {} \t Edges: {}'.format(len(G.nodes()), G.size()))
 
 # --------------------- Collect properties ---------------------------------------
 g_properties = []
 for g, G in enumerate(graphs):
     filename = filelist[g]
     # find tat index (two-digit combination from 00 to 39 after word "TAT")
-    tat = re.findall(r"([0-3][0-9])\D", filename.split('TAT')[1])[0]
+    tat = re.search('(?<=TAT)\w+', filename)[0]
+    if not len(tat) < 2:
+        tat = tat.split('_')[0]
+    if tat == '8':
+        print(g)
     # find subject id (7 digit combination before word "TAT")
     subj = filename.split('-TAT')[0][-7:]
     # Convert graph to MultiDiGraph
@@ -97,24 +102,25 @@ for g, G in enumerate(graphs):
     degree_cents = nx.degree_centrality(G)
     degree_cents = dict(sorted(degree_cents.items(),
                                key=lambda item: item[1], reverse=True))
-    max_deg_cent = next(iter(degree_cents.items()))
-    max2_deg_cent = list(degree_cents.items())[:2]
+    max_deg_cent = next(iter(degree_cents.items()))[1]
+    max_deg_node = next(iter(degree_cents.items()))[0]
     #
     # Indegree centrality
     in_degree_cents = nx.in_degree_centrality(G)
     in_degree_cents = dict(sorted(in_degree_cents.items(),
                                   key=lambda item: item[1], reverse=True))
     max_indeg_cent = next(iter(in_degree_cents.items()))
-    max2_indeg_cent = list(in_degree_cents.items())[:2]
     #
     # Outdegree centrality
     out_degree_cents = nx.out_degree_centrality(G)
     out_degree_cents = dict(sorted(out_degree_cents.items(),
                                    key=lambda item: item[1], reverse=True))
     max_outdeg_cent = next(iter(out_degree_cents.items()))
-    max2_outdeg_cent = list(out_degree_cents.items())[:2]
     #
     # Confidence measures of relations
+    confidence_vals = []
+    mean_confidence = []
+    std_confidence = []
     confidence_vals = [edge[2]['confidence']
                        for edge in G.edges(data=True) if 'confidence' in edge[2]]
     mean_confidence = np.mean(confidence_vals)
@@ -137,30 +143,26 @@ for g, G in enumerate(graphs):
         sizes_weakly_conn_components,
         number_weakly_conn_components,
         max_deg_cent,
-        max2_deg_cent,
+        max_deg_node,
         max_indeg_cent,
-        max2_indeg_cent,
         max_outdeg_cent,
-        max2_outdeg_cent,
         mean_confidence,
         std_confidence,
         # avg_clustering,
         # avg_node_conn
     ])
-    del confidence_vals, mean_confidence, std_confidence
 
 
 # --------------------- Make dataframe ---------------------------------------
 df = pd.DataFrame(g_properties, columns=[
     'subj', 'tat',
     'nodes', 'edges', 'num_multiedges', 'lsc', 'lcc',
-    'nodes_cc', 'cc',
-    'max_dc',
-    'max2_dc',
+    'nodes_cc',
+    'connected_components',
+    'max_degree_centrality',
+    'max_degree_node',
     'max_indc',
-    'max2_indc',
     'max_outdc',
-    'max2_outdc',
     'mean_confidence',
     'std_confidence',
     # 'cc','node_conn'
@@ -168,19 +170,22 @@ df = pd.DataFrame(g_properties, columns=[
 
 df.subj = pd.Categorical(df.subj)
 df.tat = pd.Categorical(df.tat)
-
-
+df.tat = df.tat.cat.reorder_categories(
+    ['8', '10', '13', '19', '21', '24', '28', '30'])
 # --------------------- Calculate central node word2vec distance ---------------------------------------
 # Initialise Word2Vec model
 model = w2v.load('word2vec_data/text8.bin')
+# model = gensim.models.KeyedVectors.load_word2vec_format(
+#     'GoogleNews-vectors-negative300.bin.gz', binary=True)
 # Initialise stanza to get word lemma
 # nlp = stanza.Pipeline(lang='en', processors='tokenize,mwt,pos,lemma')
 df['distance'] = np.nan
 # Requires word2vec python package and word2vec binary file (setup instructions are in nlp_helper_functions.py)
 tat_words = []
+most_frequent_words = []
 for tat in df.tat.cat.categories:
     # print(tat)
-    tat_words = [y[0] for y in df.query('tat == @tat').max_dc]
+    tat_words = df.query('tat == @tat').max_degree_node
     # ---- Get the most frequent word ---
     stop_words = ['the']
     filtered_words = []
@@ -200,14 +205,16 @@ for tat in df.tat.cat.categories:
         words.append(letter)
         counts.append(count)
     #
-    most_frequent_word = words[0]
+    irrelevant_words = ['i', 'image', 'picture']
+    words = [word for word in words if word not in irrelevant_words]
+    most_frequent_words.append(words[0])
     # ---- Calculate distance between to most frequent word for all words ---
     row_indices = df.index[df.tat == tat].tolist()
     # col_index = df.columns.get_indexer_for('distance')
     distance = []
     for i, current_word in enumerate(filtered_words):
         try:
-            dist = model.distance(most_frequent_word, current_word)
+            dist = model.distance(most_frequent_words[-1], current_word)
             distance.append(dist[0][2])
         except KeyError:
             print('Word is not in word2vec vocabulary: {}. Setting distance as nan.'.format(
@@ -215,12 +222,65 @@ for tat in df.tat.cat.categories:
             distance.append(np.nan)
     df.loc[row_indices, 'distance'] = distance
 
-# ---- Word Clouds ---
+# =================================================================================
+# ======================================= Plots ===================================
+# =================================================================================
+
+# --------------------- Degree distribution ---------------------------------------
+#
+degrees = []
+in_degrees = []
+out_degrees = []
+for G in graphs:
+    deg = [G.degree(n) for n in G.nodes()]
+    degrees.extend(deg)
+    outdeg = [G.out_degree(n) for n in G.nodes()]
+    out_degrees.extend(outdeg)
+    indeg = [G.in_degree(n) for n in G.nodes()]
+    in_degrees.extend(indeg)
+
+# --------------------- Raster Plot of all Graphs ---------------------------------------
+# # Plot
+# fig = plt.figure(figsize=(14, 9.6))
+# ax = plt.subplot(1, 3, 1)
+# plt.hist(degrees)
+# plt.title('Degrees')
+# ax = plt.subplot(1, 3, 2)
+# plt.hist(in_degrees)
+# plt.title('Indegrees')
+# ax = plt.subplot(1, 3, 3)
+# plt.hist(out_degrees)
+# plt.title('Outdegrees')
+# # Save figure
+# output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
+# output = op.join(output_dir, 'DegreeDistribution_' +
+#                  '_{0}'.format(str(datetime.date.today())))
+# plt.savefig(output)
+# plt.show(block=False)
+
+
+# fig = plt.figure(figsize=(25.6, 20))
+# for g, G in enumerate(graphs):
+#     ax = plt.subplot(17, 17, g + 1)
+#     pos = nx.spring_layout(G)
+#     plt.axis("off")
+#     nx.draw_networkx_nodes(G, pos, node_size=20)
+#     nx.draw_networkx_edges(G, pos, alpha=0.4)
+
+# output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
+# output = op.join(output_dir, 'GraphsRaster_' +
+#                  '_{0}'.format(str(datetime.date.today())))
+# plt.savefig(output)
+# plt.show(block=False)
+
+# --------------------- Word clouds ---------------------------------------
+fig = plt.figure(figsize=(25, 25))
+
 n_subplots = len(df.tat.cat.categories)
 n_cols_subplots = np.ceil(np.sqrt(n_subplots))
 n_rows_subplots = np.ceil(n_subplots / n_cols_subplots)
 for t, tat in enumerate(df.tat.cat.categories):
-    tat_words = [y[0] for y in df.query('tat == @tat').max_dc]
+    tat_words = df.query('tat == @tat').max_degree_node
     # ---- Get the most frequent word ---
     stop_words = ['the']
     filtered_words = []
@@ -241,147 +301,105 @@ for t, tat in enumerate(df.tat.cat.categories):
     plt.title('TAT' + tat, fontsize=15)
     plt.axis("off")
 
-plt.show()
+output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
+output = op.join(output_dir, 'WordClouds_' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
+plt.show(block=False)
 
-ax = plt.subplot(1, 2, 1)
-hist, bin_edges = np.histogram(df.lcc, bins=1000)
-# plt.figure(figsize=[10, 8])
-plt.bar(bin_edges[:-1], hist, color='#0504aa', alpha=0.7)
-plt.xlim(min(bin_edges), max(bin_edges))
-plt.grid(axis='y', alpha=0.75)
-plt.ylabel('Frequency', fontsize=15)
-plt.xticks(fontsize=15)
-plt.title('LCC', fontsize=15)
-# ----------- Mean Confidence, Std Confidence, Connected Components, Distance Histogram -----------
+
+# ----------- Histogram -----------
+# Mean Confidence, Std Confidence, Connected Components, Max Degree Centrality, Distance
+fig = plt.figure(figsize=(25, 15))
 # Mean Confidence
-ax = plt.subplot(2, 2, 1)
-hist, bin_edges = np.histogram(df.mean_confidence, bins=1000)
-plt.bar(bin_edges[:-1], hist, color='#0504aa', alpha=0.7)
-plt.xlim(min(bin_edges), max(bin_edges))
+ax = plt.subplot(2, 3, 1)
+plt.hist(df.mean_confidence[~np.isnan(df.mean_confidence)])
 plt.grid(axis='y', alpha=0.75)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
 plt.title('Mean Confidence', fontsize=15)
 #
 # Std Confidence
-ax = plt.subplot(2, 2, 2)
-hist, bin_edges = np.histogram(df.std_cofidence, bins=1000)
-plt.bar(bin_edges[:-1], hist, color='#0504aa', alpha=0.7)
-plt.xlim(min(bin_edges), max(bin_edges))
+ax = plt.subplot(2, 3, 2)
+plt.hist(df.std_confidence[~np.isnan(df.std_confidence)])
 plt.grid(axis='y', alpha=0.75)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
 plt.title('Std Confidence', fontsize=15)
 #
 # Connected Components
-ax = plt.subplot(2, 2, 3)
-hist, bin_edges = np.histogram(df.cc, bins=1000)
-plt.bar(bin_edges[:-1], hist, color='#0504aa', alpha=0.7)
-plt.xlim(min(bin_edges), max(bin_edges))
+ax = plt.subplot(2, 3, 3)
+plt.hist(df.connected_components)
 plt.grid(axis='y', alpha=0.75)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
-plt.title('CC', fontsize=15)
+plt.title('Connected Components', fontsize=15)
+#
+# Max Degree Centrality
+ax = plt.subplot(2, 3, 4)
+plt.hist(df.max_degree_centrality)
+plt.grid(axis='y', alpha=0.75)
+plt.ylabel('Frequency', fontsize=15)
+plt.xticks(fontsize=15)
+plt.title('Max Degree Centrality', fontsize=15)
 #
 # Distance
-ax = plt.subplot(2, 2, 4)
-hist, bin_edges = np.histogram(df.distance, bins=1000)
-plt.bar(bin_edges[:-1], hist, color='#0504aa', alpha=0.7)
-plt.xlim(min(bin_edges), max(bin_edges))
+ax = plt.subplot(2, 3, 5)
+plt.hist(df.distance[~np.isnan(df.distance)])
 plt.grid(axis='y', alpha=0.75)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
 plt.title('Distance', fontsize=15)
-plt.show()
-# ----------- Mean Confidence, Std Confidence, Connected Components, Distance by TAT -----------
-ax = plt.subplot(2, 2, 1)
-sns.boxplot(y='mean_confidence', x='tat',
-            data=df,
-            palette="colorblind",
-            # hue='year'
-            )
-ax = plt.subplot(2, 2, 2)
-sns.boxplot(y='std_confidence', x='tat',
-            data=df,
-            palette="colorblind",
-            # hue='year'
-            )
-ax = plt.subplot(2, 2, 3)
-sns.boxplot(y='cc', x='tat',
-            data=df,
-            palette="colorblind",
-            # hue='year'
-            )
-ax = plt.subplot(2, 2, 4)
-sns.boxplot(y='distance', x='tat',
-            data=df,
-            palette="colorblind",
-            # hue='year'
-            )
-plt.show()
-# # Save the image in the img folder:
-# wordcloud.to_file("img/first_review.png")
+# Save figure
+output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
+output = op.join(output_dir, 'Hist_' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
+plt.show(block=False)
 
+# ----------- stripplot for each TAT -----------
+# Mean Confidence, Std Confidence, Connected Components, Max Degree Centrality, Distance
+fig = plt.figure(figsize=(25, 9))
+ax = plt.subplot(2, 3, 1)
+sns.stripplot(y='mean_confidence', x='tat',
+              data=df,
+              palette="colorblind",
+              )
+ax = plt.subplot(2, 3, 2)
+sns.stripplot(y='std_confidence', x='tat',
+              data=df,
+              palette="colorblind",
+              )
+ax = plt.subplot(2, 3, 3)
+sns.stripplot(y='connected_components', x='tat',
+              data=df,
+              palette="colorblind",
+              )
+ax = plt.subplot(2, 3, 4)
+sns.stripplot(y='max_degree_centrality', x='tat',
+              data=df,
+              palette="colorblind",
+              )
+ax = plt.subplot(2, 3, 5)
+sns.stripplot(y='distance', x='tat',
+              data=df,
+              palette="colorblind",
+              )
+ax.set_xticklabels(most_frequent_words)
 
-# word = 'lamppost'
-# doc = nlp(word)
-# doc.lemma
-# print(
-#     *[f'word: {word.text+" "}\tlemma: {word.lemma}' for sent in doc.sentences for word in sent.words], sep='\n')
+output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
+output = op.join(output_dir, 'Hist_TAT' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
+plt.show(block=False)
 
-
-# for i in nx.weakly_connected_components(G):
-#     print(i)
-# for c in sorted(nx.weakly_connected_components(G), key=len, reverse=True):
-#     print(nx.average_shortest_path_length(c))
-# # --------------------- Visualise parallel edges-----------------------------------
-# # for g, G in enumerate(graphs):
-# # Plot graph as matrix
-# fig, ax = plt.subplots()
-# arr = nx.to_numpy_matrix(G)
-# im = plt.imshow(arr, interpolation='nearest', cmap='gray')
-# node_labels = list(G.nodes())
-# ax.set_xticks(np.arange(len(node_labels)))
-# ax.set_xticklabels(node_labels)
-# ax.set_yticks(np.arange(len(node_labels)))
-# ax.set_yticklabels(node_labels)
-# plt.show()
-
-# --------------------- Print parallel edges ---------------------------------------
-# Print all parallel edge data
-for g, G in enumerate(graphs):
-    # print('\n', filelist[g].split('SpeechGraph_')[1])
-    arr = nx.to_numpy_matrix(G)
-    boo = (arr >= 2)
-    if boo.any():
-        parallel_edges = np.where(boo)
-        node_labels = list(G.nodes())
-        # print info for all parallel edges
-        for p in range(0, parallel_edges[0].shape[0]):
-            node1 = node_labels[parallel_edges[0][p]]
-            node2 = node_labels[parallel_edges[1][p]]
-            print('\n', g, ' : ', node1, node2)
-            # print(node1, node2)
-            # par_edges_info = G.get_edge_data(node1, node2)
-            # print([edge_info['confidence']
-            #        for edge_info in par_edges_info.values()])
-            # print([edge_info['relation']
-            #        for edge_info in par_edges_info.values()])
-            #             pprint(par_edges_info)
-# ---> There are no parallel edges after the edge cleaning!
-
-# # --------------------- Get edge labels ---------------------------------------
-# edge_labels = dict([((u, v,), d['relation'])
-#                     for u, v, d in G.edges(data=True)])
-
-
-# ----------- LCC -----------
+# ----------- Hist -----------
+# LCC & LSC
+fig = plt.figure(figsize=(25, 9))
+# ---- LCC ----
 # Set up the plot
 ax = plt.subplot(1, 2, 1)
-hist, bin_edges = np.histogram(df.lcc, bins=1000)
-# plt.figure(figsize=[10, 8])
-plt.bar(bin_edges[:-1], hist, color='#0504aa', alpha=0.7)
-plt.xlim(min(bin_edges), max(bin_edges))
+plt.hist(df.lcc)
 plt.grid(axis='y', alpha=0.75)
 # plt.xlabel('Nodes', fontsize=15)
 plt.ylabel('Frequency', fontsize=15)
@@ -389,13 +407,10 @@ plt.xticks(fontsize=15)
 plt.yticks(fontsize=15)
 plt.ylabel('Frequency', fontsize=15)
 plt.title('LCC', fontsize=15)
-# ----------- LSC -----------
+# ---- LSC ----
 # Set up the plot
 ax = plt.subplot(1, 2, 2)
-hist, bin_edges = np.histogram(df.lsc, bins=1000)
-# plt.figure(figsize=[10, 8])
-plt.bar(bin_edges[:-1], hist, color='#0504aa', alpha=0.7)
-plt.xlim(min(bin_edges), max(bin_edges))
+plt.hist(df.lsc)
 plt.grid(axis='y', alpha=0.75)
 # plt.xlabel('Nodes', fontsize=15)
 plt.ylabel('Frequency', fontsize=15)
@@ -403,39 +418,44 @@ plt.xticks(fontsize=15)
 plt.yticks(fontsize=15)
 plt.ylabel('Frequency', fontsize=15)
 plt.title('LSC', fontsize=15)
-plt.show()
+output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
+output = op.join(output_dir, 'Hist_LCC-LSC' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
+plt.show(block=False)
 
 # ----------- LCC, LSC, Nodes, Edges by TAT -----------
+fig = plt.figure(figsize=(25, 9))
 ax = plt.subplot(2, 2, 1)
-sns.boxplot(y='lcc', x='tat',
-            data=df,
-            palette="colorblind",
-            # hue='year'
-            )
+sns.stripplot(y='lcc', x='tat',
+              data=df,
+              palette="colorblind",
+              )
 ax = plt.subplot(2, 2, 2)
-sns.boxplot(y='lsc', x='tat',
-            data=df,
-            palette="colorblind",
-            # hue='year'
-            )
+sns.stripplot(y='lsc', x='tat',
+              data=df,
+              palette="colorblind",
+              )
 ax = plt.subplot(2, 2, 3)
-sns.boxplot(y='nodes', x='tat',
-            data=df,
-            palette="colorblind",
-            # hue='year'
-            )
+sns.stripplot(y='nodes', x='tat',
+              data=df,
+              palette="colorblind",
+              )
 ax = plt.subplot(2, 2, 4)
-sns.boxplot(y='edges', x='tat',
-            data=df,
-            palette="colorblind",
-            # hue='year'
-            )
-plt.show()
+sns.stripplot(y='edges', x='tat',
+              data=df,
+              palette="colorblind",
+              )
+output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
+output = op.join(output_dir, 'Hist_LCC-LSC_TAT' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
+plt.show(block=False)
 
 # ----------- Plot nodes vs edges -----------
+fig, ax = plt.subplots(figsize=(10, 6))
 tats = df.tat.unique()
 colors = cm.rainbow(np.linspace(0, 1, len(tats)))
-fig, ax = plt.subplots()
 for t, c in zip(tats, colors):
     plt.scatter(df[df.tat == t].nodes, df[df.tat == t].edges, color=c, label=t)
 
@@ -443,216 +463,55 @@ ax.legend(title="TAT")
 plt.title('Nodes vs. Edges')
 plt.xlabel('Nodes')
 plt.ylabel('Edges')
-plt.show()
+output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
+output = op.join(output_dir, 'Nodes_vs_Edges' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
+plt.show(block=False)
 # ----------- How many parallel edges? -----------
 print('{0:f} % have at least one parallel edge. Mean number of parallel edges that are parallel in those: {1:f}'.format(
     len(df[df.num_multiedges > 0]) / len(df) * 100, df[df.num_multiedges > 0].num_multiedges.mean()))
-# ----------- Histogram Nodes -----------
+# ----------- Histogram: Nodes, Edges, Node-Edge ratio, Parallel edges -----------
 # Set up the plot
+fig = plt.figure(figsize=(25, 9))
+# Nodes
 ax = plt.subplot(2, 2, 1)
-hist, bin_edges = np.histogram(df.nodes, bins=1000)
-# plt.figure(figsize=[10, 8])
-plt.bar(bin_edges[:-1], hist, color='#0504aa', alpha=0.7)
-plt.xlim(min(bin_edges), max(bin_edges))
+plt.hist(df.nodes)
 plt.grid(axis='y', alpha=0.75)
-# plt.xlabel('Nodes', fontsize=15)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
 plt.yticks(fontsize=15)
-plt.ylabel('Frequency', fontsize=15)
 plt.title('Nodes', fontsize=15)
-# ----------- Histogram Edges -----------
+# Edges
 ax = plt.subplot(2, 2, 2)
-hist, bin_edges = np.histogram(df.edges, bins=1000)
-# plt.figure(figsize=[10, 8])
-plt.bar(bin_edges[:-1], hist, color='#0504aa', alpha=0.7)
-plt.xlim(min(bin_edges), max(bin_edges))
+plt.hist(df.edges)
 plt.grid(axis='y', alpha=0.75)
-# plt.xlabel('Edges', fontsize=15)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
 plt.yticks(fontsize=15)
-plt.ylabel('Frequency', fontsize=15)
 plt.title('Edges', fontsize=15)
-# ----------- Histogram Nodes/Edges ratio -----------
+# Histogram Nodes/Edges ratio
 ax = plt.subplot(2, 2, 3)
-# hist_ne_ratio, bin_edges_ne_ratio = np.histogram(
-#     df.nodes / df.edges, bins=50000)
-# plt.figure(figsize=[10, 8])
-# plt.bar(bin_edges_ne_ratio[:-1], hist_ne_ratio, color='#0504aa')
-plt.xlim(min(bin_edges_ne_ratio), max(bin_edges_ne_ratio))
+plt.hist(df.nodes / df.edges)
 plt.grid(axis='y', alpha=0.75)
-# plt.xlabel('Nodes / Edges', fontsize=15)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
 plt.yticks(fontsize=15)
 plt.title('Nodes / Edges', fontsize=15)
-# ----------- Parallel edges -----------
+# Parallel edges
 ax = plt.subplot(2, 2, 4)
-hist, bin_edges = np.histogram(df.num_multiedges, bins=10000)
-# plt.figure(figsize=[10, 8])
-plt.bar(bin_edges[:-1], hist, color='#0504aa', alpha=0.7)
-plt.xlim(min(bin_edges), max(bin_edges))
+plt.hist(df.num_multiedges)
 plt.grid(axis='y', alpha=0.75)
-# plt.xlabel('No of parallel edges', fontsize=15)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
 plt.yticks(fontsize=15)
 plt.title('No of parallel edges', fontsize=15)
-plt.show()
-
-# ----------- Get largest connected component -----------
-largest = max(nx.strongly_connected_components(G), key=len)
-weakest = max(nx.weakly_connected_components(G), key=len)
-
-# ----------- Size of largest connected component -----------
-# Not implemented for directed graphs. See:
-# https://stackoverflow.com/questions/47283612/networkx-node-connected-component-not-implemented-for-directed-type
-# ----------- Average size of most connected component -----------
-# ----------- Average shortest path length for each connected component -----------
-for C in (G.subgraph(c).copy() for c in nx.strongly_connected_components(G)):
-    print(nx.average_shortest_path_length(C))
-# ----------- Motifs -----------
-# ----------- XX -----------
-for m, M in enumerate(graphs):
-    print(' ')
-    DG = nx.DiGraph()
-    for u, v, d in M.edges(data=True):
-        if DG.has_edge(u, v):
-            # print('MultiEdge in graph{}'.format(m))
-            print('{} {} \t {} / {} || {} / {} || {}'.format(u, v,
-                                                             d['relation'], DG[u][v]['relation'],
-                                                             d['extractor'], DG[u][v]['extractor'],
-                                                             d['sentence'] == DG[u][v]['sentence']))
-            DG[u][v]['weight'] += 1
-        else:
-            DG.add_edge(u, v,
-                        relation=d['relation'],
-                        extractor=d['extractor'],
-                        sentence=d['sentence'], weight=1)
-
-# Make MultiDiGraph into DiGraph by setting weights as number of edges
-for M in graphs:
-    DG = nx.DiGraph()
-    for u, v in M.edges():
-        if DG.has_edge(u, v):
-            DG[u][v]['weight'] += 1
-        else:
-            DG.add_edge(u, v, weight=1)
-    #
-    # Draw graph weighted by number of edges between nodes
-    pos = nx.spring_layout(DG)
-    weights = nx.get_edge_attributes(DG, 'weight')
-    weights = weights.values()
-    options = {
-        "node_color": "#A0CBE2",
-        "edge_color": weights,
-        "width": 4,
-        "edge_cmap": plt.cm.Blues,
-        "with_labels": False,
-    }
-    nx.draw(DG, pos, **options)
-    edge_labels = dict([((u, v,), d['relation'])
-                        for u, v, d in M.edges(data=True)])
-    nx.draw_networkx_edge_labels(
-        DG, pos, edge_labels=edge_labels, font_color='red')
-    plt.show()
-
-# create weighted graph from M
-# G = nx.DiGraph()
-for u, v in M.edges():
-    if G.has_edge(u, v):
-        G[u][v]['weight'] += 1
-    else:
-        G.add_edge(u, v, weight=1)
-
-
-clustering = nx.clustering(G, weight='weight')
-# --------------------- Make directed multigraph into undirected graph ---------------------------------------
-G = G.to_undirected()
-G = nx.Graph(G)
-# --------------------- Get graph properties ---------------------------------------
-# size, clustering, path lengths
-
-# Size
-G.size()
-# Clustering
-nx.clustering(G)
-nx.average_clustering(G)
-nx.generalized_degree(G)
-# Path lengths
-nx.non_randomness(G)
-len(G.edges())
-len(G.nodes())
-nx.shortest_path_length(G)
-# Efficiency
-nx.global_efficiency(G)
-nx.local_efficiency(G)
-
-# Find parallel edges
-for G in graphs:
-    # For every node in graph
-    for node in G.nodes():
-        # We look for adjacent nodes
-        for adj_node in G[node]:
-            # If adjacent node has an edge to the first node
-            # Or our graph have several edges from the first to the adjacent node
-            if node != adj_node and node in G[adj_node] or len(G[node][adj_node]) > 1:
-                # DO MAGIC!!
-                print(node, adj_node)
-
-
-# Construct Speech Graphs
-# G = nx.read_gpickle((graph))
-
-weights = nx.get_edge_attributes(G, 'confidence')
-weights = weights.values()
-
-
-# If I change the arrowstyle (to get a bigger arrowhead), the graphs are not curved anymore
-node_labels = {node: node for node in G.nodes()}
-options_graph = {
-    "node_color": "pink",
-    "node_size": 2000,
-    "font_size": 18,
-    "alpha": 0.9,
-    "arrowsize": 20,
-    "arrowstyle": "-|>",
-    "labels": node_labels,
-    "edge_color": "black",
-    "width": 1,
-    "linewidths": 1,
-    "edge_cmap": plt.cm.Blues,
-    # "connectionstyle" :’arc1,rad : 0.9’
-}
-pos = nx.spring_layout(G)
-# pos = nx.circular_layout(G)
-nx.draw(G, pos, **options_graph)
-
-
-edge_labels = dict([((u, v,), d['relation'])
-                    for u, v, d in G.edges(data=True)])
-options_edge_label = {
-    "edge_labels": edge_labels,
-    "font_color": 'red',
-    "font_size": 12
-}
-nx.draw_networkx_edge_labels(G, pos, **options_edge_label)
-plt.axis('off')
-plt.show()
-
-# --------------------- Plot graph ---------------------------------------
-pos = nx.spring_layout(G)
-nx.draw(G, pos,
-        edge_color='black',
-        width=1,
-        linewidths=1,
-        node_size=500,
-        node_color='pink',
-        alpha=0.9,
-        labels={node: node for node in G.nodes()})
-edge_labels = dict([((u, v,), d['relation'])
-                    for u, v, d in G.edges(data=True)])
-nx.draw_networkx_edge_labels(
-    G, pos, edge_labels=edge_labels, font_color='red')
+# Save
+output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
+output = op.join(output_dir, 'Hist_LCC-LSC_TAT' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
 plt.show(block=False)
+
+tat = '21'
+df.query('tat == @tat')
