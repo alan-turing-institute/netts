@@ -35,7 +35,13 @@ import datetime
 import glob
 import re
 from pprint import pprint
-import seaborn as sns
+import seaborn as sb
+import word2vec as w2v
+from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
+import collections
+import stanza
+
+# import operator
 
 
 graph_dir = '/Users/CN/Dropbox/speech_graphs/'
@@ -64,23 +70,55 @@ for g, G in enumerate(graphs):
     # find subject id (7 digit combination before word "TAT")
     subj = filename.split('-TAT')[0][-7:]
     # Convert graph to MultiDiGraph
-    G = nx.MultiDiGraph(G)  # (only for current versions of the gpickle graphs)
+    # G = nx.MultiDiGraph(G)  # (only for current versions of the gpickle graphs)
     # Get basic graph descriptors
     n_nodes = len(G.nodes())
     n_edges = G.size()
     # Get number of parallel edges
     arr = nx.to_numpy_matrix(G)
     num_multiedges = np.sum(arr >= 2)
-    # LCC
-    lcc = len(max(nx.weakly_connected_components(G), key=len))
     # LSC
     lsc = len(max(nx.strongly_connected_components(G), key=len))
+    # LCC
+    lcc = len(max(nx.weakly_connected_components(G), key=len))
+    #
     # if lsc == 1:
     #     print('=======================')
     #     print(max(nx.strongly_connected_components(G), key=len))
     #     print('-----------')
     #     print(list(nx.selfloop_edges(G, data=True)))
     #     break
+    #
+    # Number of weakly connected components
+    sizes_weakly_conn_components = [len(c) for c in sorted(
+        nx.weakly_connected_components(G), key=len, reverse=True)]
+    number_weakly_conn_components = len(sizes_weakly_conn_components)
+    # Degree centrality
+    degree_cents = nx.degree_centrality(G)
+    degree_cents = dict(sorted(degree_cents.items(),
+                               key=lambda item: item[1], reverse=True))
+    max_deg_cent = next(iter(degree_cents.items()))
+    max2_deg_cent = list(degree_cents.items())[:2]
+    #
+    # Indegree centrality
+    in_degree_cents = nx.in_degree_centrality(G)
+    in_degree_cents = dict(sorted(in_degree_cents.items(),
+                                  key=lambda item: item[1], reverse=True))
+    max_indeg_cent = next(iter(in_degree_cents.items()))
+    max2_indeg_cent = list(in_degree_cents.items())[:2]
+    #
+    # Outdegree centrality
+    out_degree_cents = nx.out_degree_centrality(G)
+    out_degree_cents = dict(sorted(out_degree_cents.items(),
+                                   key=lambda item: item[1], reverse=True))
+    max_outdeg_cent = next(iter(out_degree_cents.items()))
+    max2_outdeg_cent = list(out_degree_cents.items())[:2]
+    #
+    # Confidence measures of relations
+    confidence_vals = [edge[2]['confidence']
+                       for edge in G.edges(data=True) if 'confidence' in edge[2]]
+    mean_confidence = np.mean(confidence_vals)
+    std_confidence = np.std(confidence_vals)
     # --- Properties that are only defined for non-multi Graphs ---
     # G = nx.DiGraph(G)
     # nx.clustering(G)
@@ -94,11 +132,203 @@ for g, G in enumerate(graphs):
         n_nodes,
         n_edges,
         num_multiedges,
+        lsc,
         lcc,
-        lsc
+        sizes_weakly_conn_components,
+        number_weakly_conn_components,
+        max_deg_cent,
+        max2_deg_cent,
+        max_indeg_cent,
+        max2_indeg_cent,
+        max_outdeg_cent,
+        max2_outdeg_cent,
+        mean_confidence,
+        std_confidence,
         # avg_clustering,
         # avg_node_conn
     ])
+    del confidence_vals, mean_confidence, std_confidence
+
+
+# --------------------- Make dataframe ---------------------------------------
+df = pd.DataFrame(g_properties, columns=[
+    'subj', 'tat',
+    'nodes', 'edges', 'num_multiedges', 'lsc', 'lcc',
+    'nodes_cc', 'cc',
+    'max_dc',
+    'max2_dc',
+    'max_indc',
+    'max2_indc',
+    'max_outdc',
+    'max2_outdc',
+    'mean_confidence',
+    'std_confidence',
+    # 'cc','node_conn'
+])
+
+df.subj = pd.Categorical(df.subj)
+df.tat = pd.Categorical(df.tat)
+
+
+# --------------------- Calculate central node word2vec distance ---------------------------------------
+# Initialise Word2Vec model
+model = w2v.load('word2vec_data/text8.bin')
+# Initialise stanza to get word lemma
+# nlp = stanza.Pipeline(lang='en', processors='tokenize,mwt,pos,lemma')
+df['distance'] = np.nan
+# Requires word2vec python package and word2vec binary file (setup instructions are in nlp_helper_functions.py)
+tat_words = []
+for tat in df.tat.cat.categories:
+    # print(tat)
+    tat_words = [y[0] for y in df.query('tat == @tat').max_dc]
+    # ---- Get the most frequent word ---
+    stop_words = ['the']
+    filtered_words = []
+    for i, words in enumerate(tat_words):
+        # if len(words[0]) > 1
+        for word in words.split(' '):
+            filtered = []
+            if word not in stop_words:
+                filtered.append(word)
+            all_filtered = (' ').join(filtered)
+        filtered_words.append(all_filtered)
+    #
+    counted_words = collections.Counter(filtered_words)
+    words = []
+    counts = []
+    for letter, count in counted_words.most_common(10):
+        words.append(letter)
+        counts.append(count)
+    #
+    most_frequent_word = words[0]
+    # ---- Calculate distance between to most frequent word for all words ---
+    row_indices = df.index[df.tat == tat].tolist()
+    # col_index = df.columns.get_indexer_for('distance')
+    distance = []
+    for i, current_word in enumerate(filtered_words):
+        try:
+            dist = model.distance(most_frequent_word, current_word)
+            distance.append(dist[0][2])
+        except KeyError:
+            print('Word is not in word2vec vocabulary: {}. Setting distance as nan.'.format(
+                current_word))
+            distance.append(np.nan)
+    df.loc[row_indices, 'distance'] = distance
+
+# ---- Word Clouds ---
+n_subplots = len(df.tat.cat.categories)
+n_cols_subplots = np.ceil(np.sqrt(n_subplots))
+n_rows_subplots = np.ceil(n_subplots / n_cols_subplots)
+for t, tat in enumerate(df.tat.cat.categories):
+    tat_words = [y[0] for y in df.query('tat == @tat').max_dc]
+    # ---- Get the most frequent word ---
+    stop_words = ['the']
+    filtered_words = []
+    for i, words in enumerate(tat_words):
+        # if len(words[0]) > 1
+        for word in words.split(' '):
+            filtered = []
+            if word not in stop_words:
+                filtered.append(word)
+            all_filtered = (' ').join(filtered)
+        filtered_words.append(all_filtered)
+    #
+    tat_words_joined = (' ').join(filtered_words)
+    ax = plt.subplot(n_rows_subplots, n_cols_subplots, t + 1)
+    wordcloud = WordCloud(background_color=None,
+                          mode="RGBA").generate(tat_words_joined)
+    plt.imshow(wordcloud, interpolation='bilinear')
+    plt.title('TAT' + tat, fontsize=15)
+    plt.axis("off")
+
+plt.show()
+
+ax = plt.subplot(1, 2, 1)
+hist, bin_edges = np.histogram(df.lcc, bins=1000)
+# plt.figure(figsize=[10, 8])
+plt.bar(bin_edges[:-1], hist, color='#0504aa', alpha=0.7)
+plt.xlim(min(bin_edges), max(bin_edges))
+plt.grid(axis='y', alpha=0.75)
+plt.ylabel('Frequency', fontsize=15)
+plt.xticks(fontsize=15)
+plt.title('LCC', fontsize=15)
+# ----------- Mean Confidence, Std Confidence, Connected Components, Distance Histogram -----------
+# Mean Confidence
+ax = plt.subplot(2, 2, 1)
+hist, bin_edges = np.histogram(df.mean_confidence, bins=1000)
+plt.bar(bin_edges[:-1], hist, color='#0504aa', alpha=0.7)
+plt.xlim(min(bin_edges), max(bin_edges))
+plt.grid(axis='y', alpha=0.75)
+plt.ylabel('Frequency', fontsize=15)
+plt.xticks(fontsize=15)
+plt.title('Mean Confidence', fontsize=15)
+#
+# Std Confidence
+ax = plt.subplot(2, 2, 2)
+hist, bin_edges = np.histogram(df.std_cofidence, bins=1000)
+plt.bar(bin_edges[:-1], hist, color='#0504aa', alpha=0.7)
+plt.xlim(min(bin_edges), max(bin_edges))
+plt.grid(axis='y', alpha=0.75)
+plt.ylabel('Frequency', fontsize=15)
+plt.xticks(fontsize=15)
+plt.title('Std Confidence', fontsize=15)
+#
+# Connected Components
+ax = plt.subplot(2, 2, 3)
+hist, bin_edges = np.histogram(df.cc, bins=1000)
+plt.bar(bin_edges[:-1], hist, color='#0504aa', alpha=0.7)
+plt.xlim(min(bin_edges), max(bin_edges))
+plt.grid(axis='y', alpha=0.75)
+plt.ylabel('Frequency', fontsize=15)
+plt.xticks(fontsize=15)
+plt.title('CC', fontsize=15)
+#
+# Distance
+ax = plt.subplot(2, 2, 4)
+hist, bin_edges = np.histogram(df.distance, bins=1000)
+plt.bar(bin_edges[:-1], hist, color='#0504aa', alpha=0.7)
+plt.xlim(min(bin_edges), max(bin_edges))
+plt.grid(axis='y', alpha=0.75)
+plt.ylabel('Frequency', fontsize=15)
+plt.xticks(fontsize=15)
+plt.title('Distance', fontsize=15)
+plt.show()
+# ----------- Mean Confidence, Std Confidence, Connected Components, Distance by TAT -----------
+ax = plt.subplot(2, 2, 1)
+sns.boxplot(y='mean_confidence', x='tat',
+            data=df,
+            palette="colorblind",
+            # hue='year'
+            )
+ax = plt.subplot(2, 2, 2)
+sns.boxplot(y='std_confidence', x='tat',
+            data=df,
+            palette="colorblind",
+            # hue='year'
+            )
+ax = plt.subplot(2, 2, 3)
+sns.boxplot(y='cc', x='tat',
+            data=df,
+            palette="colorblind",
+            # hue='year'
+            )
+ax = plt.subplot(2, 2, 4)
+sns.boxplot(y='distance', x='tat',
+            data=df,
+            palette="colorblind",
+            # hue='year'
+            )
+plt.show()
+# # Save the image in the img folder:
+# wordcloud.to_file("img/first_review.png")
+
+
+# word = 'lamppost'
+# doc = nlp(word)
+# doc.lemma
+# print(
+#     *[f'word: {word.text+" "}\tlemma: {word.lemma}' for sent in doc.sentences for word in sent.words], sep='\n')
+
 
 # for i in nx.weakly_connected_components(G):
 #     print(i)
@@ -144,12 +374,6 @@ for g, G in enumerate(graphs):
 # edge_labels = dict([((u, v,), d['relation'])
 #                     for u, v, d in G.edges(data=True)])
 
-# --------------------- Make dataframe ---------------------------------------
-df = pd.DataFrame(g_properties, columns=[
-    'subj', 'tat',
-    'nodes', 'edges', 'num_multiedges', 'lcc', 'lsc'
-    # 'cc','node_conn'
-])
 
 # ----------- LCC -----------
 # Set up the plot

@@ -410,3 +410,13 @@ genpub_files = [
 
 
 all_tat_files = tat_pilot_files + genpub_files
+
+# Setting up word2vec:
+# Step 1: pip install word2vec
+# https://pypi.org/project/word2vec/
+# Step 2: Follow instructions in this tutorial notebook: https://nbviewer.jupyter.org/github/danielfrg/word2vec/blob/master/examples/word2vec.ipynb
+# (follow instructions until the beginning of the second section, 'predictions'. So only set up the mode)
+# w2v.word2phrase('word2vec_data/text8',
+#                 'word2vec_data/text8-phrases', verbose=True)
+# w2v.word2vec('word2vec_data/text8-phrases', 'word2vec_data/text8.bin',
+#              size=100, binary=True, verbose=True)

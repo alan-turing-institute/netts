@@ -35,6 +35,8 @@ done
 # - No of sentences
 # - Mean sentence length
 # - Make sure these '[]' and '[?]' are removed
+# - Make word cloud out of most central nodes for each TAT separately
+# - Calculate word2vec for each most central node
 
 # Confirm all tats are processed
 ls /Users/CN/Dropbox/speech_graphs/all_tats/*.txt |wc
