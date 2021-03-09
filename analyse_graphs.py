@@ -12,14 +12,15 @@
 # source /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/venv/bin/activate
 
 # Number of Tats for each stimulus
-# TAT8    28
-# TAT10   68
-# TAT13   61
-# TAT19   32
-# TAT21   13
-# TAT24   43
-# TAT27   0
-# TAT30   43
+# Stimulus  N   N_transcripts
+# TAT8     26   28
+# TAT10    64   68
+# TAT13    59   61
+# TAT19    30   32
+# TAT21    13   13
+# TAT24    42   43
+# TAT28    13   /
+# TAT30    39   43
 
 import networkx as nx
 import os
@@ -53,9 +54,9 @@ filelist = sorted(glob.glob(op.join(graph_dir, 'all_tats', '*.gpickle')))
 # filelist.extend(
 #     sorted(glob.glob(op.join(graph_dir, 'general_public_tat', '*.gpickle'))))
 graphs = []
-for filename in filelist:
-    # print(f, filename)
-    graph = op.join(graph_dir, filename)
+for file in filelist:
+    # print(f, file)
+    graph = op.join(graph_dir, file)
     graphs.append(nx.read_gpickle((graph)))
 
 # for G in graphs:
@@ -65,15 +66,13 @@ for filename in filelist:
 # --------------------- Collect properties ---------------------------------------
 g_properties = []
 for g, G in enumerate(graphs):
-    filename = filelist[g]
+    file = filelist[g]
     # find tat index (two-digit combination from 00 to 39 after word "TAT")
-    tat = re.search('(?<=TAT)\w+', filename)[0]
+    tat = re.search('(?<=TAT)\w+', file)[0]
     if not len(tat) < 2:
         tat = tat.split('_')[0]
-    if tat == '8':
-        print(g)
     # find subject id (7 digit combination before word "TAT")
-    subj = filename.split('-TAT')[0][-7:]
+    subj = file.split('-TAT')[0][-7:]
     # --- Get basic transcript descriptors ---
     n_words = G.graph['tokens']
     n_sents = G.graph['sentences']
@@ -94,7 +93,6 @@ for g, G in enumerate(graphs):
     # Recurrence measures: L1, L2, L3
     cycles = list(nx.simple_cycles(G))
     cycle_lengths = [len(cycle) for cycle in cycles]
-    cycle_lengths.count(3)
     # equivalent to cycle_lengths.count(1):
     L1 = len(list(nx.selfloop_edges(G)))
     L2 = cycle_lengths.count(2)
@@ -131,13 +129,21 @@ for g, G in enumerate(graphs):
     mean_confidence = np.mean(confidence_vals)
     std_confidence = np.std(confidence_vals)
     # --- Properties for undirected version of the graph (w/o self-loops or PEs) ---
-    G = nx.Graph(G)
-    density = nx.density(G)
-    diameter = nx.diameter(G)
-    average_shortest_path = nx.average_shortest_path_length(G)
+    G_basic = nx.Graph(G)
+    density = nx.density(G_basic)
+    # Create subgraph for all connected components
+    # S = [G.subgraph(s).copy() for s in sorted(
+    # nx.connected_components(G), key=len, reverse=True)]
     #
-    # nx.clustering(G)
-    # avg_clustering = nx.average_clustering(G)
+    # Get only largest connected component subgraph
+    s = sorted(nx.connected_components(G_basic), key=len, reverse=True)[0]
+    S = G_basic.subgraph(s).copy()
+    #
+    diameter = nx.diameter(S)
+    #
+    average_shortest_path = nx.average_shortest_path_length(S)
+    #
+    avg_clustering = nx.average_clustering(S)
     # nx.average_degree_connectivity(G)
     # nx.average_neighbor_degree(G)
     # avg_node_conn = nx.average_node_connectivity(G)
@@ -146,11 +152,18 @@ for g, G in enumerate(graphs):
     g_properties.append([
         subj,
         tat,
+        n_words,
+        n_sents,
         n_nodes,
         n_edges,
+        n_unconnected_nodes,
+        average_total_degree,
         parallel_edges,
         lsc,
         lcc,
+        L1,
+        L2,
+        L3,
         sizes_weakly_conn_components,
         number_weakly_conn_components,
         max_deg_cent,
@@ -159,23 +172,34 @@ for g, G in enumerate(graphs):
         max_outdeg_cent,
         mean_confidence,
         std_confidence,
-        # avg_clustering,
-        # avg_node_conn
+        density,
+        diameter,
+        average_shortest_path,
+        avg_clustering,
     ])
 
 # --------------------- Make dataframe ---------------------------------------
 df = pd.DataFrame(g_properties, columns=[
     'subj', 'tat',
-    'nodes', 'edges', 'parallel_edges', 'lsc', 'lcc',
-    'nodes_cc',
+    'words', 'sentences',
+    'nodes', 'edges',
+    'unconnected',
+    'average_total_degree',
+    'parallel_edges',
+    'lsc', 'lcc',
+    'L1', 'L2', 'L3',
+    'sizes_connected_components',
     'connected_components',
     'max_degree_centrality',
     'max_degree_node',
-    'max_indc',
-    'max_outdc',
+    'max_indegree_centrality',
+    'max_outdegree_centrality',
     'mean_confidence',
     'std_confidence',
-    # 'cc','node_conn'
+    'density',
+    'diameter',
+    'average_shortest_path',
+    'clustering',
 ])
 
 df.subj = pd.Categorical(df.subj)
@@ -313,6 +337,126 @@ for t, tat in enumerate(df.tat.cat.categories):
 
 output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
 output = op.join(output_dir, 'WordClouds_' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
+plt.show(block=False)
+
+
+# ----------- Histogram -----------
+# Sentences, Words, Unconnected Nodes, Average Total Degree,
+fig = plt.figure(figsize=(25, 15))
+# Sentences
+ax = plt.subplot(2, 2, 1)
+plt.hist(df.sentences)
+plt.grid(axis='y', alpha=0.75)
+plt.ylabel('Frequency', fontsize=15)
+plt.xticks(fontsize=15)
+plt.title('Sentences', fontsize=15)
+#
+# Words
+ax = plt.subplot(2, 2, 2)
+plt.hist(df.words)
+plt.grid(axis='y', alpha=0.75)
+plt.ylabel('Frequency', fontsize=15)
+plt.xticks(fontsize=15)
+plt.title('Words', fontsize=15)
+#
+# Unconnected Nodes
+ax = plt.subplot(2, 2, 3)
+plt.hist(df.unconnected)
+plt.grid(axis='y', alpha=0.75)
+plt.ylabel('Frequency', fontsize=15)
+plt.xticks(fontsize=15)
+plt.title('Unconnected Nodes', fontsize=15)
+#
+# Average Total Degree
+ax = plt.subplot(2, 2, 4)
+plt.hist(df.average_total_degree)
+plt.grid(axis='y', alpha=0.75)
+plt.ylabel('Frequency', fontsize=15)
+plt.xticks(fontsize=15)
+plt.title('Average Total Degree', fontsize=15)
+#
+# Save figure
+output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
+output = op.join(output_dir, 'Hist_Basics' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
+plt.show(block=False)
+
+# ----------- Histogram -----------
+# L1, L2, L3
+fig = plt.figure(figsize=(25, 15))
+# L1
+ax = plt.subplot(2, 2, 1)
+plt.hist(df.L1)
+plt.grid(axis='y', alpha=0.75)
+plt.ylabel('Frequency', fontsize=15)
+plt.xticks(fontsize=15)
+plt.title('L1', fontsize=15)
+#
+# L2
+ax = plt.subplot(2, 2, 2)
+plt.hist(df.L2)
+plt.grid(axis='y', alpha=0.75)
+plt.ylabel('Frequency', fontsize=15)
+plt.xticks(fontsize=15)
+plt.title('L2', fontsize=15)
+#
+# L3
+ax = plt.subplot(2, 2, 3)
+plt.hist(df.L3)
+plt.grid(axis='y', alpha=0.75)
+plt.ylabel('Frequency', fontsize=15)
+plt.xticks(fontsize=15)
+plt.title('L3', fontsize=15)
+#
+# Save figure
+output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
+output = op.join(output_dir, 'Hist_L' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
+plt.show(block=False)
+
+
+# ----------- Histogram -----------
+# Density, Diameter, Average Shortest Path, Clustering,
+fig = plt.figure(figsize=(25, 15))
+# Density
+ax = plt.subplot(2, 2, 1)
+plt.hist(df.density)
+plt.grid(axis='y', alpha=0.75)
+plt.ylabel('Frequency', fontsize=15)
+plt.xticks(fontsize=15)
+plt.title('Density', fontsize=15)
+#
+# Diameter
+ax = plt.subplot(2, 2, 2)
+plt.hist(df.diameter)
+plt.grid(axis='y', alpha=0.75)
+plt.ylabel('Frequency', fontsize=15)
+plt.xticks(fontsize=15)
+plt.title('Diameter', fontsize=15)
+#
+# Average Shortest Path
+ax = plt.subplot(2, 2, 3)
+plt.hist(df.average_shortest_path)
+plt.grid(axis='y', alpha=0.75)
+plt.ylabel('Frequency', fontsize=15)
+plt.xticks(fontsize=15)
+plt.title('Average Shortest Path', fontsize=15)
+#
+# Clustering
+ax = plt.subplot(2, 2, 4)
+plt.hist(df.clustering)
+plt.grid(axis='y', alpha=0.75)
+plt.ylabel('Frequency', fontsize=15)
+plt.xticks(fontsize=15)
+plt.title('Clustering', fontsize=15)
+#
+# Save figure
+output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
+output = op.join(output_dir, 'Hist_UndirectedGraphProperties' +
                  '_{0}'.format(str(datetime.date.today())))
 plt.savefig(output)
 plt.show(block=False)

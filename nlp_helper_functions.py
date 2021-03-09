@@ -9,6 +9,8 @@ modified by Dr. Caro Nettekoven, 2020
 # from __future__ import division
 import itertools
 import numpy as np
+import stanza
+
 # from collections import Counter
 # from sklearn.decomposition import PCA
 
@@ -411,6 +413,29 @@ genpub_files = [
 
 
 all_tat_files = tat_pilot_files + genpub_files
+
+
+def get_transcript_properties(text):
+    # Start reduced version of stanza
+    nlp = stanza.Pipeline(
+        lang='en', processors='tokenize,pos', be_quiet=True)
+    ex_stanza = nlp(text)
+    # Count number of tokens that are not punctuation
+    total_tokens = 0
+    for sent in ex_stanza.sentences:
+        no_tokens = len(sent.tokens)
+        punctuations = 0
+        for token in sent.tokens:
+            # for word in token.words:
+            if token.words[0].upos == 'PUNCT':
+                # print(token)
+                punctuations += 1
+        total_tokens += no_tokens - punctuations
+    #
+    total_sentences = len(ex_stanza.sentences)
+    #
+    return total_tokens, total_sentences
+
 
 # Setting up word2vec:
 # Step 1: pip install word2vec
