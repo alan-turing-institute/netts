@@ -31,12 +31,10 @@ for tat in `seq -s ' ' 1 294`; do
     python -u ./speech_graph.py ${tat} \
     > /Users/CN/Dropbox/speech_graphs/all_tats/SpeechGraph_`zeropad ${n} 4`_`date +%F`.txt 2>&1 # (pipe output and error msgs to text file)
 done
-# Things to add:
-# - No of sentences
-# - Mean sentence length
-# - Make sure these '[]' and '[?]' are removed
-# - Make word cloud out of most central nodes for each TAT separately
-# - Calculate word2vec for each most central node
+
+# TODO: Add No of sentences
+# TODO: Mean sentence length
+
 
 # Confirm all tats are processed
 ls /Users/CN/Dropbox/speech_graphs/all_tats/*.txt |wc
@@ -44,3 +42,4 @@ ls /Users/CN/Dropbox/speech_graphs/all_tats/*.txt |wc
 for i in /Users/CN/Dropbox/speech_graphs/all_tats/*.txt; do
     sed -n '/^++++ Obtained unconnected nodes/,/^++++ Cleaned parallel edges from duplicates/p' $i
 done
+

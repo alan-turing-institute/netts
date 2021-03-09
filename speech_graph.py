@@ -189,15 +189,15 @@ fig = plt.figure(figsize=(25.6, 9.6))
 
 
 # Construct Speech Graphs
-G = nx.MultiDiGraph()
-# Add number of words in transcript as graph property
+# Add Graph properties: number of tokens, number of sentences, unconnected nodes as graph property
 no_of_tokens = [len(sentence.token) for sentence in ex_stanza.sentence]
 no_of_tokens = sum(no_of_tokens)
-G = nx.MultiDiGraph(transcript_tokens=no_of_tokens)
-# Add unconnected nodes as graph property
-G = nx.MultiDiGraph(unconnected_nodes=unconnected_nodes)
-# G = nx.Graph()
+# Add properties
+G = nx.MultiDiGraph(sentences=len(ex_stanza.sentence),
+                    tokens=no_of_tokens, unconnected_nodes=unconnected_nodes)
+# Add Edges
 G.add_edges_from(edges)
+# Plot Graph and add edge labels
 pos = nx.spring_layout(G)
 nx.draw(G, pos,
         edge_color='black',
@@ -213,12 +213,12 @@ nx.draw_networkx_edge_labels(
     G, pos, edge_labels=edge_labels, font_color='red')
 
 plt.axis('off')
-# --------------------- Print resulting edges ---------------------------------------
+# Print resulting edges
 print("\n+++ Edges: +++ \n\n %s \n\n+++++++++++++++++++" % (edge_labels))
-# --------------------- Print execution time ---------------------------------------
+# Print execution time
 print("Processing transcript %s finished in --- %s seconds ---" %
       (all_tat_files[selected_file], time.time() - start_time))
-# --------------------- Save graph image ---------------------------------------
+# --- Save graph image ---
 # Initialize output
 output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/'
 # output = op.join(output_dir, 'SpeechGraph_{0:04d}_{1}_{2}'.format(
@@ -226,8 +226,7 @@ output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/'
 output = op.join(output_dir, 'SpeechGraph_{0:04d}_{1}_{2}'.format(
     selected_file, all_tat_files[selected_file].strip('.txt'), str(datetime.date.today())))
 plt.savefig(output)
-# --------------------- Save graph object ---------------------------------------
+# --- Save graph object ---
 nx.write_gpickle(G, output + ".gpickle")
-
-# --------------------- Show graph ---------------------------------------
+# --- Show graph ---
 plt.show(block=False)

@@ -74,26 +74,31 @@ for g, G in enumerate(graphs):
         print(g)
     # find subject id (7 digit combination before word "TAT")
     subj = filename.split('-TAT')[0][-7:]
-    # Convert graph to MultiDiGraph
-    # G = nx.MultiDiGraph(G)  # (only for current versions of the gpickle graphs)
-    # Get basic graph descriptors
+    # --- Get basic transcript descriptors ---
+    n_words = G.graph['tokens']
+    n_sents = G.graph['sentences']
+    #
+    # --- Get basic graph descriptors ---
     n_nodes = len(G.nodes())
     n_edges = G.size()
+    n_unconnected_nodes = len(G.graph['unconnected_nodes'])
+    # Get average total degree
+    average_total_degree = n_edges / n_nodes
     # Get number of parallel edges
     arr = nx.to_numpy_matrix(G)
-    num_multiedges = np.sum(arr >= 2)
+    parallel_edges = np.sum(arr >= 2)
     # LSC
     lsc = len(max(nx.strongly_connected_components(G), key=len))
     # LCC
     lcc = len(max(nx.weakly_connected_components(G), key=len))
-    #
-    # if lsc == 1:
-    #     print('=======================')
-    #     print(max(nx.strongly_connected_components(G), key=len))
-    #     print('-----------')
-    #     print(list(nx.selfloop_edges(G, data=True)))
-    #     break
-    #
+    # Recurrence measures: L1, L2, L3
+    cycles = list(nx.simple_cycles(G))
+    cycle_lengths = [len(cycle) for cycle in cycles]
+    cycle_lengths.count(3)
+    # equivalent to cycle_lengths.count(1):
+    L1 = len(list(nx.selfloop_edges(G)))
+    L2 = cycle_lengths.count(2)
+    L3 = cycle_lengths.count(3)
     # Number of weakly connected components
     sizes_weakly_conn_components = [len(c) for c in sorted(
         nx.weakly_connected_components(G), key=len, reverse=True)]
@@ -125,19 +130,25 @@ for g, G in enumerate(graphs):
                        for edge in G.edges(data=True) if 'confidence' in edge[2]]
     mean_confidence = np.mean(confidence_vals)
     std_confidence = np.std(confidence_vals)
-    # --- Properties that are only defined for non-multi Graphs ---
-    # G = nx.DiGraph(G)
+    # --- Properties for undirected version of the graph (w/o self-loops or PEs) ---
+    G = nx.Graph(G)
+    density = nx.density(G)
+    diameter = nx.diameter(G)
+    average_shortest_path = nx.average_shortest_path_length(G)
+    #
     # nx.clustering(G)
     # avg_clustering = nx.average_clustering(G)
     # nx.average_degree_connectivity(G)
     # nx.average_neighbor_degree(G)
     # avg_node_conn = nx.average_node_connectivity(G)
+    #
+    # --- Collect Properties ---
     g_properties.append([
         subj,
         tat,
         n_nodes,
         n_edges,
-        num_multiedges,
+        parallel_edges,
         lsc,
         lcc,
         sizes_weakly_conn_components,
@@ -152,11 +163,10 @@ for g, G in enumerate(graphs):
         # avg_node_conn
     ])
 
-
 # --------------------- Make dataframe ---------------------------------------
 df = pd.DataFrame(g_properties, columns=[
     'subj', 'tat',
-    'nodes', 'edges', 'num_multiedges', 'lsc', 'lcc',
+    'nodes', 'edges', 'parallel_edges', 'lsc', 'lcc',
     'nodes_cc',
     'connected_components',
     'max_degree_centrality',
@@ -470,7 +480,7 @@ plt.savefig(output)
 plt.show(block=False)
 # ----------- How many parallel edges? -----------
 print('{0:f} % have at least one parallel edge. Mean number of parallel edges that are parallel in those: {1:f}'.format(
-    len(df[df.num_multiedges > 0]) / len(df) * 100, df[df.num_multiedges > 0].num_multiedges.mean()))
+    len(df[df.parallel_edges > 0]) / len(df) * 100, df[df.parallel_edges > 0].parallel_edges.mean()))
 # ----------- Histogram: Nodes, Edges, Node-Edge ratio, Parallel edges -----------
 # Set up the plot
 fig = plt.figure(figsize=(25, 9))
@@ -500,7 +510,7 @@ plt.yticks(fontsize=15)
 plt.title('Nodes / Edges', fontsize=15)
 # Parallel edges
 ax = plt.subplot(2, 2, 4)
-plt.hist(df.num_multiedges)
+plt.hist(df.parallel_edges)
 plt.grid(axis='y', alpha=0.75)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)

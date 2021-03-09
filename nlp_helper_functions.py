@@ -40,7 +40,8 @@ def process_sent(sent):
 
     stop_words = nltk.corpus.stopwords.words('english')
     newStopWords = ['Um', 'um', 'Uh', 'uh', 'Eh', 'eh', 'Ehm', 'Em', 'em', 'Mmm', 'mmm',
-                    'ah', 'Ah', 'Aah', 'aah', 'hmm', 'hmmm', 'Hmm', 'Hmmm', 'inaudible', 'Inaudible']
+                    'ah', 'Ah', 'Aah', 'aah', 'hmm', 'hmmm', 'Hmm', 'Hmmm', 'inaudible', 'Inaudible',
+                    '[]', '[?]']
     stop_words.extend(newStopWords)
 
     sent2 = expand_contractions(sent)  # expand contractions
