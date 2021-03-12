@@ -69,7 +69,7 @@ for g, G in enumerate(graphs):
     file = filelist[g]
     # find tat index (two-digit combination from 00 to 39 after word "TAT")
     tat = re.search('(?<=TAT)\w+', file)[0]
-    if not len(tat) < 2:
+    if len(tat) > 2:
         tat = tat.split('_')[0]
     # find subject id (7 digit combination before word "TAT")
     subj = file.split('-TAT')[0][-7:]
@@ -121,11 +121,11 @@ for g, G in enumerate(graphs):
     max_outdeg_cent = next(iter(out_degree_cents.items()))
     #
     # Confidence measures of relations
-    confidence_vals = []
-    mean_confidence = []
-    std_confidence = []
     confidence_vals = [edge[2]['confidence']
                        for edge in G.edges(data=True) if 'confidence' in edge[2]]
+    if confidence_vals == []:
+        confidence_vals = np.nan
+    #
     mean_confidence = np.mean(confidence_vals)
     std_confidence = np.std(confidence_vals)
     # --- Properties for undirected version of the graph (w/o self-loops or PEs) ---
@@ -178,6 +178,7 @@ for g, G in enumerate(graphs):
         avg_clustering,
     ])
 
+
 # --------------------- Make dataframe ---------------------------------------
 df = pd.DataFrame(g_properties, columns=[
     'subj', 'tat',
@@ -204,8 +205,9 @@ df = pd.DataFrame(g_properties, columns=[
 
 df.subj = pd.Categorical(df.subj)
 df.tat = pd.Categorical(df.tat)
+df.tat = df.tat.cat.rename_categories({'8': '08'})
 df.tat = df.tat.cat.reorder_categories(
-    ['8', '10', '13', '19', '21', '24', '28', '30'])
+    ['08', '10', '13', '19', '21', '24', '28', '30'])
 # --------------------- Calculate central node word2vec distance ---------------------------------------
 # Initialise Word2Vec model
 model = w2v.load('word2vec_data/text8.bin')
@@ -215,9 +217,13 @@ model = w2v.load('word2vec_data/text8.bin')
 # nlp = stanza.Pipeline(lang='en', processors='tokenize,mwt,pos,lemma')
 df['distance'] = np.nan
 # Requires word2vec python package and word2vec binary file (setup instructions are in nlp_helper_functions.py)
+fig = plt.figure(figsize=(25, 25))
+n_subplots = len(df.tat.cat.categories)
+n_cols_subplots = np.ceil(np.sqrt(n_subplots))
+n_rows_subplots = np.ceil(n_subplots / n_cols_subplots)
 tat_words = []
 most_frequent_words = []
-for tat in df.tat.cat.categories:
+for t, tat in enumerate(df.tat.cat.categories):
     # print(tat)
     tat_words = df.query('tat == @tat').max_degree_node
     # ---- Get the most frequent word ---
@@ -239,7 +245,7 @@ for tat in df.tat.cat.categories:
         words.append(letter)
         counts.append(count)
     #
-    irrelevant_words = ['i', 'image', 'picture']
+    irrelevant_words = ['i', 'image', 'picture', 'it']
     words = [word for word in words if word not in irrelevant_words]
     most_frequent_words.append(words[0])
     # ---- Calculate distance between to most frequent word for all words ---
@@ -255,6 +261,21 @@ for tat in df.tat.cat.categories:
                 current_word))
             distance.append(np.nan)
     df.loc[row_indices, 'distance'] = distance
+    # Plot word cloud from most frequent words
+    tat_words_joined = (' ').join(words)
+    ax = plt.subplot(n_rows_subplots, n_cols_subplots, t + 1)
+    wordcloud = WordCloud(background_color=None,
+                          mode="RGBA").generate(tat_words_joined)
+    plt.imshow(wordcloud, interpolation='bilinear')
+    plt.title('TAT' + tat, fontsize=15)
+    plt.axis("off")
+
+output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
+output = op.join(output_dir, 'WordClouds_Distance' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
+# plt.show(block=False)
+plt.show()
 
 # =================================================================================
 # ======================================= Plots ===================================
@@ -380,6 +401,37 @@ plt.title('Average Total Degree', fontsize=15)
 # Save figure
 output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
 output = op.join(output_dir, 'Hist_Basics' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
+plt.show(block=False)
+
+
+# ----------- stripplot for each TAT -----------
+# Sentences, Words, Unconnected Nodes, Average Total Degree,
+fig = plt.figure(figsize=(25, 9))
+ax = plt.subplot(2, 2, 1)
+sns.stripplot(y='sentences', x='tat',
+              data=df,
+              palette="colorblind",
+              )
+ax = plt.subplot(2, 2, 2)
+sns.stripplot(y='words', x='tat',
+              data=df,
+              palette="colorblind",
+              )
+ax = plt.subplot(2, 2, 3)
+sns.stripplot(y='unconnected', x='tat',
+              data=df,
+              palette="colorblind",
+              )
+ax = plt.subplot(2, 2, 4)
+sns.stripplot(y='average_total_degree', x='tat',
+              data=df,
+              palette="colorblind",
+              )
+
+output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
+output = op.join(output_dir, 'Hist_TAT_Basics' +
                  '_{0}'.format(str(datetime.date.today())))
 plt.savefig(output)
 plt.show(block=False)
@@ -539,10 +591,10 @@ sns.stripplot(y='distance', x='tat',
               data=df,
               palette="colorblind",
               )
-ax.set_xticklabels(most_frequent_words)
+# ax.set_xticklabels(most_frequent_words)
 
 output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
-output = op.join(output_dir, 'Hist_TAT' +
+output = op.join(output_dir, 'Hist_TAT_noTicks' +
                  '_{0}'.format(str(datetime.date.today())))
 plt.savefig(output)
 plt.show(block=False)
