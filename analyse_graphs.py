@@ -208,6 +208,7 @@ df.tat = pd.Categorical(df.tat)
 df.tat = df.tat.cat.rename_categories({'8': '08'})
 df.tat = df.tat.cat.reorder_categories(
     ['08', '10', '13', '19', '21', '24', '28', '30'])
+df.tat.value_counts()
 # --------------------- Calculate central node word2vec distance ---------------------------------------
 # Initialise Word2Vec model
 model = w2v.load('word2vec_data/text8.bin')
@@ -348,6 +349,7 @@ for t, tat in enumerate(df.tat.cat.categories):
             all_filtered = (' ').join(filtered)
         filtered_words.append(all_filtered)
     #
+    print(filtered_words)
     tat_words_joined = (' ').join(filtered_words)
     ax = plt.subplot(n_rows_subplots, n_cols_subplots, t + 1)
     wordcloud = WordCloud(background_color=None,
@@ -360,7 +362,8 @@ output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
 output = op.join(output_dir, 'WordClouds_' +
                  '_{0}'.format(str(datetime.date.today())))
 plt.savefig(output)
-plt.show(block=False)
+plt.show()
+# plt.show(block=False)
 
 
 # ----------- Histogram -----------
@@ -368,7 +371,7 @@ plt.show(block=False)
 fig = plt.figure(figsize=(25, 15))
 # Sentences
 ax = plt.subplot(2, 2, 1)
-plt.hist(df.sentences)
+plt.hist(df.sentences, bins=100)
 plt.grid(axis='y', alpha=0.75)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
@@ -376,7 +379,7 @@ plt.title('Sentences', fontsize=15)
 #
 # Words
 ax = plt.subplot(2, 2, 2)
-plt.hist(df.words)
+plt.hist(df.words, bins=100)
 plt.grid(axis='y', alpha=0.75)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
@@ -384,7 +387,7 @@ plt.title('Words', fontsize=15)
 #
 # Unconnected Nodes
 ax = plt.subplot(2, 2, 3)
-plt.hist(df.unconnected)
+plt.hist(df.unconnected, bins=100)
 plt.grid(axis='y', alpha=0.75)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
@@ -392,7 +395,7 @@ plt.title('Unconnected Nodes', fontsize=15)
 #
 # Average Total Degree
 ax = plt.subplot(2, 2, 4)
-plt.hist(df.average_total_degree)
+plt.hist(df.average_total_degree, bins=100)
 plt.grid(axis='y', alpha=0.75)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
@@ -441,7 +444,7 @@ plt.show(block=False)
 fig = plt.figure(figsize=(25, 15))
 # L1
 ax = plt.subplot(2, 2, 1)
-plt.hist(df.L1)
+plt.hist(df.L1, bins=100)
 plt.grid(axis='y', alpha=0.75)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
@@ -449,7 +452,7 @@ plt.title('L1', fontsize=15)
 #
 # L2
 ax = plt.subplot(2, 2, 2)
-plt.hist(df.L2)
+plt.hist(df.L2, bins=100)
 plt.grid(axis='y', alpha=0.75)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
@@ -457,7 +460,7 @@ plt.title('L2', fontsize=15)
 #
 # L3
 ax = plt.subplot(2, 2, 3)
-plt.hist(df.L3)
+plt.hist(df.L3, bins=100)
 plt.grid(axis='y', alpha=0.75)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
@@ -476,7 +479,7 @@ plt.show(block=False)
 fig = plt.figure(figsize=(25, 15))
 # Density
 ax = plt.subplot(2, 2, 1)
-plt.hist(df.density)
+plt.hist(df.density, bins=100)
 plt.grid(axis='y', alpha=0.75)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
@@ -484,7 +487,7 @@ plt.title('Density', fontsize=15)
 #
 # Diameter
 ax = plt.subplot(2, 2, 2)
-plt.hist(df.diameter)
+plt.hist(df.diameter, bins=100)
 plt.grid(axis='y', alpha=0.75)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
@@ -492,7 +495,7 @@ plt.title('Diameter', fontsize=15)
 #
 # Average Shortest Path
 ax = plt.subplot(2, 2, 3)
-plt.hist(df.average_shortest_path)
+plt.hist(df.average_shortest_path, bins=100)
 plt.grid(axis='y', alpha=0.75)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
@@ -500,7 +503,7 @@ plt.title('Average Shortest Path', fontsize=15)
 #
 # Clustering
 ax = plt.subplot(2, 2, 4)
-plt.hist(df.clustering)
+plt.hist(df.clustering, bins=100)
 plt.grid(axis='y', alpha=0.75)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
@@ -519,7 +522,7 @@ plt.show(block=False)
 fig = plt.figure(figsize=(25, 15))
 # Mean Confidence
 ax = plt.subplot(2, 3, 1)
-plt.hist(df.mean_confidence[~np.isnan(df.mean_confidence)])
+plt.hist(df.mean_confidence[~np.isnan(df.mean_confidence)], bins=100)
 plt.grid(axis='y', alpha=0.75)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
@@ -527,7 +530,7 @@ plt.title('Mean Confidence', fontsize=15)
 #
 # Std Confidence
 ax = plt.subplot(2, 3, 2)
-plt.hist(df.std_confidence[~np.isnan(df.std_confidence)])
+plt.hist(df.std_confidence[~np.isnan(df.std_confidence)], bins=100)
 plt.grid(axis='y', alpha=0.75)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
@@ -535,7 +538,7 @@ plt.title('Std Confidence', fontsize=15)
 #
 # Connected Components
 ax = plt.subplot(2, 3, 3)
-plt.hist(df.connected_components)
+plt.hist(df.connected_components, bins=100)
 plt.grid(axis='y', alpha=0.75)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
@@ -543,7 +546,7 @@ plt.title('Connected Components', fontsize=15)
 #
 # Max Degree Centrality
 ax = plt.subplot(2, 3, 4)
-plt.hist(df.max_degree_centrality)
+plt.hist(df.max_degree_centrality, bins=100)
 plt.grid(axis='y', alpha=0.75)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
@@ -551,7 +554,7 @@ plt.title('Max Degree Centrality', fontsize=15)
 #
 # Distance
 ax = plt.subplot(2, 3, 5)
-plt.hist(df.distance[~np.isnan(df.distance)])
+plt.hist(df.distance[~np.isnan(df.distance)], bins=100)
 plt.grid(axis='y', alpha=0.75)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
@@ -591,7 +594,7 @@ sns.stripplot(y='distance', x='tat',
               data=df,
               palette="colorblind",
               )
-# ax.set_xticklabels(most_frequent_words)
+ax.set_xticklabels(most_frequent_words)
 
 output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
 output = op.join(output_dir, 'Hist_TAT_noTicks' +
@@ -605,7 +608,7 @@ fig = plt.figure(figsize=(25, 9))
 # ---- LCC ----
 # Set up the plot
 ax = plt.subplot(1, 2, 1)
-plt.hist(df.lcc)
+plt.hist(df.lcc, bins=100)
 plt.grid(axis='y', alpha=0.75)
 # plt.xlabel('Nodes', fontsize=15)
 plt.ylabel('Frequency', fontsize=15)
@@ -616,7 +619,7 @@ plt.title('LCC', fontsize=15)
 # ---- LSC ----
 # Set up the plot
 ax = plt.subplot(1, 2, 2)
-plt.hist(df.lsc)
+plt.hist(df.lsc, bins=100)
 plt.grid(axis='y', alpha=0.75)
 # plt.xlabel('Nodes', fontsize=15)
 plt.ylabel('Frequency', fontsize=15)
@@ -682,7 +685,7 @@ print('{0:f} % have at least one parallel edge. Mean number of parallel edges th
 fig = plt.figure(figsize=(25, 9))
 # Nodes
 ax = plt.subplot(2, 2, 1)
-plt.hist(df.nodes)
+plt.hist(df.nodes, bins=100)
 plt.grid(axis='y', alpha=0.75)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
@@ -690,7 +693,7 @@ plt.yticks(fontsize=15)
 plt.title('Nodes', fontsize=15)
 # Edges
 ax = plt.subplot(2, 2, 2)
-plt.hist(df.edges)
+plt.hist(df.edges, bins=100)
 plt.grid(axis='y', alpha=0.75)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
@@ -698,7 +701,7 @@ plt.yticks(fontsize=15)
 plt.title('Edges', fontsize=15)
 # Histogram Nodes/Edges ratio
 ax = plt.subplot(2, 2, 3)
-plt.hist(df.nodes / df.edges)
+plt.hist(df.nodes / df.edges, bins=100)
 plt.grid(axis='y', alpha=0.75)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
@@ -706,7 +709,7 @@ plt.yticks(fontsize=15)
 plt.title('Nodes / Edges', fontsize=15)
 # Parallel edges
 ax = plt.subplot(2, 2, 4)
-plt.hist(df.parallel_edges)
+plt.hist(df.parallel_edges, bins=100)
 plt.grid(axis='y', alpha=0.75)
 plt.ylabel('Frequency', fontsize=15)
 plt.xticks(fontsize=15)
@@ -719,5 +722,5 @@ output = op.join(output_dir, 'Hist_LCC-LSC_TAT' +
 plt.savefig(output)
 plt.show(block=False)
 
-tat = '21'
-df.query('tat == @tat')
+# ----------- Print Parallel edges -----------
+# ----------- Print bidirectional edges -----------

@@ -26,14 +26,12 @@ cd /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/
 #     > /Users/CN/Dropbox/speech_graphs/general_public_tat/SpeechGraph_`zeropad ${n} 4`_`date +%F`.txt 2>&1 # (pipe output and error msgs to text file)
 # done
 # 295
-for tat in `seq -s ' ' 1 294`; do
+for tat in `seq -s ' ' 0 294`; do
     n=$(( tat ))
     python -u ./speech_graph.py ${tat} \
     > /Users/CN/Dropbox/speech_graphs/all_tats/SpeechGraph_`zeropad ${n} 4`_`date +%F`.txt 2>&1 # (pipe output and error msgs to text file)
 done
 
-# TODO: Add No of sentences
-# TODO: Mean sentence length
 
 
 # Confirm all tats are processed

@@ -14,6 +14,7 @@
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # source /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/venv/bin/activate
+# TODO: The matching of graphs and filenames needs fixing before saving the graph files. After fixing, comment in the saving line (line 99).
 
 import networkx as nx
 import os
@@ -95,4 +96,4 @@ for g, G in enumerate(graphs):
         g, filename.strip('.txt'), str(datetime.date.today())))
     # --- Save graph object ---
     # print('Saving {}'.format(output + ".gpickle"))
-    nx.write_gpickle(G, output + ".gpickle")
+    # nx.write_gpickle(G, output + ".gpickle")
