@@ -41,3 +41,4 @@ for i in /Users/CN/Dropbox/speech_graphs/all_tats/*.txt; do
     sed -n '/^++++ Obtained unconnected nodes/,/^++++ Cleaned parallel edges from duplicates/p' $i
 done
 
+# TODO: 3143876-TAT24 has adjective edges ('sad person') that are not getting extracted. Why?

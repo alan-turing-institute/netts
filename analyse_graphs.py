@@ -42,6 +42,7 @@ import gensim
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import collections
 import stanza
+from graph_analysis_functions import print_bidirectional_edges, print_parallel_edges, get_parallel_edges, central_words, calc_vector_distance
 
 # import operator
 
@@ -210,73 +211,17 @@ df.tat = df.tat.cat.reorder_categories(
     ['08', '10', '13', '19', '21', '24', '28', '30'])
 df.tat.value_counts()
 # --------------------- Calculate central node word2vec distance ---------------------------------------
+df['distance'] = np.nan
 # Initialise Word2Vec model
 model = w2v.load('word2vec_data/text8.bin')
-# model = gensim.models.KeyedVectors.load_word2vec_format(
-#     'GoogleNews-vectors-negative300.bin.gz', binary=True)
-# Initialise stanza to get word lemma
-# nlp = stanza.Pipeline(lang='en', processors='tokenize,mwt,pos,lemma')
-df['distance'] = np.nan
-# Requires word2vec python package and word2vec binary file (setup instructions are in nlp_helper_functions.py)
-fig = plt.figure(figsize=(25, 25))
-n_subplots = len(df.tat.cat.categories)
-n_cols_subplots = np.ceil(np.sqrt(n_subplots))
-n_rows_subplots = np.ceil(n_subplots / n_cols_subplots)
-tat_words = []
-most_frequent_words = []
-for t, tat in enumerate(df.tat.cat.categories):
-    # print(tat)
-    tat_words = df.query('tat == @tat').max_degree_node
-    # ---- Get the most frequent word ---
-    stop_words = ['the']
-    filtered_words = []
-    for i, words in enumerate(tat_words):
-        # if len(words[0]) > 1
-        for word in words.split(' '):
-            filtered = []
-            if word not in stop_words:
-                filtered.append(word)
-            all_filtered = (' ').join(filtered)
-        filtered_words.append(all_filtered)
-    #
-    counted_words = collections.Counter(filtered_words)
-    words = []
-    counts = []
-    for letter, count in counted_words.most_common(10):
-        words.append(letter)
-        counts.append(count)
-    #
-    irrelevant_words = ['i', 'image', 'picture', 'it']
-    words = [word for word in words if word not in irrelevant_words]
-    most_frequent_words.append(words[0])
+for tat in df.tat.cat.categories:
+    most_frequent_word, tat_words_filtered = central_words(df, tat)
     # ---- Calculate distance between to most frequent word for all words ---
+    distance = calc_vector_distance(
+        most_frequent_word, tat_words_filtered, model)
     row_indices = df.index[df.tat == tat].tolist()
-    # col_index = df.columns.get_indexer_for('distance')
-    distance = []
-    for i, current_word in enumerate(filtered_words):
-        try:
-            dist = model.distance(most_frequent_words[-1], current_word)
-            distance.append(dist[0][2])
-        except KeyError:
-            print('Word is not in word2vec vocabulary: {}. Setting distance as nan.'.format(
-                current_word))
-            distance.append(np.nan)
     df.loc[row_indices, 'distance'] = distance
-    # Plot word cloud from most frequent words
-    tat_words_joined = (' ').join(words)
-    ax = plt.subplot(n_rows_subplots, n_cols_subplots, t + 1)
-    wordcloud = WordCloud(background_color=None,
-                          mode="RGBA").generate(tat_words_joined)
-    plt.imshow(wordcloud, interpolation='bilinear')
-    plt.title('TAT' + tat, fontsize=15)
-    plt.axis("off")
 
-output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
-output = op.join(output_dir, 'WordClouds_Distance' +
-                 '_{0}'.format(str(datetime.date.today())))
-plt.savefig(output)
-# plt.show(block=False)
-plt.show()
 
 # =================================================================================
 # ======================================= Plots ===================================
@@ -295,7 +240,7 @@ for G in graphs:
     indeg = [G.in_degree(n) for n in G.nodes()]
     in_degrees.extend(indeg)
 
-# --------------------- Raster Plot of all Graphs ---------------------------------------
+# --------------------- Degree Distribution Plot ---------------------------------------
 # # Plot
 # fig = plt.figure(figsize=(14, 9.6))
 # ax = plt.subplot(1, 3, 1)
@@ -314,7 +259,7 @@ for G in graphs:
 # plt.savefig(output)
 # plt.show(block=False)
 
-
+# --------------------- Raster Plot of all Graphs ---------------------------------------
 # fig = plt.figure(figsize=(25.6, 20))
 # for g, G in enumerate(graphs):
 #     ax = plt.subplot(17, 17, g + 1)
@@ -594,7 +539,7 @@ sns.stripplot(y='distance', x='tat',
               data=df,
               palette="colorblind",
               )
-ax.set_xticklabels(most_frequent_words)
+ax.set_xticklabels(frequent_words)
 
 output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
 output = op.join(output_dir, 'Hist_TAT_noTicks' +
@@ -677,9 +622,7 @@ output = op.join(output_dir, 'Nodes_vs_Edges' +
                  '_{0}'.format(str(datetime.date.today())))
 plt.savefig(output)
 plt.show(block=False)
-# ----------- How many parallel edges? -----------
-print('{0:f} % have at least one parallel edge. Mean number of parallel edges that are parallel in those: {1:f}'.format(
-    len(df[df.parallel_edges > 0]) / len(df) * 100, df[df.parallel_edges > 0].parallel_edges.mean()))
+
 # ----------- Histogram: Nodes, Edges, Node-Edge ratio, Parallel edges -----------
 # Set up the plot
 fig = plt.figure(figsize=(25, 9))
@@ -722,5 +665,37 @@ output = op.join(output_dir, 'Hist_LCC-LSC_TAT' +
 plt.savefig(output)
 plt.show(block=False)
 
+# ----------- How many parallel edges? -----------
+print('{0:f} % have at least one parallel edge. Mean number of parallel edges that are parallel in those: {1:f}'.format(
+    len(df[df.parallel_edges > 0]) / len(df) * 100, df[df.parallel_edges > 0].parallel_edges.mean()))
+
 # ----------- Print Parallel edges -----------
+
+# Print parallel edges
+for g, G in enumerate(graphs):
+    # Get parallel edges
+    print_parallel_edges(G, quiet=True)
+
+# Get parallel edges (where the sentence matches)
+list_of_all_pes = []
+for g, G in enumerate(graphs):
+    parallel_edges = get_parallel_edges(G, same_sentence=True)
+    list_of_all_pes.append(parallel_edges)
+
+# Construct dataframe from all collected parallel edges
+all_pes = pd.DataFrame(columns=['transcript', 'sent', 'n1', 'relation', 'n2'])
+all_pes_df = pd.concat(list_of_all_pes)
+all_pes_df.head()
+# all_pes_df.to_csv(
+#     '/Users/CN/Dropbox/speech_graphs/all_tats/output/parallel_edges.csv')
+# --> Manual check of parallel edges suggests majority of parallel edges are valid
+
+
 # ----------- Print bidirectional edges -----------
+# 1) Create transpose of matrix
+# 2) Check where transpose is equal to original matrix
+
+for g, G in enumerate(graphs):
+    # Get bidirectional edges
+    print_bidirectional_edges(G, quiet=True)
+    # --> All bidirectional edges seem to be valid
