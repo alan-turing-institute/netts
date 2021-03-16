@@ -256,3 +256,92 @@ def calc_vector_distance(most_frequent_word, tat_words_filtered, model):
                 current_word))
             distance.append(np.nan)
     return distance
+
+
+def choose_representative_word(edge, nlp, quiet=True):
+    """Chooses representative word for both nodes of an edge.
+    Representative word is chosen based on a pre-specified upos tag hierarchy.
+    Proper nouns are most representative, then come nouns, pronouns, adjectives, etc.
+
+
+    Parameters
+    ----------
+    edge : tuple
+        Edge for which representative node words should be chosen.
+    nlp:   stanza nlp pipeline
+
+    Returns
+    -------
+    edge
+        list containing the two nodes which now consist of their representative word only
+
+    """
+    # TODO: Fix representative word choosing. At the moment, some representative words are numbers
+    for idx, node in enumerate(edge):
+        #
+        if len(node.split(' ')) > 1:
+            edge = list(edge)
+            doc = nlp(node)
+            #
+            word_types = [
+                word.upos for sent in doc.sentences for word in sent.words]
+            upos_hierarchy = ['PROPN', 'NOUN', 'PRON', 'ADJ', 'ADV', 'NUM', 'VERB',
+                              'AUX', 'DET', 'SCONJ', 'CCONJ', 'ADP', 'PART', 'INTJ', 'PUNCT', 'SYM', 'X']
+            for upos in upos_hierarchy:
+                # If upos exists in word types of the node, then pick the respective word as the representative one
+                if upos in word_types:
+                    representative_word_idx = word_types.index(upos)
+                    representative_word = doc.sentences[0].words[representative_word_idx].text
+                    edge[idx] = representative_word
+                    if not quiet:
+                        print('Chose {0} as representative word for {1}'.format(
+                            representative_word, node))
+                    continue
+    return edge
+
+
+def calc_vector_distance_all(G, model, nlp, quiet=True):
+    """Calculates word2vec distance between all adjacent nodes in graph.
+
+    Parameters
+    ----------
+    G : MultiDiGraph or DiGraph
+        A directed graph class that can store multiedges.
+    model:   word2vec model that was initialised outside the function. Requires word2vec python package and word2vec binary file (setup instructions are in nlp_helper_functions.py)
+    nlp:   stanza nlp pipeline for choosing representative node word
+
+    Returns
+    -------
+    distance
+        mean distance value for all adjacent nodes
+
+    Dependencies
+    -------
+    choose_representative_word
+        Requires function that chooses representative words for each node.
+
+    """
+    # Construct basic graph without multi edges
+    G_basic = nx.Graph()
+    edges = list(G.edges())
+    G_basic.add_edges_from(edges)
+    # Remove self loops
+    G_basic.remove_edges_from(nx.selfloop_edges(G_basic))
+    # Get distances
+    all_edge_distances = []
+    for edge in list(G_basic.edges()):
+        edge = choose_representative_word(edge, nlp)
+        try:
+            dist = model.distance(edge[0], edge[1])
+            d = dist[0][2]
+            all_edge_distances.append(d)
+            if not quiet:
+                print('\n{} || {}: \t\t{}'.format(
+                    edge[0], edge[1], d))
+        except KeyError:
+            all_edge_distances.append(np.nan)
+            if not quiet:
+                print('\n{} || {}: \t\t{}'.format(
+                    edge[0], edge[1], 'Not in vocabulary'))
+    mean_distance = np.nanmean(all_edge_distances)
+    return mean_distance
