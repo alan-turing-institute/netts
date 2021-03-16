@@ -34,6 +34,9 @@ import stanza
 
 def print_bidirectional_edges(G, quiet=True):
     """Prints the bidirectional edges of a directed graph.
+        Bidirectional edges are found by:
+            # 1) Creating transpose of graph matrix
+            # 2) Checking where transpose is equal to original matrix and original matrix has non-zero value
 
     Parameters
     ----------
@@ -102,7 +105,7 @@ def print_parallel_edges(G, quiet=True):
             G.graph['transcript'])))
     # elif n_parallel_edges == 1:
     #     parallel_edges = np.reshape(parallel_edges, (-1, 2))
-    print('\n======= {} ======='.format(g))
+    print('\n======= {} ======='.format(G.graph['transcript']))
     nodes = list(G.nodes)
     # parallel_edge = parallel_edges[0]
     for e in range(0, n_parallel_edges):
@@ -136,6 +139,7 @@ def get_parallel_edges(G, same_sentence=True):
             'n1'            Source node
             'relation'      Edge label / Relation
             'n2'            Target node
+
     """
     #
     # Get parallel edges
@@ -167,7 +171,6 @@ def get_parallel_edges(G, same_sentence=True):
         'relation', 'n2'])
     if same_sentence:
         if any(pe_df.duplicated(subset=['sent', 'n1', 'n2'], keep=False)):
-            # print('\n======= {} ======='.format(g))
             # Return only those parallel edges that have been extracted from the same sentence
             pe_df_same_sentence = pe_df[pe_df.duplicated(
                 subset=['sent', 'n1', 'n2'], keep=False)]
@@ -244,7 +247,7 @@ def calc_vector_distance(most_frequent_word, tat_words_filtered, model):
 
     """
     distance = []
-    for i, current_word in enumerate(tat_words_filtered):
+    for current_word in tat_words_filtered:
         try:
             dist = model.distance(most_frequent_word, current_word)
             distance.append(dist[0][2])
