@@ -258,67 +258,104 @@ def calc_vector_distance(most_frequent_word, tat_words_filtered, model):
     return distance
 
 
-def choose_representative_word(edge, nlp, quiet=True):
-    """Chooses representative word for both nodes of an edge.
+def find_representative_node_words(graphs, doc, quiet=True, pos_hierarchy=['NNP', 'NNPS', 'NN', 'NNS', 'PRP', 'PRP$', 'CD', 'PDT', 'JJ', 'JJR', 'JJS', 'RB', 'RBR', 'RBS', 'DT', 'WDT',
+                                                                           'WP', 'WP$', 'WRB', 'VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ', 'MD', 'UH', 'EX', 'FW', 'IN', 'CC', 'RP', 'TO', 'POS', 'SYM', 'LS']):
+    """Finds representative word for all nodes of all graphs.
     Representative word is chosen based on a pre-specified upos tag hierarchy.
     Proper nouns are most representative, then come nouns, pronouns, adjectives, etc.
 
 
     Parameters
     ----------
-    edge : tuple
-        Edge for which representative node words should be chosen.
-    nlp:   stanza nlp pipeline
+    graphs : list
+        list with graph objects
+    doc:   stanza-annotated document 
+        each sentence (doc.sentence) contains the concantenated node words of one graph object
 
     Returns
     -------
-    edge
-        list containing the two nodes which now consist of their representative word only
+    representative_node_words
+        dict where the key is the original node words and the value is the representative word for that node
+
+    Dependencies
+    -------
+    choose_representative_word
+        Function that chooses representative words for each node.
 
     """
-    # TODO: Fix representative word choosing. At the moment, some representative words are numbers
-    for idx, node in enumerate(edge):
-        #
-        if len(node.split(' ')) > 1:
-            edge = list(edge)
-            doc = nlp(node)
-            #
-            word_types = [
-                word.upos for sent in doc.sentences for word in sent.words]
-            upos_hierarchy = ['PROPN', 'NOUN', 'PRON', 'ADJ', 'ADV', 'NUM', 'VERB',
-                              'AUX', 'DET', 'SCONJ', 'CCONJ', 'ADP', 'PART', 'INTJ', 'PUNCT', 'SYM', 'X']
-            for upos in upos_hierarchy:
-                # If upos exists in word types of the node, then pick the respective word as the representative one
-                if upos in word_types:
-                    representative_word_idx = word_types.index(upos)
-                    representative_word = doc.sentences[0].words[representative_word_idx].text
-                    edge[idx] = representative_word
-                    if not quiet:
-                        print('Chose {0} as representative word for {1}'.format(
-                            representative_word, node))
-                    continue
-    return edge
+    #
+    representative_node_words = {}
+    for g, G in enumerate(graphs):
+        G_node_token_types = [token.pos for token in doc.sentence[g].token]
+        G_nodes = list(G.nodes())
+        G_nodes_split = []
+        for word in G_nodes:
+            if len(word.split(' ')) > 1:
+                G_nodes_split.extend(word.split(' '))
+            else:
+                G_nodes_split.append(word)
+        for node in G_nodes:
+            token_types = []
+            if len(node.split(' ')) > 1:
+                for node_part in node.split(' '):
+                    idx = G_nodes_split.index(node_part)
+                    token_types.append(G_node_token_types[idx])
+                representative_word = choose_representative_word(
+                    node, token_types, pos_hierarchy, quiet)
+                representative_node_words[node] = representative_word
+    return representative_node_words
 
 
-def calc_vector_distance_all(G, model, nlp, quiet=True):
+def choose_representative_word(node, token_types, pos_hierarchy, quiet=True):
+    """Chooses representative word for the node based on the pos tags for each node word.
+    Representative word is chosen based on a pre-specified pos tag hierarchy.
+    Proper nouns are most representative, then come nouns, pronouns, adjectives, etc.
+
+
+    Parameters
+    ----------
+    node : original node words
+    token_types: pos tags for each node word in the original node from CoreNLP annotation
+    pos_hierarchy : specified hierarchy for pos tags
+
+    Returns
+    -------
+    representative_word : representative word for that node
+
+    """
+    for pos in pos_hierarchy:
+        # If upos exists in word types of the node, then pick the respective word as the representative one
+        if pos in token_types:
+            representative_word_idx = token_types.index(pos)
+            representative_word = node.split(' ')[representative_word_idx]
+            if not quiet:
+                print('{0}\t\t{1}'.format(
+                    representative_word, node))
+            return representative_word
+
+# word_types = [
+#     word.upos for sent in doc.sentences for word in sent.words]
+# upos_hierarchy = ['PROPN', 'NOUN', 'PRON', 'ADJ', 'ADV', 'NUM', 'VERB',
+#                   'AUX', 'DET', 'SCONJ', 'CCONJ', 'ADP', 'PART', 'INTJ', 'PUNCT', 'SYM', 'X']
+
+
+def calc_vector_distance_adj(G, model, representative_node_words, quiet=True):
     """Calculates word2vec distance between all adjacent nodes in graph.
 
     Parameters
     ----------
     G : MultiDiGraph or DiGraph
         A directed graph class that can store multiedges.
-    model:   word2vec model that was initialised outside the function. Requires word2vec python package and word2vec binary file (setup instructions are in nlp_helper_functions.py)
-    nlp:   stanza nlp pipeline for choosing representative node word
+    model : word2vec model
+        Model was initialised outside the function. Requires word2vec python package and word2vec binary file (setup instructions are in nlp_helper_functions.py)
+    representative_node_words : dict
+        where the key is the original node words and the value is the representative word for that node
+
 
     Returns
     -------
     distance
         mean distance value for all adjacent nodes
-
-    Dependencies
-    -------
-    choose_representative_word
-        Requires function that chooses representative words for each node.
 
     """
     # Construct basic graph without multi edges
@@ -330,7 +367,11 @@ def calc_vector_distance_all(G, model, nlp, quiet=True):
     # Get distances
     all_edge_distances = []
     for edge in list(G_basic.edges()):
-        edge = choose_representative_word(edge, nlp)
+        edge = list(edge)
+        # W2v distance can only be calculated between two individual words. If node consists of more than one word, replace with representative node word
+        for n, node in enumerate(edge):
+            if len(node.split(' ')) > 1:
+                edge[n] = representative_node_words[node]
         try:
             dist = model.distance(edge[0], edge[1])
             d = dist[0][2]
