@@ -32,6 +32,12 @@ for tat in `seq -s ' ' 0 294`; do
     > /Users/CN/Dropbox/speech_graphs/all_tats/SpeechGraph_`zeropad ${n} 4`_`date +%F`.txt 2>&1 # (pipe output and error msgs to text file)
 done
 
+for dct in `seq -s ' ' 0 5`; do
+    n=$(( dct ))
+    python -u ./speech_graph.py ${dct} \
+    > /Users/CN/Dropbox/speech_graphs/dct/SpeechGraph_`zeropad ${n} 4`_`date +%F`.txt 2>&1 # (pipe output and error msgs to text file)
+done
+
 
 
 # Confirm all tats are processed

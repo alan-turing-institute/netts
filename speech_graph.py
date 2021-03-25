@@ -12,27 +12,9 @@
 # source /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/venv/bin/activate
 # Usage: python ./speech_graph.py 3
 #        tat=3; python -u ./speech_graph.py ${tat} > figures/SpeechGraph_log_${tat}_`date +%F` # (pipe output to text file)
-# TO DO
-#   - Sanity check: Is each relation represented only once in the edge? (Also check parallel edges in multiedge graph)
-#   - Plot graphs coloured by confidence / extraction type
+# TODO: Plot graphs coloured by confidence / extraction type
 
 # ------------------------------------------------------------------------------
-#
-#                                               EXAMPLE TRANSCRIPTS
-#                                               ===================
-# Property                                  Topic                                       Index       Name
-# ________________________________________________________________________________________________________________
-# ambiguous coreferencing:                  (two women)                                 0       3138838-TAT10
-# ambiguous coreferencing:                  (four men lying on field)                   1       3138838-TAT13
-# clear text and very connected network:    (man wearing jacket, hat and hoodie)        2       3138838-TAT30
-# network as one long, connected line       (women and child at home)                   3       3138849-TAT10
-
-# many synonyms for picture:                (picture, photograph, photo)                10      3138883-TAT30
-# many adjectives:                          (picture, photograph, photo)                11      3138910-TAT24
-
-# many adjectives:                          (snowy day)                                 41      3145067-TAT30
-# many self-references                      (history major)                             8       3138883-TAT13
-# faulty transcript                         (clasped hands)                             9       3138883-TAT24
 
 
 import networkx as nx
@@ -49,7 +31,7 @@ import matplotlib.pyplot as plt
 from copy import deepcopy
 from itertools import chain
 import numpy as np
-from nlp_helper_functions import expand_contractions, remove_interjections, replace_problematic_symbols, process_sent, tat_pilot_files, hbn_movie_files, genpub_files, all_tat_files, get_transcript_properties
+from nlp_helper_functions import expand_contractions, remove_interjections, replace_problematic_symbols, process_sent, tat_pilot_files, hbn_movie_files, genpub_files, all_tat_files, get_transcript_properties, dct_story_files
 from visualise_paragraph_functions import create_edges_ollie, create_edges_stanza, get_word_types, get_adj_edges, get_prep_edges, get_obl_edges, add_obl_edges, get_node_synonyms, split_node_synonyms, split_nodes, merge_corefs, clean_nodes, clean_parallel_edges, add_adj_edges, add_prep_edges, get_unconnected_nodes
 import time
 import datetime
@@ -58,35 +40,31 @@ import datetime
 start_time = time.time()
 # ------------------------------------------------------------------------------
 # Get sentence
-# selected_file = 47
+# selected_file = 1
 selected_file = int(sys.argv[1])
 data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
 
-# ++++++++ TAT Data: Pilot ++++++++
-# output_dir = '/Users/CN/Dropbox/speech_graphs/pilot'
-# tat_data_dir = op.join(data_dir, 'Kings', 'Prolific_pilot_all_transcripts')
-# input_file = op.join(tat_data_dir, tat_pilot_files[selected_file])
-
-# # ++++++++ TAT Data: General Public ++++++++
-# output_dir = '/Users/CN/Dropbox/speech_graphs/general_public_tat/'
-# genpub_data_dir = op.join(data_dir, 'Kings', 'general_public_tat')
-# input_file = op.join(genpub_data_dir, genpub_files[selected_file])
-
-
 # ++++++++ HBN Data ++++++++
 # hbn_data_dir = op.join(data_dir, 'HBN', 'movie_descriptions')
-# input_file = op.join(hbn_data_dir, hbn_movie_files[selected_file])
-# output_dir = '/Users/CN/Dropbox/speech_graphs/general_public_tat/hbn'
+# filename = hbn_movie_files[selected_file]
+# input_file = op.join(hbn_data_dir, filename)
+# output_dir = '/Users/CN/Dropbox/speech_graphs/hbn'
+
+# ++++++++ DCT Data ++++++++
+dct_data_dir = op.join(data_dir, 'DCT', 'stories')
+filename = dct_story_files[selected_file]
+input_file = op.join(dct_data_dir, filename)
+output_dir = '/Users/CN/Dropbox/speech_graphs/dct'
 
 # ++++++++ All TAT files ++++++++
-output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/'
-filename = all_tat_files[selected_file]
-if selected_file < 119:
-    tat_data_dir = op.join(data_dir, 'Kings', 'Prolific_pilot_all_transcripts')
-    input_file = op.join(tat_data_dir, filename)
-else:
-    genpub_data_dir = op.join(data_dir, 'Kings', 'general_public_tat')
-    input_file = op.join(genpub_data_dir, filename)
+# output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/'
+# filename = all_tat_files[selected_file]
+# if selected_file < 119:
+#     tat_data_dir = op.join(data_dir, 'Kings', 'Prolific_pilot_all_transcripts')
+#     input_file = op.join(tat_data_dir, filename)
+# else:
+#     genpub_data_dir = op.join(data_dir, 'Kings', 'general_public_tat')
+#     input_file = op.join(genpub_data_dir, filename)
 
 
 with open(input_file, 'r') as fh:
@@ -100,9 +78,6 @@ text = expand_contractions(text)  # expand it's to it is
 text = remove_interjections(text)  # remove Ums and Mmms
 text = text.strip()  # remove trailing and leading whitespace
 # ------------------------------------------------------------------------------
-# ------- Basic Transcript Descriptors -------
-transcript = filename.strip('.txt')
-total_tokens, total_sentences = get_transcript_properties(text)
 # ------------------------------------------------------------------------------
 # ------- Run Stanford CoreNLP (Stanza) -------
 # Annotate and extract with Stanford CoreNLP
@@ -117,6 +92,9 @@ with CoreNLPClient(properties={
 # ------- Print cleaned text -------
 print("\n+++ Paragraph: +++ \n\n %s \n\n+++++++++++++++++++" % (text))
 
+# ------- Basic Transcript Descriptors -------
+transcript = filename.strip('.txt')
+n_tokens, n_sententences, _ = get_transcript_properties(text, ex_stanza)
 # ------------------------------------------------------------------------------
 # ------- Run OpenIE5 (Ollie) -------
 # Ollie can handle more than one sentence at a time, but need to loop through sentences to keep track of sentence index
@@ -193,8 +171,8 @@ edges = clean_parallel_edges(edges)
 fig = plt.figure(figsize=(25.6, 9.6))
 
 # Construct Speech Graph with properties: number of tokens, number of sentences, unconnected nodes as graph property
-G = nx.MultiDiGraph(transcript=transcript, sentences=total_sentences,
-                    tokens=total_tokens, unconnected_nodes=unconnected_nodes)
+G = nx.MultiDiGraph(transcript=transcript, sentences=n_sententences,
+                    tokens=n_tokens, unconnected_nodes=unconnected_nodes)
 # Add Edges
 G.add_edges_from(edges)
 # Plot Graph and add edge labels
@@ -220,7 +198,6 @@ print("Processing transcript %s finished in --- %s seconds ---" %
       (filename, time.time() - start_time))
 # --- Save graph image ---
 # Initialize output
-output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/'
 # output = op.join(output_dir, 'SpeechGraph_{0:04d}_{1}_{2}'.format(
 #     selected_file + 119, genpub_files[selected_file].strip('.txt'), str(datetime.date.today())))
 output = op.join(output_dir, 'SpeechGraph_{0:04d}_{1}_{2}'.format(

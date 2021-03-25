@@ -55,23 +55,29 @@ def process_sent(sent):
     return sent3
 
 
-# def remove_interjections(text):
-#     interjections = ['Um', 'um', 'Uh', 'uh', 'Eh', 'eh', 'Ehm', 'Em', 'em', 'Mmm', 'mmm',
-#                      'ah', 'Ah', 'Aah', 'aah', 'hmm', 'hmmm', 'Hmm', 'Hmmm', 'inaudible', 'Inaudible', '...']
-#     # tokens = nltk.word_tokenize(sent2)
-#     # remove interjections
-#     for interj in interjections:
-#         text = text.replace(' ' + interj + ' ', '')
-#     #
-#     return text
-
 def remove_interjections(text):
     """
     @author: by Dr. Caro Nettekoven, 2020
     Note: The interjections removed by this funciton are specific for English. Applying this to other languages may cause problems (For example in German "um" is a presposition)
     """
     english_interjections = ['Um', 'um', 'Uh', 'uh', 'Eh', 'eh', 'Ehm', 'Em', 'em', 'Erm', 'erm', 'Ehhm', 'ehhm', 'Ehm', 'ehm', 'Mmm', 'mmm', 'Yeah', 'yeah',
-                             'ah', 'Ah', 'Aah', 'aah', 'hmm', 'hmmm', 'Hmm', 'Hmmm', 'inaudible', 'Inaudible']
+                             'ah', 'Ah', 'Aah', 'aah', 'hmm', 'hmmm', 'Hmm', 'Hmmm', 'inaudible', 'Inaudible', '[]', '[?]']
+    #
+    sent2 = expand_contractions(text)  # expand contractions
+    tokens = nltk.word_tokenize(sent2)
+    # remove interjections
+    tokens = [w for w in tokens if not w in english_interjections]
+    sent3 = ' '.join(tokens)
+    return sent3
+
+
+def remove_nonspeech(text):
+    """
+    @author: by Dr. Caro Nettekoven, 2021
+    Removes transcript text that is not part of the speech. For example timestamps, speaker names, signature of transcription softwares.
+    """
+    non_speech = ['Transcribed by https://otter.ai',
+                  'Unknown Speaker  0:01', 'Unknown Speaker  0:08']  # TODO: Finish this function to remove full expressions, not just tokens
     #
     sent2 = expand_contractions(text)  # expand contractions
     tokens = nltk.word_tokenize(sent2)
@@ -85,6 +91,8 @@ def replace_problematic_symbols(text):
     # key is problematic symbol, value is replacement symbol
     problematic_symbols = {
         '’': "'",
+        "“": '',
+        "”": '',
         # '..': " ",
         # '...': " ",
         # '....': " ",
@@ -230,6 +238,15 @@ hbn_movie_files = [
     'NDARAC904DMU_MRI_recording_excerpt.txt',
     'NDARAD232HVV_MRI_recording_excerpt.txt',
     'NDARAD774HAZ_MRI_recording_excerpt.txt']
+
+dct_story_files = [
+    'story-1.txt',
+    'story-2.txt',
+    'story-3.txt',
+    'story-4.txt',
+    'story-5.txt',
+    'story-6.txt',
+]
 
 
 genpub_files = [
@@ -415,26 +432,30 @@ genpub_files = [
 all_tat_files = tat_pilot_files + genpub_files
 
 
-def get_transcript_properties(text):
-    # Start reduced version of stanza
-    nlp = stanza.Pipeline(
-        lang='en', processors='tokenize,pos', be_quiet=True)
-    ex_stanza = nlp(text)
+def get_transcript_properties(text, ex_stanza):
+    punctuation_pos_tags = ['SENT', '.', ':',
+                            ',', '(', ')', '"', "'", "`", '$', '#']
+    #
     # Count number of tokens that are not punctuation
     total_tokens = 0
-    for sent in ex_stanza.sentences:
-        no_tokens = len(sent.tokens)
-        punctuations = 0
-        for token in sent.tokens:
+    total_punctuations = 0
+    #
+    for sent in ex_stanza.sentence:
+        no_tokens_in_sentence = len(sent.token)
+        total_tokens += no_tokens_in_sentence
+        #
+        for token in sent.token:
             # for word in token.words:
-            if token.words[0].upos == 'PUNCT':
-                # print(token)
-                punctuations += 1
-        total_tokens += no_tokens - punctuations
+            if token.pos in punctuation_pos_tags:
+                # print(token.word, token.pos)
+                total_punctuations += 1
     #
-    total_sentences = len(ex_stanza.sentences)
+    n_tokens = total_tokens - total_punctuations
     #
-    return total_tokens, total_sentences
+    #
+    n_sententences = len(ex_stanza.sentence)
+    #
+    return n_tokens, n_sententences, total_punctuations
 
 
 # Setting up word2vec:
