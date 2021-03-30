@@ -60,3 +60,10 @@ for i in 8 10 13 19 21 24 27 30; do
     ls /Users/CN/Documents/Projects/Cambridge/data/Kings/*/*TAT${i}*.txt | wc | awk '{print $1}'
     
 done
+
+# Sarahs fanmod command
+for FILE in *.edgelist; do
+    ./../../software/fanmod_command_line_linux \
+    3 100000 1 $FILE 1 0 0 2 0 0 0 1000 3 3 \
+    $FILE.OUT 0 1;
+done
