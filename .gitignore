@@ -1,3 +1,7 @@
+# orca files
+cache/
+test.edgelist
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
