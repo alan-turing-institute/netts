@@ -77,6 +77,36 @@ else:
     motif_cols = list(motifs.keys())
     df = pd.read_csv(op.join(graph_dir, 'motif_counts.csv'))
 
+df_m = pd.melt(df, id_vars=df.columns[0], value_vars=motif_cols)
+# ----------- Plot Motif Counts -----------
+fig = plt.figure(figsize=(25, 9))
+plt.title('Motif Counts', fontsize=15)
+ax = plt.subplot(1, 2, 1)
+sns.stripplot(y='value', x='variable',
+              data=df_m,
+              palette="colorblind",
+              )
+plt.show()
+
+fig = plt.figure(figsize=(25.6, 20))
+no_motifs = len(motifs)
+for m, mkey in enumerate(motifs):
+    ax = plt.subplot(2, np.ceil(no_motifs / 2), m + 1)
+    plt.hist(df[mkey])  # , bins=100)
+    plt.grid(axis='y', alpha=0.75)
+    # plt.ylabel('Frequency', fontsize=15)
+    plt.xticks(fontsize=15)
+    plt.title(mkey)
+
+
+# output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
+# output = op.join(output_dir, 'Hist_all_vector_distances' +
+#                  '_{0}'.format(str(datetime.date.today())))
+# plt.savefig(output)
+plt.show()
+
+# ---------------------- PCA ----------------------
+
 # Z-score motif counts
 for col in motif_cols:
     df[col + '_z'] = (df[col] - df[col].mean()) / df[col].std()
@@ -85,8 +115,8 @@ for col in motif_cols:
 #     df[col + '_z'] == scipy.stats.zscore(df[col])
 
 # Add label
-df['y'] = graph_props.tat
-df['label'] = df['y'].apply(lambda i: str(i))
+df['tat'] = graph_props.tat
+df['label'] = df['tat']  # .apply(lambda i: str(i))
 X, y = None, None
 
 motifs_z = [col + '_z' for col in motif_cols]
@@ -100,6 +130,9 @@ df['pca-three'] = pca_result[:, 2]
 print('Explained variation per principal component: {}'.format(
     pca.explained_variance_ratio_))
 
+loadings = pd.DataFrame(pca.components_.T, columns=[
+                        'PC1', 'PC2', 'PC3'], index=feat_cols)
+# ----------------------- Plot PCA -----------------------
 plt.figure(figsize=(16, 10))
 sns.scatterplot(
     x="pca-one", y="pca-two",
