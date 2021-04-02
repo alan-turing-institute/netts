@@ -42,6 +42,7 @@ def rasterplot(motifs, output_dir='/Users/CN/Dropbox/speech_graphs/all_tats/figu
     no_motifs = len(motifs)
     for m, (mkey, M) in enumerate(motifs.items()):
         ax = plt.subplot(2, np.ceil(no_motifs / 2), m + 1)
+        # ax = plt.subplot(np.ceil(no_motifs / 2), 2, m + 1)
         pos = nx.spring_layout(M)
         plt.axis("off")
         nx.draw_networkx_nodes(M, pos, node_size=20)

@@ -48,6 +48,7 @@ import itertools
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from mpl_toolkits.mplot3d import Axes3D
+from sklearn.preprocessing import StandardScaler
 
 # --------------------- Import graphs ---------------------------------------
 graph_dir = '/Users/CN/Dropbox/speech_graphs/all_tats'
@@ -81,11 +82,15 @@ df_m = pd.melt(df, id_vars=df.columns[0], value_vars=motif_cols)
 # ----------- Plot Motif Counts -----------
 fig = plt.figure(figsize=(25, 9))
 plt.title('Motif Counts', fontsize=15)
-ax = plt.subplot(1, 2, 1)
 sns.stripplot(y='value', x='variable',
               data=df_m,
               palette="colorblind",
               )
+
+output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
+output = op.join(output_dir, 'Scatter_motif_counts' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
 plt.show()
 
 fig = plt.figure(figsize=(25.6, 20))
@@ -98,19 +103,21 @@ for m, mkey in enumerate(motifs):
     plt.xticks(fontsize=15)
     plt.title(mkey)
 
-
-# output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
-# output = op.join(output_dir, 'Hist_all_vector_distances' +
-#                  '_{0}'.format(str(datetime.date.today())))
-# plt.savefig(output)
+output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
+output = op.join(output_dir, 'Hist_motif_counts' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
 plt.show()
 
 # ---------------------- PCA ----------------------
-
-# Z-score motif counts
+# PCA implemented in sklearn centers (subtracting the mean from each datapoint).
+# But it doesn't scale input data (i.e. divides the data by the data's std dev).
+# Therefore, we z-transform the input data before running PCA
+#
+# Standardizing data: Z-transform motif counts
 for col in motif_cols:
     df[col + '_z'] = (df[col] - df[col].mean()) / df[col].std()
-
+# Alternatively, use scipy.stats.zscore:
 # for col in motif_cols:
 #     df[col + '_z'] == scipy.stats.zscore(df[col])
 
@@ -121,19 +128,69 @@ X, y = None, None
 
 motifs_z = [col + '_z' for col in motif_cols]
 feat_cols = motifs_z[:-2]
-# PCA
-pca = PCA(n_components=3)
-pca_result = pca.fit_transform(df[feat_cols].values)
+# PCA - other implementation
+n_components = 11
+pca = PCA(n_components=n_components)
+pca.fit(df[feat_cols].values)
+variance = pca.explained_variance_ratio_  # calculate variance ratios
+var = np.cumsum(
+    np.round(pca.explained_variance_ratio_, decimals=3) * 100)
+print('Cumulative variance explained: {}'.format(
+    var))
+
+# Plot explained Variance
+plt.ylabel('% Variance Explained')
+plt.xlabel('# of Features')
+plt.title('PCA Analysis')
+plt.ylim(30, 100.5)
+plt.style.context('seaborn-whitegrid')
+plt.plot(var)
+plt.show()
+
+# Add PCA scores to df
+pca_result = pca.transform(df[feat_cols].values)
 df['pca-one'] = pca_result[:, 0]
 df['pca-two'] = pca_result[:, 1]
 df['pca-three'] = pca_result[:, 2]
 print('Explained variation per principal component: {}'.format(
     pca.explained_variance_ratio_))
 
-loadings = pd.DataFrame(pca.components_.T, columns=[
-                        'PC1', 'PC2', 'PC3'], index=feat_cols)
+pc_cols = ['PC' + str(n + 1) for n in range(0, n_components)]
+
+# Plot covariance of motif counts
+ax = plt.axes()
+X = StandardScaler().fit_transform(df[feat_cols])
+corrmatrix = np.corrcoef(X.T)
+im = ax.imshow(corrmatrix,
+               cmap="RdBu_r", vmin=-1, vmax=1)
+ax.set_xticks(np.arange(len(feat_cols)))
+ax.set_xticklabels(list(feat_cols), rotation=90)
+ax.set_yticks(range(0, len(feat_cols)))
+ax.set_yticklabels(list(feat_cols))
+plt.colorbar(im).ax.set_ylabel("$r$", rotation=0)
+ax.set_title("Motif count correlation matrix")
+plt.tight_layout()
+plt.show()
+
 # ----------------------- Plot PCA -----------------------
-plt.figure(figsize=(16, 10))
+# Get Loadings
+loadings = pd.DataFrame(pca.components_.T, columns=pc_cols, index=feat_cols)
+print(loadings.round(2))
+loadings.round(2).to_csv(op.join(graph_dir, 'pca_loadings.csv'))
+components = loadings.values
+
+# As Matrix
+ax = plt.figure(figsize=(16, 10))
+vmax = np.abs(components).max()
+# plt.imshow(components, cmap="RdBu_r", vmax=vmax, vmin=-vmax)
+sns.heatmap(components, annot=True, vmin=-1, vmax=1, center=0,
+            cmap='coolwarm')
+plt.yticks(np.arange(len(feat_cols)), feat_cols)
+plt.title('PCA')
+plt.xticks(np.arange(len(pc_cols)), pc_cols)
+plt.tight_layout()
+plt.show()
+
 sns.scatterplot(
     x="pca-one", y="pca-two",
     hue="y",
@@ -159,6 +216,10 @@ ax.set_zlabel('pca-three')
 plt.show()
 
 
+# ------------ Motif Morphospace ------------
+df.var()
+df.mean()
+# M01, M02, M03
 # 3D plot of Motif Morphospace
 ax = plt.figure(figsize=(16, 10)).gca(projection='3d')
 ax.scatter(
@@ -173,7 +234,7 @@ ax.set_ylabel('Motif_02')
 ax.set_zlabel('Motif_03')
 plt.show()
 
-
+# M04, M05, M06
 # 3D plot of Motif Morphospace
 ax = plt.figure(figsize=(16, 10)).gca(projection='3d')
 ax.scatter(
@@ -189,8 +250,35 @@ ax.set_zlabel('Motif_06')
 plt.show()
 
 
-df.var()
-df.mean()
+# M01, M02, M03 - zcored
+# 3D plot of Motif Morphospace
+ax = plt.figure(figsize=(16, 10)).gca(projection='3d')
+ax.scatter(
+    xs=df["m01_z"],
+    ys=df["m02_z"],
+    zs=df["m03_z"],
+    c=pd.to_numeric(df["y"]),
+    cmap='tab10'
+)
+ax.set_xlabel('Motif_01_z')
+ax.set_ylabel('Motif_02_z')
+ax.set_zlabel('Motif_03_z')
+plt.show()
+
+# M04, M05, M06 - zcored
+# 3D plot of Motif Morphospace
+ax = plt.figure(figsize=(16, 10)).gca(projection='3d')
+ax.scatter(
+    xs=df["m04_z"],
+    ys=df["m05_z"],
+    zs=df["m06_z"],
+    c=pd.to_numeric(df["y"]),
+    cmap='tab10'
+)
+ax.set_xlabel('Motif_04_z')
+ax.set_ylabel('Motif_05_z')
+ax.set_zlabel('Motif_06_z')
+plt.show()
 
 
 # ------ 3D plot of PCA with vector piercing components ----
