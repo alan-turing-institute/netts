@@ -20,6 +20,7 @@
 import networkx as nx
 import os
 import os.path as op
+from pathlib import Path
 import stanza
 import pandas as pd
 from stanza.server import CoreNLPClient
@@ -31,8 +32,9 @@ import matplotlib.pyplot as plt
 from copy import deepcopy
 from itertools import chain
 import numpy as np
-from nlp_helper_functions import expand_contractions, remove_interjections, replace_problematic_symbols, process_sent, tat_pilot_files, hbn_movie_files, genpub_files, all_tat_files, get_transcript_properties, dct_story_files
+from nlp_helper_functions import expand_contractions, remove_interjections, replace_problematic_symbols, remove_irrelevant_text, process_sent, get_transcript_properties, remove_duplicates
 from visualise_paragraph_functions import create_edges_ollie, create_edges_stanza, get_word_types, get_adj_edges, get_prep_edges, get_obl_edges, add_obl_edges, get_node_synonyms, split_node_synonyms, split_nodes, merge_corefs, clean_nodes, clean_parallel_edges, add_adj_edges, add_prep_edges, get_unconnected_nodes
+# from filelists import tat_pilot_files, hbn_movie_files, genpub_files, all_tat_files, dct_story_files
 import time
 import datetime
 # ------------------------------------------------------------------------------
@@ -41,7 +43,8 @@ start_time = time.time()
 # ------------------------------------------------------------------------------
 # Get sentence
 # selected_file = 1
-selected_file = int(sys.argv[1])
+selected_file = 2916
+# selected_file = int(sys.argv[1])
 data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
 
 # ++++++++ HBN Data ++++++++
@@ -50,11 +53,11 @@ data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
 # input_file = op.join(hbn_data_dir, filename)
 # output_dir = '/Users/CN/Dropbox/speech_graphs/hbn'
 
-# ++++++++ DCT Data ++++++++
-dct_data_dir = op.join(data_dir, 'DCT', 'stories')
-filename = dct_story_files[selected_file]
-input_file = op.join(dct_data_dir, filename)
-output_dir = '/Users/CN/Dropbox/speech_graphs/dct'
+# # ++++++++ DCT Data ++++++++
+# dct_data_dir = op.join(data_dir, 'DCT', 'stories')
+# filename = dct_story_files[selected_file]
+# input_file = op.join(dct_data_dir, filename)
+# output_dir = '/Users/CN/Dropbox/speech_graphs/dct'
 
 # ++++++++ All TAT files ++++++++
 # output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/'
@@ -66,7 +69,21 @@ output_dir = '/Users/CN/Dropbox/speech_graphs/dct'
 #     genpub_data_dir = op.join(data_dir, 'Kings', 'general_public_tat')
 #     input_file = op.join(genpub_data_dir, filename)
 
+# ++++++++ TAT files ++++++++
+# Make list of all transcripts
+# Kings Pilot
+tats = sorted(
+    Path(op.join(data_dir, 'Kings/Prolific_pilot_all_transcripts')).rglob('*TAT*.txt'))
+# Kings Study
+tats.extend(
+    sorted(Path(op.join(data_dir, 'Kings/Manual_2021-04-18')).rglob('*.txt')))
 
+# Process only unique transcripts
+tats = remove_duplicates(tats)
+
+# Import selected transcript
+input_file = tats[selected_file]
+filename = input_file.name
 with open(input_file, 'r') as fh:
     orig_text = fh.read()
 
@@ -76,6 +93,7 @@ with open(input_file, 'r') as fh:
 text = replace_problematic_symbols(orig_text)  # replace ’ with '
 text = expand_contractions(text)  # expand it's to it is
 text = remove_interjections(text)  # remove Ums and Mmms
+text = remove_irrelevant_text(text)
 text = text.strip()  # remove trailing and leading whitespace
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
@@ -198,8 +216,7 @@ print("Processing transcript %s finished in --- %s seconds ---" %
       (filename, time.time() - start_time))
 # --- Save graph image ---
 # Initialize output
-# output = op.join(output_dir, 'SpeechGraph_{0:04d}_{1}_{2}'.format(
-#     selected_file + 119, genpub_files[selected_file].strip('.txt'), str(datetime.date.today())))
+output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/'
 output = op.join(output_dir, 'SpeechGraph_{0:04d}_{1}_{2}'.format(
     selected_file, filename.strip('.txt'), str(datetime.date.today())))
 plt.savefig(output)

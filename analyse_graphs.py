@@ -117,6 +117,7 @@ plt.show()
 # Standardizing data: Z-transform motif counts
 for col in motif_cols:
     df[col + '_z'] = (df[col] - df[col].mean()) / df[col].std()
+
 # Alternatively, use scipy.stats.zscore:
 # for col in motif_cols:
 #     df[col + '_z'] == scipy.stats.zscore(df[col])
@@ -155,25 +156,26 @@ df['pca-three'] = pca_result[:, 2]
 print('Explained variation per principal component: {}'.format(
     pca.explained_variance_ratio_))
 
-pc_cols = ['PC' + str(n + 1) for n in range(0, n_components)]
 
-# Plot covariance of motif counts
-ax = plt.axes()
-X = StandardScaler().fit_transform(df[feat_cols])
-corrmatrix = np.corrcoef(X.T)
-im = ax.imshow(corrmatrix,
-               cmap="RdBu_r", vmin=-1, vmax=1)
-ax.set_xticks(np.arange(len(feat_cols)))
-ax.set_xticklabels(list(feat_cols), rotation=90)
-ax.set_yticks(range(0, len(feat_cols)))
-ax.set_yticklabels(list(feat_cols))
-plt.colorbar(im).ax.set_ylabel("$r$", rotation=0)
-ax.set_title("Motif count correlation matrix")
-plt.tight_layout()
-plt.show()
+# # Plot covariance of motif counts
+# ax = plt.axes()
+# X = StandardScaler().fit_transform(df[feat_cols])
+# corrmatrix = np.corrcoef(X.T)
+# im = ax.imshow(corrmatrix,
+#                cmap="RdBu_r", vmin=-1, vmax=1)
+# ax.set_xticks(np.arange(len(feat_cols)))
+# ax.set_xticklabels(list(feat_cols), rotation=90)
+# ax.set_yticks(range(0, len(feat_cols)))
+# ax.set_yticklabels(list(feat_cols))
+# plt.colorbar(im).ax.set_ylabel("$r$", rotation=0)
+# ax.set_title("Motif count correlation matrix")
+# plt.tight_layout()
+# plt.show()
 
 # ----------------------- Plot PCA -----------------------
 # Get Loadings
+pc_cols = ['PC' + str(n + 1) for n in range(0, n_components)]
+
 loadings = pd.DataFrame(pca.components_.T, columns=pc_cols, index=feat_cols)
 print(loadings.round(2))
 loadings.round(2).to_csv(op.join(graph_dir, 'pca_loadings.csv'))
@@ -284,29 +286,255 @@ plt.show()
 # ------ 3D plot of PCA with vector piercing components ----
 # define vector
 
-def draw_vector(v0, v1, ax=None):
-    ax = ax or plt.gca()
-    arrowprops = dict(arrowstyle='->',
-                      linewidth=2,
-                      shrinkA=0, shrinkB=0)
-    ax.annotate('', v1, v0, arrowprops=arrowprops)
+# def draw_vector(v0, v1, ax=None):
+#     ax = ax or plt.gca()
+#     arrowprops = dict(arrowstyle='->',
+#                       linewidth=2,
+#                       shrinkA=0, shrinkB=0)
+#     ax.annotate('', v1, v0, arrowprops=arrowprops)
 
 
-ax = plt.figure(figsize=(16, 10)).gca(projection='3d')
-ax.scatter(
-    xs=df["pca-one"],
-    ys=df["pca-two"],
-    zs=df["pca-three"],
-    c=pd.to_numeric(df["y"]),
-    cmap='tab10'
-)
-ax.set_xlabel('pca-one')
-ax.set_ylabel('pca-two')
-ax.set_zlabel('pca-three')
+# ax = plt.figure(figsize=(16, 10)).gca(projection='3d')
+# ax.scatter(
+#     xs=df["pca-one"],
+#     ys=df["pca-two"],
+#     zs=df["pca-three"],
+#     c=pd.to_numeric(df["y"]),
+#     cmap='tab10'
+# )
+# ax.set_xlabel('pca-one')
+# ax.set_ylabel('pca-two')
+# ax.set_zlabel('pca-three')
 
-# plot vector
-for length, vector in zip(pca.explained_variance_, pca.components_):
-    v = vector * 3 * np.sqrt(length)
-    draw_vector(pca.mean_, pca.mean_ + v)
+# # plot vector
+# for length, vector in zip(pca.explained_variance_, pca.components_):
+#     v = vector * 3 * np.sqrt(length)
+#     draw_vector(pca.mean_, pca.mean_ + v)
 
+# plt.show()
+
+
+# Oblique rotation methods: oblimin rotation and promax (recommended)
+
+
+from pca import pca as pca_pca
+
+# Initialize to reduce the data up to the number of componentes that explains 95% of the variance.
+# model = pca(n_components=0.95)
+
+# Or reduce the data towards 2 PCs
+model = pca_pca(n_components=2)
+
+# Fit transform
+results = model.fit_transform(df[feat_cols])
+
+# Plot explained variance
+fig, ax = model.plot()
+
+# Scatter first 2 PCs
+fig, ax = model.scatter()
+
+# Make biplot with the number of features
+fig, ax = model.biplot(n_feat=11)
+
+
+# ------- PCA -------
+from sklearn import datasets
+from sklearn.preprocessing import StandardScaler
+from advanced_pca import CustomPCA
+
+X_std = StandardScaler().fit_transform(df[feat_cols])
+
+# fit pca objects with and without rotation with 5 principal components
+standard_pca5 = CustomPCA(n_components=5).fit(X_std)
+varimax_pca5 = CustomPCA(n_components=5, rotation='varimax').fit(X_std)
+
+
+# from sklearn.decomposition import FactorAnalysis, PCA
+
+# n_comps = 2
+
+methods = [('PCA', PCA()),
+           ('Unrotated FA', FactorAnalysis()),
+           ('Varimax FA', FactorAnalysis(rotation='varimax'))]
+fig, axes = plt.subplots(ncols=len(methods), figsize=(10, 8))
+feat_cols = feat_cols
+for ax, (method, fa) in zip(axes, methods):
+    fa.set_params(n_components=n_comps)
+    fa.fit(df[feat_cols])
+    #
+    components = fa.components_.T
+    print("\n\n %s :\n" % method)
+    print(components)
+    #
+    vmax = np.abs(components).max()
+    ax.imshow(components, cmap="RdBu_r", vmax=vmax, vmin=-vmax)
+    ax.set_yticks(np.arange(len(feat_cols)))
+    if ax.is_first_col():
+        ax.set_yticklabels(feat_cols)
+    else:
+        ax.set_yticklabels([])
+    ax.set_title(str(method))
+    ax.set_xticks([0, 1])
+    ax.set_xticklabels(["Comp. 1", "Comp. 2"])
+
+# fig.suptitle("Factors")
+# plt.tight_layout()
+# plt.show()
+
+
+# --------- Use Varimax rotation to rotate PCA ---------
+from factor_analyzer import Rotator
+rotate_cols = pc_cols[:2]
+
+# Varimax
+rotator = Rotator(method='varimax')
+rotated_loading_varimax = rotator.fit_transform(loadings[rotate_cols])
+loadings_rot_varimax = pd.DataFrame(
+    rotated_loading_varimax, index=feat_cols, columns=rotate_cols)
+# Promax
+rotator = Rotator(method='promax')
+rotated_loading_promax = rotator.fit_transform(loadings[rotate_cols])
+loadings_rot_promax = pd.DataFrame(
+    rotated_loading_promax, index=feat_cols, columns=rotate_cols)
+# Oblimin
+rotator = Rotator(method='oblimin')
+rotated_loading_oblimin = rotator.fit_transform(loadings[rotate_cols])
+loadings_rot_oblimin = pd.DataFrame(
+    rotated_loading_oblimin, index=feat_cols, columns=rotate_cols)
+
+print(loadings)
+print(loadings_rot_varimax)
+print(loadings_rot_promax)
+print(loadings_rot_oblimin)
+
+
+# Plot rotated and unrotated
+fig = plt.figure(figsize=(10, 8))
+ax = plt.subplot(1, 4, 1)
+feat_cols = feat_cols
+vmax = np.abs(loadings.values).max()
+ax.imshow(loadings, cmap="RdBu_r", vmax=vmax, vmin=-vmax)
+ax.set_yticks(np.arange(len(loadings.index)))
+ax.set_yticklabels(loadings.index)
+ax.set_title('Unrotated')
+ax.set_xticks(np.arange(len(loadings.columns)))
+ax.set_xticklabels(loadings.columns)
+
+ax = plt.subplot(1, 4, 2)
+feat_cols = feat_cols
+vmax = np.abs(loadings_rot_varimax.values).max()
+ax.imshow(loadings_rot_varimax, cmap="RdBu_r", vmax=vmax, vmin=-vmax)
+ax.set_yticks(np.arange(len(loadings_rot_varimax.index)))
+ax.set_yticklabels(loadings_rot_varimax.index)
+ax.set_title('Rotated_Varimax')
+ax.set_xticks(np.arange(len(loadings_rot_varimax.columns)))
+ax.set_xticklabels(loadings_rot_varimax.columns)
+
+ax = plt.subplot(1, 4, 3)
+vmax = np.abs(loadings_rot_promax.values).max()
+ax.imshow(loadings_rot_promax, cmap="RdBu_r", vmax=vmax, vmin=-vmax)
+ax.set_yticks(np.arange(len(loadings_rot_promax.index)))
+ax.set_yticklabels(loadings_rot_promax.index)
+ax.set_title('Rotated_Promax')
+ax.set_xticks(np.arange(len(loadings_rot_promax.columns)))
+ax.set_xticklabels(loadings_rot_promax.columns)
+
+ax = plt.subplot(1, 4, 4)
+vmax = np.abs(loadings_rot_oblimin.values).max()
+ax.imshow(loadings_rot_oblimin, cmap="RdBu_r", vmax=vmax, vmin=-vmax)
+ax.set_yticks(np.arange(len(loadings_rot_oblimin.index)))
+ax.set_yticklabels(loadings_rot_oblimin.index)
+ax.set_title('Rotated_Oblimin')
+ax.set_xticks(np.arange(len(loadings_rot_oblimin.columns)))
+ax.set_xticklabels(loadings_rot_oblimin.columns)
+
+plt.show()
+
+# --------- Biplot with rotated components ---------
+
+
+def biplot(score, coeff, y):
+    '''
+    Author: Serafeim Loukas, serafeim.loukas@epfl.ch
+    Inputs:
+       score: the projected data
+       coeff: the eigenvectors (PCs)
+       y: the class labels
+   '''
+    #
+    #
+    xs = score[:, 0]  # projection on PC1
+    ys = score[:, 1]  # projection on PC2
+    n = coeff.shape[0]  # number of variables
+    plt.figure(figsize=(10, 8), dpi=100)
+    classes = np.unique(y)
+    colors = ['g', 'r', 'y']
+    markers = ['o', '^', 'x']
+    for s, l in enumerate(classes):
+        plt.scatter(xs[y == l], ys[y == l], c=colors[s],
+                    marker=markers[s])  # color based on group
+        for i in range(n):
+            # plot as arrows the variable scores (each variable has a score for PC1 and one for PC2)
+            plt.arrow(0, 0, coeff[i, 0], coeff[i, 1], color='k',
+                      alpha=0.9, linestyle='-', linewidth=1.5, overhang=0.2)
+            plt.text(coeff[i, 0] * 1.15, coeff[i, 1] * 1.15, "Var" +
+                     str(i + 1), color='k', ha='center', va='center', fontsize=10)
+        plt.xlabel("PC{}".format(1), size=14)
+        plt.ylabel("PC{}".format(2), size=14)
+        limx = int(xs.max()) + 1
+        limy = int(ys.max()) + 1
+        plt.xlim([-limx, limx])
+        plt.ylim([-limy, limy])
+        plt.grid()
+        plt.tick_params(axis='both', which='both', labelsize=14)
+
+
+import matplotlib as mpl
+mpl.rcParams.update(mpl.rcParamsDefault)  # reset ggplot style
+# Call the biplot function for only the first 2 PCs
+# project the original data into the PCA space
+X_new = pca.fit_transform(df[feat_cols])
+
+biplot(X_new[:, 0:2], np.transpose(pca.components_[0:2, :]), y)
+plt.show()
+
+# Plot rotated Varimax
+from factor_analyzer import Rotator
+rotate_cols = pc_cols[:2]
+rotator = Rotator(method='varimax')
+rotated_loading_varimax = rotator.fit_transform(loadings[rotate_cols])
+loadings_rot_varimax = pd.DataFrame(
+    rotated_loading_varimax, index=feat_cols, columns=rotate_cols)
+
+
+X_new = rotator.fit_transform(df[feat_cols])
+biplot(X_new[:, 0:2], loadings_rot_varimax.values, y)
+plt.show()
+
+# Plot rotated Varimax
+rotator = Rotator(method='promax')
+rotated_loading_promax = rotator.fit_transform(loadings[rotate_cols])
+loadings_rot_promax = pd.DataFrame(
+    rotated_loading_promax, index=feat_cols, columns=rotate_cols)
+
+
+X_new = rotator.fit_transform(df[feat_cols])
+biplot(X_new[:, 0:2], loadings_rot_promax.values, y)
+plt.show()
+
+
+variance = pca.explained_variance_ratio_  # calculate variance ratios
+var = np.cumsum(
+    np.round(pca.explained_variance_ratio_, decimals=3) * 100)
+print('Cumulative variance explained: {}'.format(
+    var))
+
+# Plot explained Variance
+plt.ylabel('% Variance Explained')
+plt.xlabel('# of Features')
+plt.title('PCA Analysis')
+plt.ylim(30, 100.5)
+plt.style.context('seaborn-whitegrid')
+plt.plot(var)
 plt.show()
