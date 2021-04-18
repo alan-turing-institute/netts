@@ -6,45 +6,55 @@
 #
 # Author:       Caroline Nettekoven, 2021
 #
+# TODO: 3143876-TAT24 has adjective edges ('sad person') that are not getting extracted. Why?
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 source /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/venv/bin/activate
-
 ## Navigate to working directory
 cd /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/
-
-# source /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/venv/bin/activate
 # Usage: python ./speech_graph.py 3
 #        tat=3; python -u ./speech_graph.py ${tat} > figures/SpeechGraph_log_${tat}_`date +%F` # (pipe output to text file)
-# ------------------------------------------------------------------------------B
-# for tat in `seq -s ' ' 0 118`; do
-# 25 28 30 44
 
-# for tat in `seq -s ' ' 51 175`; do
-#     n=$(( tat + 119))
-#     python -u ./speech_graph.py ${tat} \
-#     > /Users/CN/Dropbox/speech_graphs/general_public_tat/SpeechGraph_`zeropad ${n} 4`_`date +%F`.txt 2>&1 # (pipe output and error msgs to text file)
-# done
-# 295
-for tat in `seq -s ' ' 0 294`; do
-    n=$(( tat ))
+# ========================== Process transcripts ==========================
+first_tat=1000
+last_tat=2699
+output_dir=/Users/CN/Dropbox/speech_graphs/all_tats
+# ------------------------------------------------------------------------------
+for tat in `seq -s ' ' ${first_tat} ${last_tat}`; do
+    echo "Processing transcript ${tat}..."
     python -u ./speech_graph.py ${tat} \
-    > /Users/CN/Dropbox/speech_graphs/all_tats/SpeechGraph_`zeropad ${n} 4`_`date +%F`.txt 2>&1 # (pipe output and error msgs to text file)
+    > ${output_dir}/SpeechGraph_`zeropad ${tat} 4`_`date +%F`.txt 2>&1 # (pipe output and error msgs to text file)
 done
 
-for dct in `seq -s ' ' 0 5`; do
-    n=$(( dct ))
-    python -u ./speech_graph.py ${dct} \
-    > /Users/CN/Dropbox/speech_graphs/dct/SpeechGraph_`zeropad ${n} 4`_`date +%F`.txt 2>&1 # (pipe output and error msgs to text file)
+# ========================== Compile report ==========================
+output_dir=${output_dir}/
+rm ${output_dir}/report
+
+# Count errors
+errors=0
+for tat in ${output_dir}/*.txt; do
+    finished_without_error=`cat ${tat} | grep "finished in"`
+    if [ $? != 0 ]; then
+        errors=$(( errors+1))
+    fi
 done
 
+# Print summary message
+printf "Your computing job has finished, wohoooo! \n\nTats ${first_tat} to ${last_tat} have been processed. \n------------------------------------------\nProcessed: \t$(( last_tat - first_tat ))\nErrors: \t\t${errors}\n" > ${output_dir}/report
 
-
-# Confirm all tats are processed
-ls /Users/CN/Dropbox/speech_graphs/all_tats/*.txt |wc
-
-for i in /Users/CN/Dropbox/speech_graphs/all_tats/*.txt; do
-    sed -n '/^++++ Obtained unconnected nodes/,/^++++ Cleaned parallel edges from duplicates/p' $i
+# Print error messages
+for tat in ${output_dir}/*.txt; do
+    finished_without_error=`cat ${tat} | grep "finished in"`
+    if [ $? != 0 ]; then
+        msg=`tail ${tat}`
+        printf  '\n------------------ Error in %s ------------------\n %s \n' "$tat" "$msg" >> ${output_dir}/report
+    fi
 done
 
-# TODO: 3143876-TAT24 has adjective edges ('sad person') that are not getting extracted. Why?
+# ========================== Send notification email ==========================
+# Send short email:
+# printf "Your computing job has finished, wohoooo! \n\nTats ${first_tat} to ${last_tat} have been processed. \n------------------------------------------\nProcessed: \t$(( last_tat - first_tat ))\nErrors: \t\t${errors}\n" | mail -s "SURPRISE SHAWTY" cnettekoven@web.de
+
+# Send email with error report:
+cat ${output_dir}/report | mail -s "SURPRISE SHAWTY" cnettekoven@web.de
+

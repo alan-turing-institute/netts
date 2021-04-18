@@ -43,8 +43,8 @@ start_time = time.time()
 # ------------------------------------------------------------------------------
 # Get sentence
 # selected_file = 1
-selected_file = 2916
-# selected_file = int(sys.argv[1])
+# selected_file = 2916
+selected_file = int(sys.argv[1])
 data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
 
 # ++++++++ HBN Data ++++++++
