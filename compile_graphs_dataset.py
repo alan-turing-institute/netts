@@ -21,6 +21,7 @@ import sys
 sys.path.append(
     '/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/')
 import glob
+from graph_analysis_functions import print_bidirectional_edges
 
 
 def get_graphs(graph_dir='/Users/CN/Dropbox/speech_graphs/all_tats'):
@@ -43,6 +44,37 @@ def get_graphs(graph_dir='/Users/CN/Dropbox/speech_graphs/all_tats'):
     for file in filelist:
         graph = op.join(graph_dir, file)
         graphs.append(nx.read_gpickle((graph)))
+    return graphs, filelist
+
+
+def exclude_empty_graphs(graphs, filelist, be_quiet=False):
+    """Excludes graphs that are empty.
+    Finds graphs that have 0 nodes and excludes them from graphs list and filelist.
+
+    Parameters
+    ----------
+    graphs : list containing all graphs
+    filelist : list of all graph files
+
+    """
+    # --------------------- Find empty graphs ---------------------------------------
+    exclude = []
+    for g, G in enumerate(graphs):
+        # --- Get basic transcript descriptors ---
+        n_words = G.graph['tokens']
+        n_sents = G.graph['sentences']
+        transcript = G.graph['transcript']
+        # --- Get basic graph descriptors ---
+        n_nodes = len(G.nodes())
+        if n_nodes is 0:
+            exclude.append(g)
+            if not be_quiet:
+                print('Excluding graph {0}. Transcript {1} has {2} sentences and {3} words'.format(
+                    g, transcript, n_sents, n_words))
+    print('Obtained {} graphs. Excluded {} empty graphs. Kept {} graphs.'.format(
+        len(graphs), len(exclude), len(graphs) - len(exclude)))
+    graphs = [G for g, G in enumerate(graphs) if g not in exclude]
+    filelist = [F for f, F in enumerate(filelist) if f not in exclude]
     return graphs, filelist
 
 
@@ -112,6 +144,8 @@ def graph_properties(graphs, filelist):
         arr = nx.to_numpy_matrix(G)
         parallel_edges = np.sum(arr >= 2)
         #
+        # number of bidirectional edges
+        n_bidirectional_edges = print_bidirectional_edges(G, quiet=True)
         # LSC
         lsc = len(max(nx.strongly_connected_components(G), key=len))
         # LCC
@@ -182,6 +216,7 @@ def graph_properties(graphs, filelist):
             n_unconnected_nodes,
             average_total_degree,
             parallel_edges,
+            n_bidirectional_edges,
             lsc,
             lcc,
             L1,
@@ -209,6 +244,7 @@ def graph_properties(graphs, filelist):
         'unconnected',
         'average_total_degree',
         'parallel_edges',
+        'bidirectional_edges',
         'lsc', 'lcc',
         'L1', 'L2', 'L3',
         'sizes_connected_components',

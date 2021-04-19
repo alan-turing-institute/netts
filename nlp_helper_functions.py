@@ -227,10 +227,53 @@ def remove_duplicates(tats):
     tats = list(compress(tats, ~dupl))
     return tats
 
-
 # df[df.duplicated(subset=['subj', 'tat'])]
 # df.query('subj == "6376314" & tat == "13"')
 # df.query('subj == "6377597" & tat == "10"')
 # df.query('subj == "6378273" & tat == "8"')
 # df.query('subj == "6376314" & tat == "13"')
 # df.query('subj == "6376314" & tat == "13"')
+
+
+def remove_bad_transcripts(tats, bad_transcripts_list, be_quiet=True):
+    """
+    @author: by Dr. Caro Nettekoven, 2021
+    Removes bad transcripts from input list. 
+    Bad transcripts are identified by the transcribers and provided as a .csv file with the file name in the column "Filenames".
+
+    Parameters
+    ----------
+    bad_transcripts_list: path pointing to csv file
+        The file names of bad transcripts should be provided in a column labelled "Filenames" in the csv file.
+    tats: list of pathlib objects
+        List of pathlib objects pointing to tats.
+    be_quiet: boolean
+        If true, suppresses output messages. Default is true.
+
+    Returns
+    -------
+    tats
+        Cleaned input list.
+
+    """
+    bad_transcripts = pd.read_csv(bad_transcripts_list)
+    bad_transcripts.Filenames = bad_transcripts.Filenames.str.strip('.weba')
+    bad_transcripts.head()
+    #
+    exclude = []
+    for transcript in bad_transcripts.Filenames.values:
+        matching = [(t, tat.name)
+                    for t, tat in enumerate(tats) if transcript in tat.name]
+        if matching != []:
+            if len(matching) == 1:
+                exclude.append(matching[0][0])
+                if not be_quiet:
+                    print('removed bad transcript {}'.format(matching[0]))
+            elif len(matching) > 1:
+                [exclude.append(match[0]) for match in matching]
+                if not be_quiet:
+                    print('More than one duplicate found: {}'.format(matching))
+    print('Obtained {} transcripts. Excluded {} bad transcripts. Kept {} transcripts.'.format(
+        len(tats), len(exclude), len(tats) - len(exclude)))
+    tats = [T for t, T in enumerate(tats) if t not in exclude]
+    return tats

@@ -16,8 +16,10 @@ cd /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/
 #        tat=3; python -u ./speech_graph.py ${tat} > figures/SpeechGraph_log_${tat}_`date +%F` # (pipe output to text file)
 
 # ========================== Process transcripts ==========================
-first_tat=1000
-last_tat=2699
+first_tat=0
+last_tat=999
+# first_tat=1243
+# last_tat=2699
 output_dir=/Users/CN/Dropbox/speech_graphs/all_tats
 # ------------------------------------------------------------------------------
 for tat in `seq -s ' ' ${first_tat} ${last_tat}`; do
@@ -39,8 +41,10 @@ for tat in ${output_dir}/*.txt; do
     fi
 done
 
+total_processed_transcripts=`ls ${output_dir}/*.txt | wc | awk '{print $1}'`
+added_processed_transcripts=$(( last_tat - first_tat + 1 ))
 # Print summary message
-printf "Your computing job has finished, wohoooo! \n\nTats ${first_tat} to ${last_tat} have been processed. \n------------------------------------------\nProcessed: \t$(( last_tat - first_tat ))\nErrors: \t\t${errors}\n" > ${output_dir}/report
+printf "Your computing job has finished, wohoooo! \n\nTats ${first_tat} to ${last_tat} have been processed. \n------------------------------------------\nAdded: \t\t${added_processed_transcripts}\nTotal: \t\t${total_processed_transcripts}\nErrors: \t\t${errors}\n" > ${output_dir}/report
 
 # Print error messages
 for tat in ${output_dir}/*.txt; do
@@ -56,5 +60,5 @@ done
 # printf "Your computing job has finished, wohoooo! \n\nTats ${first_tat} to ${last_tat} have been processed. \n------------------------------------------\nProcessed: \t$(( last_tat - first_tat ))\nErrors: \t\t${errors}\n" | mail -s "SURPRISE SHAWTY" cnettekoven@web.de
 
 # Send email with error report:
-cat ${output_dir}/report | mail -s "SURPRISE SHAWTY" cnettekoven@web.de
+cat ${output_dir}/report | mail -s "netspy finished" cnettekoven@web.de
 

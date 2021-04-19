@@ -54,7 +54,7 @@ def print_bidirectional_edges(G, quiet=True):
     n_bidirectional_edges = bool_bidirectional_edges[0].shape[0]
     bidirectional_edges = bool_bidirectional_edges
     if n_bidirectional_edges == 0 and quiet is True:
-        return None
+        return n_bidirectional_edges
     elif n_bidirectional_edges == 0 and quiet is False:
         print(print('\n======= {} =======\nNo bidirectional edges.'.format(
             G.graph['transcript'])))
@@ -62,9 +62,10 @@ def print_bidirectional_edges(G, quiet=True):
     for e in range(0, n_bidirectional_edges):
         # Ignore self loops
         if bidirectional_edges[0][e] == bidirectional_edges[1][e]:
-            return None
+            return n_bidirectional_edges
         else:
-            print('\n======= {} ======='.format(G.graph['transcript']))
+            if quiet is not True:
+                print('\n======= {} ======='.format(G.graph['transcript']))
             n1 = nodes[bidirectional_edges[0][e]]
             n2 = nodes[bidirectional_edges[1][e]]
             bidirectional_edge_data_1 = G.get_edge_data(n1, n2)
@@ -72,13 +73,16 @@ def print_bidirectional_edges(G, quiet=True):
             for entry in bidirectional_edge_data_1:
                 # entry = bidirectional_edge_data[0]
                 be = bidirectional_edge_data_1[entry]
-                print(
-                    '---------------------------------\n{0} \t{1} \t{2} \t{3}'.format(be['sentence'], n1, be['relation'], n2))
+                if quiet is not True:
+                    print(
+                        '---------------------------------\n{0} \t{1} \t{2} \t{3}'.format(be['sentence'], n1, be['relation'], n2))
             for entry in bidirectional_edge_data_2:
                 # entry = bidirectional_edge_data[0]
                 be = bidirectional_edge_data_2[entry]
-                print(
-                    '---------------------------------\n{0} \t{1} \t{2} \t{3}'.format(be['sentence'], n2, be['relation'], n1))
+                if quiet is not True:
+                    print(
+                        '---------------------------------\n{0} \t{1} \t{2} \t{3}'.format(be['sentence'], n2, be['relation'], n1))
+    return n_bidirectional_edges
 
 
 def print_parallel_edges(G, quiet=True):
@@ -105,7 +109,8 @@ def print_parallel_edges(G, quiet=True):
             G.graph['transcript'])))
     # elif n_parallel_edges == 1:
     #     parallel_edges = np.reshape(parallel_edges, (-1, 2))
-    print('\n======= {} ======='.format(G.graph['transcript']))
+    if quiet is not True:
+        print('\n======= {} ======='.format(G.graph['transcript']))
     nodes = list(G.nodes)
     # parallel_edge = parallel_edges[0]
     for e in range(0, n_parallel_edges):
@@ -115,8 +120,9 @@ def print_parallel_edges(G, quiet=True):
         for entry in parallel_edge_data:
             # entry = parallel_edge_data[0]
             pe = parallel_edge_data[entry]
-            print(
-                '---------------------------------\n{0} \t{1} \t{2} \t{3}'.format(pe['sentence'], n1, pe['relation'], n2))
+            if quiet is not True:
+                print(
+                    '---------------------------------\n{0} \t{1} \t{2} \t{3}'.format(pe['sentence'], n1, pe['relation'], n2))
 
 
 def get_parallel_edges(G, same_sentence=True):

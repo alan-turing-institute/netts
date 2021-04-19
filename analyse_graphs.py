@@ -50,36 +50,26 @@ from sklearn.manifold import TSNE
 from mpl_toolkits.mplot3d import Axes3D
 from sklearn.preprocessing import StandardScaler
 
-# --------------------- Import graphs ---------------------------------------
+# --- Import graphs ---
 graph_dir = '/Users/CN/Dropbox/speech_graphs/all_tats'
-
 graphs, filelist = get_graphs(graph_dir)
+graphs, filelist = exclude_empty_graphs(graphs, filelist, be_quiet=True)
 graph_props = graph_properties(graphs, filelist)
+print('Imported and described {0} graphs.\n{1} subjects described {2} ± {3} pictures on average.'.format(
+    graph_props.shape[0], len(graph_props.subj.unique()), graph_props.subj.value_counts().mean(), round(graph_props.subj.value_counts().std(), 2)))
 
-# --- Count motifs or if already counted, import motif count data ---
-
-# Count motifs
-already_counted = True
-if already_counted is False:
-    motif_counts = []
-    for G in graphs:
-        G = nx.convert_node_labels_to_integers(G, label_attribute='old_label')
-        G = nx.DiGraph(G)
-        motif_count = motif_counter(G, motifs)
-        motif_counts.append(motif_count)
-    #
-    # Convert motif counts to Pandas DataFrame
-    motif_cols = list(motifs.keys())
-    X = [list(x.values()) for x in motif_counts]
-    df = pd.DataFrame(X, columns=motif_cols)
-    df.to_csv(op.join(graph_dir, 'motif_counts.csv'))
-else:
+# --- Import motif data ---
+# If already counted and motif_counts.csv exists, imports motif count data
+motif_cols = list(motifs.keys())
+motif_data = op.join(graph_dir, 'motif_counts.csv')
+try:
     # Import motif count data
-    motif_cols = list(motifs.keys())
-    df = pd.read_csv(op.join(graph_dir, 'motif_counts.csv'))
+    df = pd.read_csv(op.join(motif_data))
+except FileNotFoundError:
+    print('----- Error: Cannot find motif_counts.csv -----\nIt seems motifs have not been counted yet.\nRun motifs.py to count motifs before running this cell.')
 
-df_m = pd.melt(df, id_vars=df.columns[0], value_vars=motif_cols)
 # ----------- Plot Motif Counts -----------
+# Strip plot
 fig = plt.figure(figsize=(25, 9))
 plt.title('Motif Counts', fontsize=15)
 sns.stripplot(y='value', x='variable',
@@ -93,6 +83,7 @@ output = op.join(output_dir, 'Scatter_motif_counts' +
 plt.savefig(output)
 plt.show()
 
+# Histograms
 fig = plt.figure(figsize=(25.6, 20))
 no_motifs = len(motifs)
 for m, mkey in enumerate(motifs):
@@ -219,67 +210,20 @@ plt.show()
 
 
 # ------------ Motif Morphospace ------------
-df.var()
-df.mean()
-# M01, M02, M03
-# 3D plot of Motif Morphospace
-ax = plt.figure(figsize=(16, 10)).gca(projection='3d')
-ax.scatter(
-    xs=df["m01"],
-    ys=df["m02"],
-    zs=df["m03"],
-    c=pd.to_numeric(df["y"]),
-    cmap='tab10'
-)
-ax.set_xlabel('Motif_01')
-ax.set_ylabel('Motif_02')
-ax.set_zlabel('Motif_03')
-plt.show()
+fig = plt.figure(figsize=(25.6, 20))
+for m in range(0, 12, 3):
+    ax = fig.add_subplot(2, 2, (m / 3) + 1, projection='3d')
+    ax.scatter(
+        xs=df[f'm{m+1:02d}'],
+        ys=df[f'm{m+2:02d}'],
+        zs=df[f'm{m+3:02d}'],
+        c=pd.to_numeric(df.nodes),
+        cmap='tab10',
+    )
+    ax.set_xlabel(f'motif_{m+1:02d}')
+    ax.set_ylabel(f'motif_{m+2:02d}')
+    ax.set_zlabel(f'motif_{m+3:02d}')
 
-# M04, M05, M06
-# 3D plot of Motif Morphospace
-ax = plt.figure(figsize=(16, 10)).gca(projection='3d')
-ax.scatter(
-    xs=df["m04"],
-    ys=df["m05"],
-    zs=df["m06"],
-    c=pd.to_numeric(df["y"]),
-    cmap='tab10'
-)
-ax.set_xlabel('Motif_04')
-ax.set_ylabel('Motif_05')
-ax.set_zlabel('Motif_06')
-plt.show()
-
-
-# M01, M02, M03 - zcored
-# 3D plot of Motif Morphospace
-ax = plt.figure(figsize=(16, 10)).gca(projection='3d')
-ax.scatter(
-    xs=df["m01_z"],
-    ys=df["m02_z"],
-    zs=df["m03_z"],
-    c=pd.to_numeric(df["y"]),
-    cmap='tab10'
-)
-ax.set_xlabel('Motif_01_z')
-ax.set_ylabel('Motif_02_z')
-ax.set_zlabel('Motif_03_z')
-plt.show()
-
-# M04, M05, M06 - zcored
-# 3D plot of Motif Morphospace
-ax = plt.figure(figsize=(16, 10)).gca(projection='3d')
-ax.scatter(
-    xs=df["m04_z"],
-    ys=df["m05_z"],
-    zs=df["m06_z"],
-    c=pd.to_numeric(df["y"]),
-    cmap='tab10'
-)
-ax.set_xlabel('Motif_04_z')
-ax.set_ylabel('Motif_05_z')
-ax.set_zlabel('Motif_06_z')
 plt.show()
 
 

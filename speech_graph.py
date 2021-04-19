@@ -13,6 +13,7 @@
 # Usage: python ./speech_graph.py 3
 #        tat=3; python -u ./speech_graph.py ${tat} > figures/SpeechGraph_log_${tat}_`date +%F` # (pipe output to text file)
 # TODO: Plot graphs coloured by confidence / extraction type
+# TODO: Look at error messages from my output (probs only the 6 connection issues need to be rerun)
 
 # ------------------------------------------------------------------------------
 
@@ -32,7 +33,7 @@ import matplotlib.pyplot as plt
 from copy import deepcopy
 from itertools import chain
 import numpy as np
-from nlp_helper_functions import expand_contractions, remove_interjections, replace_problematic_symbols, remove_irrelevant_text, process_sent, get_transcript_properties, remove_duplicates
+from nlp_helper_functions import expand_contractions, remove_interjections, replace_problematic_symbols, remove_irrelevant_text, process_sent, get_transcript_properties, remove_duplicates, remove_bad_transcripts
 from visualise_paragraph_functions import create_edges_ollie, create_edges_stanza, get_word_types, get_adj_edges, get_prep_edges, get_obl_edges, add_obl_edges, get_node_synonyms, split_node_synonyms, split_nodes, merge_corefs, clean_nodes, clean_parallel_edges, add_adj_edges, add_prep_edges, get_unconnected_nodes
 # from filelists import tat_pilot_files, hbn_movie_files, genpub_files, all_tat_files, dct_story_files
 import time
@@ -80,6 +81,9 @@ tats.extend(
 
 # Process only unique transcripts
 tats = remove_duplicates(tats)
+
+bad_transcripts_list = '/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/bad_transcripts.csv'
+tats = remove_bad_transcripts(tats, bad_transcripts_list, be_quiet=True)
 
 # Import selected transcript
 input_file = tats[selected_file]
