@@ -96,7 +96,7 @@ def create_edges_ollie(ex_ollie):
     return ollie_edges, ollie_edges_text_excerpts, ollie_one_node_edges, ollie_one_node_edges_text_excerpts
 
 
-def create_edges_stanza(ex_stanza):
+def create_edges_stanza(ex_stanza, be_quiet=True):
     # Find edges and edge labels extracted by Stanza OpeniIE
     stanza_edges = []
     stanza_edges_text_excerpts = []
@@ -117,9 +117,12 @@ def create_edges_stanza(ex_stanza):
             stanza_edges.append(a)
             stanza_edges_text_excerpts.append(
                 (' ').join([node1, relation, node2]))
-            print('  {} | {} | {}'.format(
-                node1, relation, node2))
-    # print('++++ Created {} edges (stanza) ++++'.format(len(stanza_edges)))
+            if be_quiet is not True:
+                print('  {} | {} | {}'.format(
+                    node1, relation, node2))
+    if be_quiet is not True:
+        print('++++ Created {} edges (stanza).  ++++'.format(
+            len(stanza_edges)))
     return stanza_edges, stanza_edges_text_excerpts
 
 # ------------------------------------------------------------------------------

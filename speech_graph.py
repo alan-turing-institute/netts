@@ -99,6 +99,17 @@ text = expand_contractions(text)  # expand it's to it is
 text = remove_interjections(text)  # remove Ums and Mmms
 text = remove_irrelevant_text(text)
 text = text.strip()  # remove trailing and leading whitespace
+
+# ------------------------------------------------------------------------------
+# ------- Print transcript name -------
+transcript = filename.strip('.txt')
+print("\n+++ Transcript +++ \n\n %s" % (transcript))
+
+
+# ------------------------------------------------------------------------------
+# ------- Print cleaned text -------
+print("\n+++ Paragraph: +++ \n\n %s \n\n+++++++++++++++++++" % (text))
+
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # ------- Run Stanford CoreNLP (Stanza) -------
@@ -110,12 +121,7 @@ with CoreNLPClient(properties={
 }, be_quiet=True) as client:
     ex_stanza = client.annotate(text)
 
-# ------------------------------------------------------------------------------
-# ------- Print cleaned text -------
-print("\n+++ Paragraph: +++ \n\n %s \n\n+++++++++++++++++++" % (text))
-
 # ------- Basic Transcript Descriptors -------
-transcript = filename.strip('.txt')
 n_tokens, n_sententences, _ = get_transcript_properties(text, ex_stanza)
 # ------------------------------------------------------------------------------
 # ------- Run OpenIE5 (Ollie) -------
@@ -142,7 +148,20 @@ ollie_edges, ollie_edges_text_excerpts, ollie_one_node_edges, ollie_one_node_edg
 
 edges = ollie_edges
 # --------------------- Create stanza edges ---------------------------------------
-stanza_edges, stanza_edges_text_excerpts = create_edges_stanza(ex_stanza)
+stanza_edges, stanza_edges_text_excerpts = create_edges_stanza(
+    ex_stanza, be_quiet=False)
+# If Ollie was unable to detect any edges, use stanza edges
+
+if len(ollie_edges) == 0 and len(stanza_edges) != 0:
+    edges = stanza_edges
+    print('++++ Ollie detected {} edges, but stanza detected {}. Therefore added edges detected by stanza.  ++++'.format(len(ollie_edges),
+                                                                                                                         len(stanza_edges)))
+elif len(ollie_edges) == 0 and len(stanza_edges) == 0:
+    print('++++ Ollie detected {} edges and stanza also detected {}. No stanza edges were added. ++++'.format(len(ollie_edges),
+                                                                                                              len(stanza_edges)))
+else:
+    print('++++ Ollie detected {} edges, so no stanza edges were added.  ++++'.format(len(ollie_edges)))
+
 # --------------------- Get word types ---------------------------------------
 no_noun, poss_pronouns, dts, nouns, nouns_origtext, adjectives = get_word_types(
     ex_stanza)
@@ -221,8 +240,10 @@ print("Processing transcript %s finished in --- %s seconds ---" %
 # --- Save graph image ---
 # Initialize output
 output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/'
+# stripping '.txt' is not sufficient since some files have a dot in their filename (i.e. '22895-20-task-7g47-6377612-TAT10-9-1_otter.ai (1).txt') which throws an error when trying to save
+valid_filename = filename.split('.')[0]
 output = op.join(output_dir, 'SpeechGraph_{0:04d}_{1}_{2}'.format(
-    selected_file, filename.strip('.txt'), str(datetime.date.today())))
+    selected_file, valid_filename, str(datetime.date.today())))
 plt.savefig(output)
 # --- Save graph object ---
 nx.write_gpickle(G, output + ".gpickle")

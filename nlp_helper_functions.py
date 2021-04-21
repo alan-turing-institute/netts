@@ -273,7 +273,8 @@ def remove_bad_transcripts(tats, bad_transcripts_list, be_quiet=True):
                 [exclude.append(match[0]) for match in matching]
                 if not be_quiet:
                     print('More than one duplicate found: {}'.format(matching))
-    print('Obtained {} transcripts. Excluded {} bad transcripts. Kept {} transcripts.'.format(
-        len(tats), len(exclude), len(tats) - len(exclude)))
+    if not be_quiet:
+        print('Obtained {} transcripts. Excluded {} bad transcripts. Kept {} transcripts.'.format(
+            len(tats), len(exclude), len(tats) - len(exclude)))
     tats = [T for t, T in enumerate(tats) if t not in exclude]
     return tats
