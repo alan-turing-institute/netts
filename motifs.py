@@ -14,6 +14,8 @@
 
 import os
 import os.path as op
+import time
+import datetime
 import numpy as np
 import networkx as nx
 import pandas as pd
@@ -33,6 +35,10 @@ from sklearn.decomposition import PCA
 from mpl_toolkits.mplot3d import Axes3D
 from sklearn.preprocessing import StandardScaler
 from factor_analyzer import Rotator
+
+# ------------------------------------------------------------------------------
+# Time execution of script
+start_time = time.time()
 
 # --- Import graphs ---
 graph_dir = '/Users/CN/Dropbox/speech_graphs/all_tats'
@@ -68,3 +74,7 @@ for column in df.columns:
     graph_props[column] = df[column]
 
 graph_props.to_csv(op.join(graph_dir, 'graph_data.csv'))
+
+# Print execution time
+print("Counting motifs in %s graphs finished in --- %s seconds ---" %
+      (len(graphs), time.time() - start_time))

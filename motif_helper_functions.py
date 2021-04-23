@@ -15,6 +15,17 @@ import numpy as np
 import itertools
 import matplotlib.pyplot as plt
 import os.path as op
+import itertools
+import seaborn as sns
+
+# Modules to generate 3D Arrow
+import numpy as np
+from numpy import *
+from matplotlib import pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.patches import FancyArrowPatch
+from mpl_toolkits.mplot3d import proj3d
+
 # We define each S* motif as a directed graph in networkx
 motifs = {
     'm01': nx.DiGraph([(2, 1), (2, 3)]),
@@ -123,7 +134,7 @@ def motif_counter(G, motifs):
 
 def biplot(score, coeff, y):
     '''
-    Author: Serafeim Loukas, serafeim.loukas@epfl.ch
+    Author: Serafeim Loukas, serafeim.loukas@epfl.ch. Modified by Caroline Nettekoven, crn29@cam.ac.uk
     Inputs:
        score: the projected data
        coeff: the eigenvectors (PCs)
@@ -136,11 +147,16 @@ def biplot(score, coeff, y):
     n = coeff.shape[0]  # number of variables
     plt.figure(figsize=(10, 8), dpi=100)
     classes = np.unique(y)
-    colors = ['g', 'r', 'y']
-    markers = ['o', '^', 'x']
+    if classes[0] is not None:
+        colors = sns.diverging_palette(
+            max(classes), min(classes), n=len(classes), s=75, l=50, sep=3, center='light', as_cmap=False)
+    else:
+        colors = 'g'
+    # colors = ['g', 'r', 'y']
+    # markers = ['o', '^', 'x']
     for s, l in enumerate(classes):
-        plt.scatter(xs[y == l], ys[y == l], c=colors[s],
-                    marker=markers[s])  # color based on group
+        # color based on group
+        plt.scatter(xs[y == l], ys[y == l], c=colors[s])
         for i in range(n):
             # plot as arrows the variable scores (each variable has a score for PC1 and one for PC2)
             plt.arrow(0, 0, coeff[i, 0], coeff[i, 1], color='k',
@@ -155,6 +171,82 @@ def biplot(score, coeff, y):
         plt.ylim([-limy, limy])
         plt.grid()
         plt.tick_params(axis='both', which='both', labelsize=14)
+
+
+class Arrow3D(FancyArrowPatch):
+    def __init__(self, xs, ys, zs, *args, **kwargs):
+        FancyArrowPatch.__init__(self, (0, 0), (0, 0), *args, **kwargs)
+        self._verts3d = xs, ys, zs
+    #
+
+    def draw(self, renderer):
+        xs3d, ys3d, zs3d = self._verts3d
+        xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
+        self.set_positions((xs[0], ys[0]), (xs[1], ys[1]))
+        FancyArrowPatch.draw(self, renderer)
+
+
+def biplot_3d(score, coeff, y):
+    '''
+    Author: Caroline Nettekoven, crn29@cam.ac.uk
+    Inputs:
+       score: the projected data
+       coeff: the eigenvectors (PCs)
+       y: the class labels
+   '''
+    #
+    #
+    xs = score[:, 0]  # projection on PC1
+    ys = score[:, 1]  # projection on PC2
+    zs = score[:, 2]  # projection on PC3
+    n = coeff.shape[0]  # number of variables
+    plt.figure(figsize=(10, 10))
+    ax = plt.axes(projection='3d')
+    # Define colors
+    classes = np.unique(y)
+    if classes[0] is not None:
+        colors = sns.diverging_palette(
+            max(classes), min(classes), n=len(classes), s=75, l=50, sep=3, center='light', as_cmap=False)
+    else:
+        colors = 'g'
+    #
+    for s, l in enumerate(classes):
+        # color based on group
+        ax.scatter(
+            xs=xs[y == l],
+            ys=ys[y == l],
+            zs=zs[y == l],
+            c=colors[s]
+        )
+        #
+        ax.set_xlabel("PC{}".format(1), size=14)
+        ax.set_ylabel("PC{}".format(2), size=14)
+        ax.set_zlabel("PC{}".format(3), size=14)
+        # Limes
+        limx = (np.percentile(xs, 99), int(xs.min()) - 1)
+        limy = (np.percentile(ys, 99), int(ys.min()) - 1)
+        limz = (np.percentile(zs, 99), int(zs.min()) - 1)
+        #
+        # limx = (int(xs.max()) + 1, int(xs.min()) - 1)
+        # limy = (int(ys.max()) + 1, int(ys.min()) - 1)
+        # limz = (int(zs.max()) + 1, int(zs.min()) - 1)
+        #
+        ax.set_xlim3d(limx)
+        ax.set_ylim3d(limy)
+        ax.set_zlim3d(limz)
+        ax.grid()
+        ax.tick_params(axis='both', which='both', labelsize=14)
+    #
+    for i in range(n):
+        v = coeff[i]
+        a = Arrow3D([0, v[0] * 20], [0, v[1] * 20],
+                    [0, v[2] * 20], mutation_scale=20,
+                    lw=1, arrowstyle="-|>", color="k")
+        ax.add_artist(a)
+        ax.text(v[0] * 19, v[1] * 19, v[2] * 19, "Var" +
+                str(i + 1), color='k', size=10)
+
+# TODO: Scale the arrows such that they are exactly as long as the limes
 
 # TODO: Rewrite the motif count function such that it is more readable
 # TODO: Test The motif count function with very simple graphs
