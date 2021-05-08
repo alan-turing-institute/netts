@@ -20,7 +20,6 @@ import seaborn as sns
 
 # Modules to generate 3D Arrow
 import numpy as np
-from numpy import *
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.patches import FancyArrowPatch
@@ -145,11 +144,10 @@ def biplot(score, coeff, y):
     xs = score[:, 0]  # projection on PC1
     ys = score[:, 1]  # projection on PC2
     n = coeff.shape[0]  # number of variables
-    plt.figure(figsize=(10, 8), dpi=100)
     classes = np.unique(y)
     if classes[0] is not None:
         colors = sns.diverging_palette(
-            max(classes), min(classes), n=len(classes), s=75, l=50, sep=3, center='light', as_cmap=False)
+            max(classes), min(classes), n=len(classes), sep=1, center='light', as_cmap=False)
     else:
         colors = 'g'
     # colors = ['g', 'r', 'y']
@@ -178,6 +176,7 @@ class Arrow3D(FancyArrowPatch):
         FancyArrowPatch.__init__(self, (0, 0), (0, 0), *args, **kwargs)
         self._verts3d = xs, ys, zs
     #
+    #
 
     def draw(self, renderer):
         xs3d, ys3d, zs3d = self._verts3d
@@ -200,13 +199,12 @@ def biplot_3d(score, coeff, y):
     ys = score[:, 1]  # projection on PC2
     zs = score[:, 2]  # projection on PC3
     n = coeff.shape[0]  # number of variables
-    plt.figure(figsize=(10, 10))
     ax = plt.axes(projection='3d')
     # Define colors
     classes = np.unique(y)
     if classes[0] is not None:
         colors = sns.diverging_palette(
-            max(classes), min(classes), n=len(classes), s=75, l=50, sep=3, center='light', as_cmap=False)
+            max(classes), min(classes), n=len(classes), s=75, l=50, sep=1, center='dark', as_cmap=False)
     else:
         colors = 'g'
     #
@@ -247,6 +245,162 @@ def biplot_3d(score, coeff, y):
                 str(i + 1), color='k', size=10)
 
 # TODO: Scale the arrows such that they are exactly as long as the limes
-
 # TODO: Rewrite the motif count function such that it is more readable
 # TODO: Test The motif count function with very simple graphs
+
+
+def biplot_with_inset(score, coeff, labels, graphs, x_PC=1, y_PC=2):
+    """Plots biplot of two principal components with four graph insets showing highest and lowest scoring graph per component.
+        Author: Caroline Nettekoven, crn29@cam.ac.uk
+
+    Parameters
+    ----------
+    score : numpy array
+        The projected data, i.e. the scores that each graph has on all principal components.
+    coeff : numpy array
+        The eigenvectors, i.e. the principal components.
+    labels: numpy array
+        The class labels for colouring the datapoints (if None, then data points will be coloured black)
+    graphs: list
+        List storing all graph objects
+    x_PC: int
+        Index of the principal component that will be plotted on the x-axis
+    y_PC: int
+        Index of the principal component that will be plotted on the y-axis.
+        Indexing starts at 1 for the principal component, so if PC1 should be plotted, then index will be 1.
+
+    """
+    #
+    x_idx = x_PC - 1
+    y_idx = y_PC - 1
+    #
+    max_PC1 = int(np.where(score[:, x_idx] == score[:, x_idx].max())[0])
+    max_PC2 = int(np.where(score[:, y_idx] == score[:, y_idx].max())[0])
+    min_PC1 = np.where(score[:, x_idx] == score[:, x_idx].min())[0][0]
+    min_PC2 = np.where(score[:, y_idx] == score[:, y_idx].min())[0][0]
+    #
+    # score = score_all[:, [x_idx, y_idx]]
+    fig, ax1 = plt.subplots(figsize=(15, 15))
+    #
+    #
+    xs = score[:, x_idx]  # projection on PC1
+    ys = score[:, y_idx]  # projection on PC2
+    n = coeff.shape[0]  # number of variables
+    classes = np.unique(labels)
+    if classes[0] is not None:
+        colors = sns.diverging_palette(
+            max(classes), min(classes), n=len(classes), sep=1, center='light', as_cmap=False)
+    else:
+        colors = 'green'
+    #
+    for s, l in enumerate(classes):
+        # color based on group
+        ax1 = plt.scatter(xs[labels == l], ys[labels == l], c=colors[s])
+        for i in range(n):
+            # plot as arrows the variable scores (each variable has a score for PC1 and one for PC2)
+            ax1 = plt.arrow(0, 0, coeff[i, 0] * 10, coeff[i, 1] * 10, color='k',
+                            alpha=0.9, linestyle='-', linewidth=1.5, overhang=0.2)
+            ax1 = plt.text(coeff[i, 0] * 11.15, coeff[i, 1] * 11.15, "Var" +
+                           str(i + 1), color='k', ha='center', va='center', fontsize=10)
+        ax1 = plt.xlabel("PC{}".format(x_PC), size=14)
+        ax1 = plt.ylabel("PC{}".format(y_PC), size=14)
+        limx = [int(xs.min()) - 1, int(xs.max()) + 1]
+        limy = [int(ys.min()) - 1, int(ys.max()) + 1]
+        ax1 = plt.xlim(limx)
+        ax1 = plt.ylim(limy)
+        ax1 = plt.grid()
+        plt.tick_params(axis='both', which='both', labelsize=14)
+    #
+    # ------------------- Plot mini graph inset ----------------------
+    #
+    inset_width, inset_height = [0.2, 0.2]
+    # --- Plot graph with lowest PC1 score ---
+    g = min_PC1
+    G = graphs[g]
+    G_scores = score[g, [x_idx, y_idx]]
+    # Get coordinates for graph inset
+    x_offset = round((G_scores[0] - limx[0]) / (limx[1] - limx[0]) + 0.1, 2)
+    y_offset = round((G_scores[1] - limy[0]) / (limy[1] - limy[0]), 2)
+    # x_offset, y_offset, width, height = [0.25, 0.6, 0.1, 0.1]
+    # Plot inset
+    ax_PC1_min = fig.add_axes([x_offset, y_offset, inset_width, inset_height])
+    ax_PC1_min.axis("off")
+    pos = nx.spring_layout(G)
+    nx.draw_networkx_nodes(G, pos, node_size=20)
+    nx.draw_networkx_edges(G, pos, alpha=0.4)
+    #
+    # --- Plot graph with highest PC1 score ---
+    g = max_PC1
+    G = graphs[g]
+    G_scores = score[g, [x_idx, y_idx]]
+    # Get coordinates for graph inset
+    x_offset = round((G_scores[0] - limx[0]) / (limx[1] - limx[0]) - 0.2, 2)
+    y_offset = round((G_scores[1] - limy[0]) / (limy[1] - limy[0]), 2)
+    # x_offset, y_offset, width, height = [0.25, 0.6, 0.1, 0.1]
+    # Plot inset
+    ax_PC1_max = fig.add_axes([x_offset, y_offset, inset_width, inset_height])
+    ax_PC1_max.axis("off")
+    pos = nx.spring_layout(G)
+    nx.draw_networkx_nodes(G, pos, node_size=20)
+    nx.draw_networkx_edges(G, pos, alpha=0.4)
+    #
+    # --- Plot graph with lowest PC2 score ---
+    g = min_PC2
+    G = graphs[g]
+    G_scores = score[g, [x_idx, y_idx]]
+    # Get coordinates for graph inset
+    x_offset = round((G_scores[0] - limx[0]) / (limx[1] - limx[0]), 2)
+    y_offset = round((G_scores[1] - limy[0]) / (limy[1] - limy[0]), 2)
+    # x_offset, y_offset, width, height = [0.25, 0.6, 0.1, 0.1]
+    # Plot inset
+    ax_PC2_min = fig.add_axes([x_offset, y_offset, inset_width, inset_height])
+    ax_PC2_min.axis("off")
+    pos = nx.spring_layout(G)
+    nx.draw_networkx_nodes(G, pos, node_size=20)
+    nx.draw_networkx_edges(G, pos, alpha=0.4)
+    #
+    # --- Plot graph with highest PC2 score ---
+    g = max_PC2
+    G = graphs[g]
+    G_scores = score[g, [x_idx, y_idx]]
+    # Get coordinates for graph inset
+    x_offset = round((G_scores[0] - limx[0]) / (limx[1] - limx[0]), 2)
+    y_offset = round((G_scores[1] - limy[0]) / (limy[1] - limy[0]) - 0.2, 2)
+    # x_offset, y_offset, width, height = [0.25, 0.6, 0.1, 0.1]
+    # Plot inset
+    ax_PC2_max = fig.add_axes([x_offset, y_offset, inset_width, inset_height])
+    ax_PC2_max.axis("off")
+    pos = nx.spring_layout(G)
+    nx.draw_networkx_nodes(G, pos, node_size=20)
+    nx.draw_networkx_edges(G, pos, alpha=0.4)
+    #
+    #
+    # --- Plot graph with median PC2 score ---
+    # score[np.where(score[:, 1] == np.median(score[:, 1])), ]
+    # #
+    # middle_graph = np.where(np.logical_and(
+    #     np.round(score[:, 1]) == 0, np.round(score[:, 0]) > 10))
+    # #
+    # g = int(middle_graph[0][0])
+    # G = graphs[g]
+    # G_scores = score[g, [x_idx, y_idx]]
+    # # Get coordinates for graph inset
+    # x_offset = round((G_scores[0] - limx[0]) / (limx[1] - limx[0]), 2)
+    # y_offset = round((G_scores[1] - limy[0]) / (limy[1] - limy[0]), 2)
+    # # x_offset, y_offset, width, height = [0.25, 0.6, 0.1, 0.1]
+    # # Plot inset
+    # ax_PC_middle = fig.add_axes([x_offset, y_offset, inset_width, inset_height])
+    # ax_PC_middle.axis("off")
+    # pos = nx.spring_layout(G)
+    # nx.draw_networkx_nodes(G, pos, node_size=20)
+    # nx.draw_networkx_edges(G, pos, alpha=0.4)
+    #
+    # --- Optional: Save plot ---
+    output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
+    output = op.join(
+        output_dir, 'PCA_biplot_unrotated_graph_insets_PC{}_PC{}'.format(x_PC, y_PC))
+    plt.savefig(output)
+    plt.show()
+
+
+#

@@ -41,7 +41,7 @@ from compile_graphs_dataset import get_graphs, graph_properties, exclude_empty_g
 from graph_analysis_functions import print_bidirectional_edges, print_parallel_edges, get_parallel_edges, central_words, calc_vector_distance, calc_vector_distance_adj, choose_representative_word, find_representative_node_words
 
 # Motif analysis functions
-from motif_helper_functions import motifs, motif_counter, rasterplot, biplot, biplot_3d
+from motif_helper_functions import motifs, motif_counter, rasterplot, biplot, biplot_3d, Arrow3D, biplot_with_inset
 
 
 # --- Import motif data ---
@@ -136,14 +136,115 @@ plt.show()
 #                  '_{0}'.format(str(datetime.date.today())))
 # plt.savefig(output)
 # plt.show()
-# ----------------------- Colour by directionality -----------------------
-# --- Unrotated ---
-labels = df.bidirectional_edges.to_numpy()
+
+# ----------------------- Colour by size & LCC -----------------------
+# --- Bidirectionality---
+fig = plt.figure(figsize=(25.6, 20))
+labels = df.edges.to_numpy()
 # array.reshape((3, 3))
 # labels = np.array([df.nodes], [df.nodes])
 X_new = pca.fit_transform(df[motif_cols])
 biplot(X_new[:, 0:2], np.transpose(pca.components_[0:2, :]), labels)
-output = op.join(output_dir, 'PCA_biplot_unrotated_color-bidirectionality' +
+output = op.join(output_dir, 'PCA_PC1-2_biplot_unrotated_color-edges' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
+plt.show()
+
+# --- LCC---
+fig = plt.figure(figsize=(25.6, 20))
+labels = df.lcc.to_numpy()
+# array.reshape((3, 3))
+# labels = np.array([df.nodes], [df.nodes])
+X_new = pca.fit_transform(df[motif_cols])
+biplot(X_new[:, 0:2], np.transpose(pca.components_[0:2, :]), labels)
+output = op.join(output_dir, 'PCA_PC1-2_biplot_unrotated_color-lcc' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
+plt.show()
+
+# ----------------------- Colour by size & LCC -----------------------
+# --- Bidirectionality---
+fig = plt.figure(figsize=(25.6, 20))
+labels = df.nodes.to_numpy()
+# array.reshape((3, 3))
+# labels = np.array([df.nodes], [df.nodes])
+X_new = pca.fit_transform(df[motif_cols])
+biplot(X_new[:, 0:3:2], np.transpose(pca.components_[0:3:2, :]), labels)
+output = op.join(output_dir, 'PCA_PC1-3_biplot_unrotated_color-edges' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
+plt.show()
+
+# --- LCC---
+fig = plt.figure(figsize=(25.6, 20))
+labels = df.lcc.to_numpy()
+# array.reshape((3, 3))
+# labels = np.array([df.nodes], [df.nodes])
+X_new = pca.fit_transform(df[motif_cols])
+biplot(X_new[:, 0:3:2], np.transpose(pca.components_[0:3:2, :]), labels)
+output = op.join(output_dir, 'PCA_PC1-3_biplot_unrotated_color-lcc' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
+plt.show()
+
+
+# ----------------------- Colour by tat & subject -----------------------
+# --- Bidirectionality---
+fig = plt.figure(figsize=(25.6, 20))
+labels = df.tat.to_numpy()
+# array.reshape((3, 3))
+# labels = np.array([df.nodes], [df.nodes])
+X_new = pca.fit_transform(df[motif_cols])
+biplot(X_new[:, 0:2], np.transpose(pca.components_[0:2, :]), labels)
+output = op.join(output_dir, 'PCA_PC1-2_biplot_unrotated_color-tat' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
+plt.show()
+
+# --- LCC---
+fig = plt.figure(figsize=(25.6, 20))
+labels = df.subj.to_numpy()
+# array.reshape((3, 3))
+# labels = np.array([df.nodes], [df.nodes])
+X_new = pca.fit_transform(df[motif_cols])
+biplot(X_new[:, 0:2], np.transpose(pca.components_[0:2, :]), labels)
+output = op.join(output_dir, 'PCA_PC1-2_biplot_unrotated_color-subj' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
+plt.show()
+
+# --- LCC---
+fig = plt.figure(figsize=(25.6, 20))
+labels = df.m02.to_numpy()
+# array.reshape((3, 3))
+# labels = np.array([df.nodes], [df.nodes])
+X_new = pca.fit_transform(df[motif_cols])
+biplot(X_new[:, 0:2], np.transpose(pca.components_[0:2, :]), labels)
+output = op.join(output_dir, 'PCA_PC1-2_biplot_unrotated_color-m02' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
+plt.show()
+# ----------------------- Colour by directionality & L2 -----------------------
+# --- Bidirectionality---
+fig = plt.figure(figsize=(25.6, 20))
+labels = df.bidirectional_edges.to_numpy()
+# array.reshape((3, 3))
+# labels = np.array([df.nodes], [df.nodes])
+X_new = pca.fit_transform(df[motif_cols])
+biplot(X_new[:, 1:3], np.transpose(pca.components_[1:3, :]), labels)
+output = op.join(output_dir, 'PCA_PC2-3_biplot_unrotated_color-bidirectionality' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
+plt.show()
+
+# --- L2---
+fig = plt.figure(figsize=(25.6, 20))
+labels = df.L2.to_numpy()
+# array.reshape((3, 3))
+# labels = np.array([df.nodes], [df.nodes])
+X_new = pca.fit_transform(df[motif_cols])
+biplot(X_new[:, 1:3], np.transpose(pca.components_[1:3, :]), labels)
+output = op.join(output_dir, 'PCA_PC2-3_biplot_unrotated_color-L2' +
                  '_{0}'.format(str(datetime.date.today())))
 plt.savefig(output)
 plt.show()
@@ -176,13 +277,13 @@ plt.show()
 
 # ----------------------- 3D Plot -----------------------
 # ----------- 3D - coloured by node number -----------
-labels = df.edges.to_numpy()
+labels = df.L2.to_numpy()
 X_new = pca.fit_transform(df[motif_cols])
 score = X_new[:, 0:3]
 coeff = np.transpose(pca.components_[0:3, :])
 biplot_3d(score, coeff, labels)
 
-output = op.join(output_dir, 'PCA_biplot_3d_colored-nodes' +
+output = op.join(output_dir, 'PCA_biplot_3d_colored-l2' +
                  '_{0}'.format(str(datetime.date.today())))
 plt.savefig(output)
 plt.show()
@@ -213,26 +314,27 @@ plt.show()
 
 # ----------------------- 3D Plot with example graphs -----------------------
 # ----------- 3D - coloured by node number -----------
-labels = df.edges.to_numpy()
+labels = df.L2.to_numpy()
 X_new = pca.fit_transform(df[motif_cols])
 score = X_new[:, 0:3]
 coeff = np.transpose(pca.components_[0:3, :])
 biplot_3d(score, coeff, labels)
 plt.show(block=False)
 
-max_x = int(np.where(score[:, 0] == score[:, 0].max())[0])
-max_y = int(np.where(score[:, 1] == score[:, 1].max())[0])
-max_z = int(np.where(score[:, 2] == score[:, 2].max())[0])
-
-min_x = np.where(score[:, 0] == score[:, 0].min())[0][0]
-min_y = np.where(score[:, 1] == score[:, 1].min())[0][0]
-min_z = np.where(score[:, 2] == score[:, 2].min())[0][0]
-# --------------------- Import graphs ---------------------------------------
+# --------------------- Find most representative graphs ---------------------------------------
 graph_dir = '/Users/CN/Dropbox/speech_graphs/all_tats'
 graphs, filelist = get_graphs(graph_dir)
 graphs, filelist = exclude_empty_graphs(graphs, filelist, be_quiet=True)
 
-representative_idx = [min_x, max_x, min_y, max_y, min_z, max_z]
+
+max_PC1 = int(np.where(score[:, 0] == score[:, 0].max())[0])
+max_PC2 = int(np.where(score[:, 1] == score[:, 1].max())[0])
+max_PC3 = int(np.where(score[:, 2] == score[:, 2].max())[0])
+
+min_PC1 = np.where(score[:, 0] == score[:, 0].min())[0][0]
+min_PC2 = np.where(score[:, 1] == score[:, 1].min())[0][0]
+min_PC3 = np.where(score[:, 2] == score[:, 2].min())[0][0]
+representative_idx = [min_PC1, max_PC1, min_PC2, max_PC2, min_PC3, max_PC3]
 representative_graphs = [G for g, G in enumerate(
     graphs) if g in representative_idx]
 
@@ -338,3 +440,107 @@ gprops_numeric_nonan = gprops[gprops.columns[~gprops.isnull(
 ).all()]].select_dtypes(include=numerics)
 p_values = corr_sig(gprops_numeric_nonan)
 mask = np.invert(np.tril(p_values < 0.05))
+
+
+# ----------- Plot PCA Scores : 3D - coloured by size & LCC -----------
+for pc in range(0, 3):
+    df['PC{}_score'.format(pc)] = score[:, pc]
+
+fig = plt.figure(figsize=(25.6, 20))
+ax = plt.axes(projection='3d')
+ax.scatter(
+    xs=df['PC0_score'],
+    ys=df['PC1_score'],
+    zs=df['PC2_score'],
+    c=pd.to_numeric(df.edges),
+    cmap='rocket',
+)
+ax.set_xlabel('PC1')
+ax.set_ylabel('PC2')
+ax.set_zlabel('PC3')
+
+output = op.join(output_dir, 'PCA_score_3d_colored-edges' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
+plt.show()
+
+
+fig = plt.figure(figsize=(25.6, 20))
+ax = plt.axes(projection='3d')
+ax.scatter(
+    xs=df['PC0_score'],
+    ys=df['PC1_score'],
+    zs=df['PC2_score'],
+    c=pd.to_numeric(df.lcc),
+    cmap='rocket',
+)
+ax.set_xlabel('PC1')
+ax.set_ylabel('PC2')
+ax.set_zlabel('PC3')
+
+output = op.join(output_dir, 'PCA_score_3d_colored-lcc' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
+plt.show()
+
+
+# ----------- Plot PCA Scores : 3D - coloured by size & LCC -----------
+for pc in range(0, 3):
+    df['PC{}_score'.format(pc)] = score[:, pc]
+
+fig = plt.figure(figsize=(25.6, 20))
+ax = plt.axes(projection='3d')
+ax.scatter(
+    xs=df['PC0_score'],
+    ys=df['PC1_score'],
+    zs=df['PC2_score'],
+    c=pd.to_numeric(df.edges),
+    cmap='rocket',
+)
+ax.set_xlabel('PC1')
+ax.set_ylabel('PC2')
+ax.set_zlabel('PC3')
+
+output = op.join(output_dir, 'PCA_score_3d_colored-edges' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
+plt.show()
+
+
+fig = plt.figure(figsize=(25.6, 20))
+ax = plt.axes(projection='3d')
+ax.scatter(
+    xs=df['PC0_score'],
+    ys=df['PC1_score'],
+    zs=df['PC2_score'],
+    c=pd.to_numeric(df.lcc),
+    cmap='rocket',
+)
+ax.set_xlabel('PC1')
+ax.set_ylabel('PC2')
+ax.set_zlabel('PC3')
+
+output = op.join(output_dir, 'PCA_score_3d_colored-lcc' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
+plt.show()
+
+
+# Import Graphs
+graph_dir = '/Users/CN/Dropbox/speech_graphs/all_tats'
+graphs, filelist = get_graphs(graph_dir)
+graphs, filelist = exclude_empty_graphs(graphs, filelist, be_quiet=True)
+
+
+# ------------- Biplot with mini graph insets -------------
+# Info on plotting insets: https://matplotlib.org/1.3.1/mpl_toolkits/axes_grid/users/overview.html#insetlocator
+labels = df.bidirectional_edges.to_numpy()
+labels = None
+score = pca.fit_transform(df[motif_cols])
+
+x_PC = 1
+y_PC = 3
+coeff = np.transpose(pca.components_[[x_PC - 1, y_PC - 1], :])
+
+# biplot_with_inset(score, coeff, labels, graphs, x_PC, y_PC)
+biplot_with_inset(score, coeff, labels, graphs, x_PC, y_PC)

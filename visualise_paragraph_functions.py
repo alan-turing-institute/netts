@@ -10,9 +10,8 @@
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # source /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/venv/bin/activate
-# TO DO
-#   - Sanity check: Is each relation represented only once in the edge? (Also check parallel edges in multiedge graph)
-#   - Plot graphs coloured by confidence / extraction type
+# TODO: Sanity check: Is each relation represented only once in the edge? (Also check parallel edges in multiedge graph)
+# TODO: Plot graphs coloured by confidence / extraction type
 import networkx as nx
 import os
 import os.path as op
