@@ -1,4 +1,4 @@
-# cambridge_language_analysis
+# Cambridge Language Analysis (Netspy)
 Toolbox for semantic speech graph construction.
 
 This toolbox was built as part of an ongoing project investigating the potential of [speech markers to predict psychosis risk](https://www.turing.ac.uk/research/research-projects/towards-incoherent-speech-predictor-psychosis-risk) funded by the [Alan Turing Institute](https://www.turing.ac.uk) and led by [Sarah Morgan](https://www.neuroscience.cam.ac.uk/directory/profile.php?SarahMorgan) at the [University of Cambridge](https://www.cam.ac.uk). Tools were written by [Caroline Nettekoven](https://www.neuroscience.cam.ac.uk/directory/profile.php?caronettekoven) at the  [Cambridge Brain Mapping Unit](http://www.bmu.psychiatry.cam.ac.uk).
@@ -13,7 +13,7 @@ Below is the semantic speech graph constructed from this text.
 ![Semantic speech graph example](semantic_speech_graph_example.png)
 *Figure 1. Semantic Speech Graph. Nodes represents an entity mentioned by the speaker (e.g. I, man, jacket). Edges represent relations between nodes mentioned by the speaker (e.g. see, has on).*
 
-Pipeline:
+# Pipeline
 - Construct semantic graphs from transcripts by running speech_graph.py on the transcript
   - For example, create semantic graph for the fourth transcript in the dataset by running python ./speech_graph.py 3 
   - Or run speech_graph.py in bulk by running graph_tats.sh script
