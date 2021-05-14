@@ -13,3 +13,11 @@ Below is the semantic speech graph constructed from this text.
 ![Semantic speech graph example](semantic_speech_graph_example.png)
 *Figure 1. Semantic Speech Graph. Nodes represents an entity mentioned by the speaker (e.g. I, man, jacket). Edges represent relations between nodes mentioned by the speaker (e.g. see, has on).*
 
+Pipeline:
+- Construct semantic graphs from transcripts by running speech_graph.py on the transcript
+  - For example, create semantic graph for the fourth transcript in the dataset by running python ./speech_graph.py 3 
+  - Or run speech_graph.py in bulk by running graph_tats.sh script
+- Describe graphs using describe_graphs.py (Creates graphs_data.csv)
+  - Plot basic graph measures using basic_graph_analysis.ipynb notebook
+- Count motifs in graphs by running motifs.py (Creates motif_counts.csv)
+  - Plot motif count measures using motif_analysis.ipynb notebook

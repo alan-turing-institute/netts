@@ -30,11 +30,6 @@ from graph_analysis_functions import print_bidirectional_edges, print_parallel_e
 # Motif analysis functions
 from motif_helper_functions import motifs, motif_counter, rasterplot, biplot
 
-# PCA Packages
-from sklearn.decomposition import PCA
-from mpl_toolkits.mplot3d import Axes3D
-from sklearn.preprocessing import StandardScaler
-from factor_analyzer import Rotator
 
 # ------------------------------------------------------------------------------
 # Time execution of script
@@ -44,10 +39,7 @@ start_time = time.time()
 graph_dir = '/Users/CN/Dropbox/speech_graphs/all_tats'
 graphs, filelist = get_graphs(graph_dir)
 graphs, filelist = exclude_empty_graphs(graphs, filelist, be_quiet=True)
-graph_props = graph_properties(graphs, filelist)
-print('Imported and described {0} graphs.\n{1} subjects described {2} ± {3} pictures on average.'.format(
-    graph_props.shape[0], len(graph_props.subj.unique()), graph_props.subj.value_counts().mean(), round(graph_props.subj.value_counts().std(), 2)))
-
+graph_props = pd.read_csv(op.join(graph_dir, 'graph_data.csv'))
 # --- Count motifs ---
 # If already counted and motif_counts.csv exists, imports motif count data
 motif_data = op.join(graph_dir, 'motif_counts.csv')
@@ -67,13 +59,8 @@ else:
     motif_cols = list(motifs.keys())
     X = [list(x.values()) for x in motif_counts]
     df = pd.DataFrame(X, columns=motif_cols)
-    df.to_csv(op.join(graph_dir, 'motif_counts.csv'))
+    df.to_csv(op.join(graph_dir, 'output/motif_counts.csv'))
 
-# --- Compile graphs data (basic properties and motifs) and save ---
-for column in df.columns:
-    graph_props[column] = df[column]
-
-graph_props.to_csv(op.join(graph_dir, 'graph_data.csv'))
 
 # Print execution time
 print("Counting motifs in %s graphs finished in --- %s seconds ---" %
