@@ -261,8 +261,8 @@ def graph_properties(graphs, filelist):
         'clustering',
     ])
     #
-    df.subj = pd.Categorical(df.subj)
-    df.tat = pd.Categorical(df.tat)
+    df.subj = pd.Categorical(df.subj.astype('str'))
+    df.tat = pd.Categorical(df.tat.astype('str'))
     df.tat = df.tat.cat.rename_categories({'8': '08'})
     df.tat = df.tat.cat.reorder_categories(
         ['08', '10', '13', '19', '21', '24', '28', '30'])

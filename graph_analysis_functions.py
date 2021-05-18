@@ -17,6 +17,7 @@ import pandas as pd
 import sys
 sys.path.append(
     '/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/')
+import numpy as np
 
 
 def print_bidirectional_edges(G, quiet=True):

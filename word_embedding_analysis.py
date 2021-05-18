@@ -209,8 +209,12 @@ def calc_vector_distance_adj(G, model, representative_node_words, quiet=True):
 
     Returns
     -------
-    distance
+    distance_mean
         mean distance value for all adjacent nodes
+    distance_median
+        median distance value for all adjacent nodes
+    distance_std
+        std dev of distances of all adjacent nodes
 
     """
     # Construct basic graph without multi edges
@@ -239,8 +243,11 @@ def calc_vector_distance_adj(G, model, representative_node_words, quiet=True):
             if not quiet:
                 print('\n{} || {}: \t\t{}'.format(
                     edge[0], edge[1], 'Not in vocabulary'))
+    #
     mean_distance = np.nanmean(all_edge_distances)
-    return mean_distance
+    median_distance = np.nanmedian(all_edge_distances)
+    std_distance = np.nanstd(all_edge_distances)
+    return mean_distance, median_distance, std_distance
 
 # --------------------- Central node word2vec distance ---------------------------------------
 
@@ -300,6 +307,8 @@ def adjacent_node_distance(df, graphs):
 
     """
     df['distance_mean'] = np.nan
+    df['distance_median'] = np.nan
+    df['distance_std'] = np.nan
     # Initialise Word2Vec model
     model = w2v.load('word2vec_data/text8.bin')
     #
@@ -322,7 +331,7 @@ def adjacent_node_distance(df, graphs):
         # print(i, i+step)
         process_nodes = '\n\n'.join(nodes_allGraphs.split('\n\n')[i:i + step])
         # part-of-speech tag node words
-        with CoreNLPClient(properties={'annotators': 'tokenize,ssplit,pos,lemma', 'ssplit.newlineIsSentenceBreak': 'two'}, be_quiet=False) as client:
+        with CoreNLPClient(properties={'annotators': 'tokenize,ssplit,pos,lemma', 'ssplit.newlineIsSentenceBreak': 'two'}, be_quiet=True) as client:
             doc = client.annotate(process_nodes)
         #
         for sent in doc.sentence:
@@ -331,13 +340,15 @@ def adjacent_node_distance(df, graphs):
     #
     # Get dictionary with one representative words for every node entry on the basis of pos tags
     representative_node_words = find_representative_node_words(
-        graphs, all_sentences, quiet=False)
+        graphs, all_sentences, quiet=True)
     #
     # ---- Calculate distance between all adjacent nodes in graph ---
     for g, G in enumerate(graphs):
-        distance = calc_vector_distance_adj(
-            G, model, representative_node_words, quiet=False)
-        df['distance_mean'][g] = distance
+        mean_distance, median_distance, std_distance = calc_vector_distance_adj(
+            G, model, representative_node_words, quiet=True)
+        df['distance_mean'][g] = mean_distance
+        df['distance_median'][g] = median_distance
+        df['distance_std'][g] = std_distance
     #
     #
     return df

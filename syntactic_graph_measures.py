@@ -18,7 +18,7 @@
 #               as params_table.txt)
 #               Tool is available here: https://neuro.ufrn.br/_tools/speechgraph/
 #               Tool documentation: http://www.neuro.ufrn.br/softwares/speechgraphs
-#               PDF of tool documentation (which description of the params_table.txt
+#               PDF of tool documentation (which includes description of the params_table.txt
 #               column names): https://neuro.ufrn.br/_pdf/SpeechGraphs_UserGuide.pdf
 #
 # Author:       Caroline Nettekoven, 2021
@@ -30,6 +30,7 @@
 import warnings
 warnings.filterwarnings("ignore")
 import glob
+import re
 import os
 import os.path as op
 import sys
@@ -38,7 +39,6 @@ sys.path.append(
 
 # Data Processing
 import pandas as pd
-import numpy as np
 
 # Graph functions
 from compile_graphs_dataset import get_graphs, exclude_empty_graphs
@@ -104,7 +104,6 @@ params = params.reset_index(drop=True)
 
 # Import other graphs data
 graph_dir = '/Users/CN/Dropbox/speech_graphs/all_tats'
-graph_data = pd.read_csv(op.join(graph_dir, 'output/graph_data.csv'))
 
 # Change columns names to differentiate syntactic graph measures from semantic graph measures
 params.columns = 'syn_' + params.columns
@@ -139,9 +138,16 @@ for f, file in enumerate(params.syn_File):
     params['subj'][f] = int(subj)
     params['tat'][f] = int(tat)
 
-
 syntactic_data = pd.merge(params, hub, how='left', on=[
                           'subj', 'tat', 'syn_File'])
+
+
+syntactic_data.subj = pd.Categorical(syntactic_data.subj.astype('str'))
+syntactic_data.tat = pd.Categorical(syntactic_data.tat.astype('str'))
+syntactic_data.tat = syntactic_data.tat.cat.rename_categories({'8': '08'})
+syntactic_data.tat = syntactic_data.tat.cat.reorder_categories(
+    ['08', '10', '13', '19', '21', '24', '28', '30'])
+syntactic_data.tat.value_counts()
 
 # --------------------- Save syntactic graph measures ---------------------------------------
 syntactic_data.to_csv(op.join(graph_dir, 'output/syntactic_graph_data.csv'))
