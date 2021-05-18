@@ -44,15 +44,11 @@ from graph_analysis_functions import print_bidirectional_edges, print_parallel_e
 from motif_helper_functions import motifs, motif_counter, rasterplot, biplot, biplot_3d, Arrow3D, biplot_with_inset
 
 
-# --- Import motif data ---
-# If already counted and motif_counts.csv exists, imports motif count data
-graph_dir = '/Users/CN/Dropbox/speech_graphs/all_tats'
-graph_data = op.join(graph_dir, 'graph_data.csv')
-try:
-    # Import motif count data
-    df = pd.read_csv(op.join(graph_data))
-except FileNotFoundError:
-    print('----- Error: Cannot find {}} -----\nIt seems motifs have not been counted yet.\nRun motifs.py to count motifs before running this cell.'.format(graph_data))
+# --- Import data ---
+# If full dataset has already been compiled (together with syntactic graph data and nlp measures), load in the full dataset
+data_dir = '/Users / CN / Dropbox / speech_graphs / all_tats/output'
+file = op.join(data_dir, 'file_all.csv')
+df = pd.read_csv(file)
 
 # Output directory for figures
 output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
@@ -101,7 +97,7 @@ pc_cols = ['PC' + str(n + 1) for n in range(0, n_components)]
 # ----------------------- Plot PCA ----------------------------------------------
 loadings = pd.DataFrame(pca.components_.T, columns=pc_cols, index=motif_cols)
 print(loadings.round(2))
-loadings.round(2).to_csv(op.join(graph_dir, 'pca_loadings.csv'))
+# loadings.round(2).to_csv(op.join(data_dir, 'pca_loadings.csv'))
 components = loadings.values
 # --- Biplot with unrotated components ---
 X_new = pca.fit_transform(df[motif_cols])
@@ -322,8 +318,8 @@ biplot_3d(score, coeff, labels)
 plt.show(block=False)
 
 # --------------------- Find most representative graphs ---------------------------------------
-graph_dir = '/Users/CN/Dropbox/speech_graphs/all_tats'
-graphs, filelist = get_graphs(graph_dir)
+data_dir = '/Users/CN/Dropbox/speech_graphs/all_tats'
+graphs, filelist = get_graphs(data_dir)
 graphs, filelist = exclude_empty_graphs(graphs, filelist, be_quiet=True)
 
 
@@ -386,9 +382,9 @@ for pc in range(1, 4):
 # ----------------------- Plot Correlation Plot -----------------------
 #
 # --------------------- Import graphs ---------------------------------------
-graph_dir = '/Users/CN/Dropbox/speech_graphs/all_tats'
+data_dir = '/Users/CN/Dropbox/speech_graphs/all_tats'
 
-graphs, filelist = get_graphs(graph_dir)
+graphs, filelist = get_graphs(data_dir)
 graphs, filelist = exclude_empty_graphs(graphs, filelist, be_quiet=True)
 gprops = graph_properties(graphs, filelist)
 
@@ -527,8 +523,8 @@ plt.show()
 
 
 # Import Graphs
-graph_dir = '/Users/CN/Dropbox/speech_graphs/all_tats'
-graphs, filelist = get_graphs(graph_dir)
+data_dir = '/Users/CN/Dropbox/speech_graphs/all_tats'
+graphs, filelist = get_graphs(data_dir)
 graphs, filelist = exclude_empty_graphs(graphs, filelist, be_quiet=True)
 
 

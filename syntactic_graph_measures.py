@@ -47,16 +47,16 @@ from compile_graphs_dataset import get_graphs, exclude_empty_graphs
 # --------------------- Import syntactic graph measures ---------------------------------------
 # ++++ Import hub info ++++
 # Find all hub files
-syntactic_data_path = '/Users/CN/Documents/Projects/Cambridge/data/Kings'
-all_files = glob.glob(op.join(syntactic_data_path, '**',
-                              'hub_table_dir.txt'), recursive=True)
+syntactic_data_path = '/Users/CN/Dropbox/speech_graphs/all_tats/output/syntactic_measures/'
+all_files = sorted(glob.glob(op.join(syntactic_data_path,
+                                     'hub_table_dir*.txt')))
 
 # Import the hub table file that includes a header first
 hub = pd.read_csv(all_files[0])
 
 # Import the hub table files that include no header
 list_of_datamframes_hub = [hub]
-for filename in all_files:
+for filename in all_files[:1]:
     df = pd.read_csv(filename, index_col=None, header=None)
     df.columns = hub.columns
     list_of_datamframes_hub.append(df)
@@ -66,8 +66,8 @@ hub = pd.concat(list_of_datamframes_hub, axis=0, ignore_index=True)
 
 # ++++ Import params info ++++
 # Find all params files
-all_files = glob.glob(op.join(syntactic_data_path, '**',
-                              'params_table.txt'), recursive=True)
+all_files = sorted(glob.glob(op.join(syntactic_data_path,
+                                     'params_table*')))
 
 # Import the params table file that includes a header first
 params = pd.read_csv(all_files[0])
