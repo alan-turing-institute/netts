@@ -56,7 +56,7 @@ hub = pd.read_csv(all_files[0])
 
 # Import the hub table files that include no header
 list_of_datamframes_hub = [hub]
-for filename in all_files[:1]:
+for filename in all_files:
     df = pd.read_csv(filename, index_col=None, header=None)
     df.columns = hub.columns
     list_of_datamframes_hub.append(df)

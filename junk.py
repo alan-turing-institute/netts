@@ -499,3 +499,66 @@ plt.ylim(30, 100.5)
 plt.style.context('seaborn-whitegrid')
 plt.plot(var)
 plt.show()
+
+
+# # ----------------------- Rotate with Varimax -----------------------
+# rotate_cols = pc_cols[:2]
+# rotator = Rotator(method='varimax')
+# rotated_loading_varimax = rotator.fit_transform(
+#     loadings[rotate_cols].to_numpy())
+# loadings_rot_varimax = pd.DataFrame(
+#     rotated_loading_varimax, index=motif_cols, columns=rotate_cols)
+# # --- Biplot with Varimax rotation ---
+# X_new = rotator.fit_transform(df[motif_cols])
+# biplot(X_new[:, 0:2], loadings_rot_varimax.values, df.edges)
+# output = op.join(output_dir, 'PCA_biplot_rotated-varimax' +
+#                  '_{0}'.format(str(datetime.date.today())))
+# plt.savefig(output)
+# plt.show()
+# # ----------------------- Rotate with Promax -----------------------
+# rotator = Rotator(method='promax')
+# rotated_loading_promax = rotator.fit_transform(loadings[rotate_cols])
+# loadings_rot_promax = pd.DataFrame(
+#     rotated_loading_promax, index=motif_cols, columns=rotate_cols)
+# # --- Biplot with Promax rotation ---
+# X_new = rotator.fit_transform(df[motif_cols])
+# biplot(X_new[:, 0:2], loadings_rot_promax.values, None)
+# output = op.join(output_dir, 'PCA_biplot_rotated-promax' +
+#                  '_{0}'.format(str(datetime.date.today())))
+# plt.savefig(output)
+# plt.show()
+
+# # --- Rotated : Varimax ---
+# X_new = rotator.fit_transform(df[motif_cols])
+# biplot(X_new[:, 0:2], loadings_rot_varimax.values, labels)
+# output = op.join(output_dir, 'PCA_biplot_rotated-varimax_color-bidirectionality' +
+#                  '_{0}'.format(str(datetime.date.today())))
+# plt.savefig(output)
+# plt.show()
+
+# # --- Rotated : Varimax ---
+# X_new = rotator.fit_transform(df[motif_cols])
+# biplot(X_new[:, 0:2], loadings_rot_varimax.values, labels)
+# output = op.join(output_dir, 'PCA_biplot_rotated-varimax_color-edges' +
+#                  '_{0}'.format(str(datetime.date.today())))
+# plt.savefig(output)
+# plt.show()
+
+
+# # --- Rotated : Varimax ---
+# X_new = rotator.fit_transform(df[motif_cols])
+# score = X_new[:, 0:3]
+# coeff = loadings_rot_varimax.values
+# biplot_3d(score, coeff, labels)
+# output = op.join(output_dir, 'PCA_biplot_rotated-varimax_color-edges' +
+#                  '_{0}'.format(str(datetime.date.today())))
+# plt.savefig(output)
+# plt.show()
+
+# plt.plot(rotated_loading_promax)
+# plt.plot(rotated_loading_varimax)
+# plt.xlabel("Promax")
+# plt.ylabel("Varimax")
+# plt.show()
+
+# np.round(np.abs(rotazted_loading_promax - rotated_loading_varimax), decimals=4)

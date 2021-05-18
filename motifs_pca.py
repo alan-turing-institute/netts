@@ -46,9 +46,9 @@ from motif_helper_functions import motifs, motif_counter, rasterplot, biplot, bi
 
 # --- Import data ---
 # If full dataset has already been compiled (together with syntactic graph data and nlp measures), load in the full dataset
-data_dir = '/Users / CN / Dropbox / speech_graphs / all_tats/output'
-file = op.join(data_dir, 'file_all.csv')
-df = pd.read_csv(file)
+data_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/output'
+graph_data = op.join(data_dir, 'graph_data_all.csv')
+df = pd.read_csv(graph_data)
 
 # Output directory for figures
 output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
@@ -97,7 +97,7 @@ pc_cols = ['PC' + str(n + 1) for n in range(0, n_components)]
 # ----------------------- Plot PCA ----------------------------------------------
 loadings = pd.DataFrame(pca.components_.T, columns=pc_cols, index=motif_cols)
 print(loadings.round(2))
-# loadings.round(2).to_csv(op.join(data_dir, 'pca_loadings.csv'))
+loadings.round(2).to_csv(op.join(graph_dir, 'pca_loadings.csv'))
 components = loadings.values
 # --- Biplot with unrotated components ---
 X_new = pca.fit_transform(df[motif_cols])
@@ -106,32 +106,6 @@ output = op.join(output_dir, 'PCA_biplot_unrotated' +
                  '_{0}'.format(str(datetime.date.today())))
 plt.savefig(output)
 plt.show()
-# # ----------------------- Rotate with Varimax -----------------------
-# rotate_cols = pc_cols[:2]
-# rotator = Rotator(method='varimax')
-# rotated_loading_varimax = rotator.fit_transform(
-#     loadings[rotate_cols].to_numpy())
-# loadings_rot_varimax = pd.DataFrame(
-#     rotated_loading_varimax, index=motif_cols, columns=rotate_cols)
-# # --- Biplot with Varimax rotation ---
-# X_new = rotator.fit_transform(df[motif_cols])
-# biplot(X_new[:, 0:2], loadings_rot_varimax.values, df.edges)
-# output = op.join(output_dir, 'PCA_biplot_rotated-varimax' +
-#                  '_{0}'.format(str(datetime.date.today())))
-# plt.savefig(output)
-# plt.show()
-# # ----------------------- Rotate with Promax -----------------------
-# rotator = Rotator(method='promax')
-# rotated_loading_promax = rotator.fit_transform(loadings[rotate_cols])
-# loadings_rot_promax = pd.DataFrame(
-#     rotated_loading_promax, index=motif_cols, columns=rotate_cols)
-# # --- Biplot with Promax rotation ---
-# X_new = rotator.fit_transform(df[motif_cols])
-# biplot(X_new[:, 0:2], loadings_rot_promax.values, None)
-# output = op.join(output_dir, 'PCA_biplot_rotated-promax' +
-#                  '_{0}'.format(str(datetime.date.today())))
-# plt.savefig(output)
-# plt.show()
 
 # ----------------------- Colour by size & LCC -----------------------
 # --- Bidirectionality---
@@ -244,13 +218,7 @@ output = op.join(output_dir, 'PCA_PC2-3_biplot_unrotated_color-L2' +
                  '_{0}'.format(str(datetime.date.today())))
 plt.savefig(output)
 plt.show()
-# # --- Rotated : Varimax ---
-# X_new = rotator.fit_transform(df[motif_cols])
-# biplot(X_new[:, 0:2], loadings_rot_varimax.values, labels)
-# output = op.join(output_dir, 'PCA_biplot_rotated-varimax_color-bidirectionality' +
-#                  '_{0}'.format(str(datetime.date.today())))
-# plt.savefig(output)
-# plt.show()
+
 
 # ----------------------- Colour by edges -----------------------
 # --- Unrotated ---
@@ -263,13 +231,6 @@ output = op.join(output_dir, 'PCA_biplot_unrotated_color-edges' +
                  '_{0}'.format(str(datetime.date.today())))
 plt.savefig(output)
 plt.show()
-# # --- Rotated : Varimax ---
-# X_new = rotator.fit_transform(df[motif_cols])
-# biplot(X_new[:, 0:2], loadings_rot_varimax.values, labels)
-# output = op.join(output_dir, 'PCA_biplot_rotated-varimax_color-edges' +
-#                  '_{0}'.format(str(datetime.date.today())))
-# plt.savefig(output)
-# plt.show()
 
 # ----------------------- 3D Plot -----------------------
 # ----------- 3D - coloured by node number -----------
@@ -284,24 +245,6 @@ output = op.join(output_dir, 'PCA_biplot_3d_colored-l2' +
 plt.savefig(output)
 plt.show()
 
-
-# # --- Rotated : Varimax ---
-# X_new = rotator.fit_transform(df[motif_cols])
-# score = X_new[:, 0:3]
-# coeff = loadings_rot_varimax.values
-# biplot_3d(score, coeff, labels)
-# output = op.join(output_dir, 'PCA_biplot_rotated-varimax_color-edges' +
-#                  '_{0}'.format(str(datetime.date.today())))
-# plt.savefig(output)
-# plt.show()
-
-# plt.plot(rotated_loading_promax)
-# plt.plot(rotated_loading_varimax)
-# plt.xlabel("Promax")
-# plt.ylabel("Varimax")
-# plt.show()
-
-# np.round(np.abs(rotazted_loading_promax - rotated_loading_varimax), decimals=4)
 
 # TODO: Cluster the motif correlation plot and plot the motifs into the different clusters
 # TODO: Colour the datapoints according to cluster identity
@@ -318,8 +261,8 @@ biplot_3d(score, coeff, labels)
 plt.show(block=False)
 
 # --------------------- Find most representative graphs ---------------------------------------
-data_dir = '/Users/CN/Dropbox/speech_graphs/all_tats'
-graphs, filelist = get_graphs(data_dir)
+graph_dir = '/Users/CN/Dropbox/speech_graphs/all_tats'
+graphs, filelist = get_graphs(graph_dir)
 graphs, filelist = exclude_empty_graphs(graphs, filelist, be_quiet=True)
 
 
@@ -382,9 +325,9 @@ for pc in range(1, 4):
 # ----------------------- Plot Correlation Plot -----------------------
 #
 # --------------------- Import graphs ---------------------------------------
-data_dir = '/Users/CN/Dropbox/speech_graphs/all_tats'
+graph_dir = '/Users/CN/Dropbox/speech_graphs/all_tats'
 
-graphs, filelist = get_graphs(data_dir)
+graphs, filelist = get_graphs(graph_dir)
 graphs, filelist = exclude_empty_graphs(graphs, filelist, be_quiet=True)
 gprops = graph_properties(graphs, filelist)
 
@@ -523,8 +466,8 @@ plt.show()
 
 
 # Import Graphs
-data_dir = '/Users/CN/Dropbox/speech_graphs/all_tats'
-graphs, filelist = get_graphs(data_dir)
+graph_dir = '/Users/CN/Dropbox/speech_graphs/all_tats'
+graphs, filelist = get_graphs(graph_dir)
 graphs, filelist = exclude_empty_graphs(graphs, filelist, be_quiet=True)
 
 
@@ -540,3 +483,17 @@ coeff = np.transpose(pca.components_[[x_PC - 1, y_PC - 1], :])
 
 # biplot_with_inset(score, coeff, labels, graphs, x_PC, y_PC)
 biplot_with_inset(score, coeff, labels, graphs, x_PC, y_PC)
+
+
+# ================ Correlation plots ============
+
+
+plt.figure(figsize=(25.6, 20))
+corrMatrix = df.iloc[:, -16:].corr()
+# sns.heatmap(corrMatrix, mask=np.triu(corrMatrix), annot=True)
+sns.heatmap(corrMatrix, annot=True)
+output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
+output = op.join(
+    output_dir, 'CorrMat_PCA_Syn')
+plt.savefig(output)
+plt.show()
