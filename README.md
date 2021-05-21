@@ -15,7 +15,10 @@ Below is the semantic speech graph constructed from this text.
 
 # Pipeline
 - Construct semantic graphs from transcripts by running speech_graph.py on the transcript
-  - For example, create semantic graph for the fourth transcript in the dataset by running python ./speech_graph.py 3 
+  - For example, create semantic graph for the fourth transcript in the dataset by running 
+    ```console
+    python ./speech_graph.py 3
+    ``` 
   - Or run speech_graph.py in bulk by running graph_tats.sh script
 - Describe graphs using describe_graphs.py (Creates graphs_data.csv)
   - Plot basic graph measures using basic_graph_analysis.ipynb notebook
