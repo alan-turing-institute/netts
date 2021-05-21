@@ -14,7 +14,7 @@ Below is the semantic speech graph constructed from this text.
 *Figure 1. Semantic Speech Graph. Nodes represents an entity mentioned by the speaker (e.g. I, man, jacket). Edges represent relations between nodes mentioned by the speaker (e.g. see, has on).*
 
 # Pipeline
-- Construct semantic graphs from transcripts by running speech_graph.py on the transcript
+1. Construct semantic graphs from transcripts by running speech_graph.py on the transcript
   - To create a semantic graph for a transcript in the dataset, run
     ```console
     python speech_graph.py 3
@@ -24,37 +24,37 @@ Below is the semantic speech graph constructed from this text.
     - pickled graph (.gpickle file)
     - plotted graph (.png file)
     
-  - Or create semantic graphs for a whole dataset of transcripts by ammending the graph_tats.sh script and running
-  ```console
-  graph_tats.sh
-  ```
+  - To create semantic graphs for a whole dataset of transcripts, ammend the graph_tats.sh script and run
+    ```console
+    graph_tats.sh
+    ```
+    
+    Output:
+    - For each transcript in dataset
+      - log file (.txt file)
+      - pickled graph (.gpickle file)
+      - plotted graph (.png file)
+    - Summary report for full dataset, including
+      - Number of transcripts in dataset, number of processed transcripts in this round, number of errors encountered
+      - Detailed error report for each transcript where processing finished with an error
 
-  Output:
-  - For each transcript in dataset
-    - log file (.txt file)
-    - pickled graph (.gpickle file)
-    - plotted graph (.png file)
-  - Summary report for full dataset, including
-    - Number of transcripts in dataset, number of processed transcripts in this round, number of errors encountered
-    - Detailed error report for each transcript where processing finished with an error
-
-- Describe semantic graphs by running
+2. Describe semantic graphs by running
   ```console
   python describe_graphs.py /Users/CN/Dropbox/speech_graphs/oasis
   ```
   Output: graphs_data.csv
   
-- Plot basic graph measures using basic_graph_analysis.ipynb notebook
+3. Plot basic graph measures using basic_graph_analysis.ipynb notebook
   - Change graph_dir variable to the folder containing all pickled graphs (e.g. graph_dir = /Users/CN/Dropbox/speech_graphs/oasis)
   
-- Count motifs in graphs by running
+4. Count motifs in graphs by running
   ```console
   python motifs.py /Users/CN/Dropbox/speech_graphs/oasis
   ```
   Output: motif_counts.csv
 
-- Plot motif count measures using motif_analysis.ipynb notebook
+5. Plot motif count measures using motif_analysis.ipynb notebook
 
-- For syntactic graph measures: Use SpeechGraph tool from Natalia Mota to construct and describe syntactic measures
-- For NLP measures: Use [NLP_psychosis](https://github.com/carobellum/NLP_psychosis) tools to calculate measures. 
-- To compile all data (semantic graph data, syntactic graph data, nlp data), run ```compile_all_graph_data.py```
+6. For syntactic graph measures: Use SpeechGraph tool from Natalia Mota to construct and describe syntactic measures
+7. For NLP measures: Use [NLP_psychosis](https://github.com/carobellum/NLP_psychosis) tools to calculate measures. 
+8. To compile all data (semantic graph data, syntactic graph data, nlp data), run ```compile_all_graph_data.py```
