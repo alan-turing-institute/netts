@@ -30,9 +30,9 @@ from compile_graphs_dataset import get_graphs, graph_properties, exclude_empty_g
 
 # +++ Set Paths +++
 # Input directory for graph and motif data
-graph_dir = '/Users/CN/Dropbox/speech_graphs/all_tats'
+graph_dir = '/Users/CN/Dropbox/speech_graphs/oasis'
 # Output directory for figures
-output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/figures/'
+output_dir = op.join(graph_dir, 'figures')
 
 # +++ Import Data +++
 # --------------------- Import graph data ---------------------------------------
@@ -55,19 +55,18 @@ for column in motif_counts.columns:
 # --------------------- Add syntactic graph data ---------------------------------------
 
 # Import
-syn = pd.read_csv(
-    '/Users/CN/Dropbox/speech_graphs/all_tats/output/syntactic_graph_data.csv', index_col=0)
+syn = pd.read_csv(op.join(graph_dir, 'output', 'syntactic_graph_data.csv', index_col=0)
 # Add to dataframe
-df = df.merge(syn, how='inner', on=[
+df=df.merge(syn, how='inner', on=[
     'subj', 'tat'])
 
 
 # --------------------- Add nlp measures ---------------------------------------
 
-nlp = pd.read_csv(
+nlp=pd.read_csv(
     '/Users/CN/Dropbox/speech_graphs/nlp_measures/nlp_measures.csv')
 # Add to dataframe
-df = df.merge(nlp, how='inner', on=[
+df=df.merge(nlp, how='inner', on=[
     'subj', 'tat'])
 
 # --------------------- Write Full Dataset ---------------------------------------

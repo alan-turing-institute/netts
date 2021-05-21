@@ -122,11 +122,18 @@ def graph_properties(graphs, filelist):
     for g, G in enumerate(graphs):
         file = filelist[g]
         # find tat index (two-digit combination from 00 to 39 after word "TAT")
-        tat = re.search('(?<=TAT)\w+', file)[0]
-        if len(tat) > 2:
-            tat = tat.split('_')[0]
+        # +++ For General Public dataset +++
+        # tat = re.search('(?<=TAT)\w+', file)[0]
+        # if len(tat) > 2:
+        #     tat = tat.split('_')[0]
+        # subj = file.split('-TAT')[0][-7:]
+        # +++ +++ +++ +++ +++ +++ +++ +++ +++
+        # +++ For Oasis dataset +++
+        # find tat id (number between 'pic' and '_' )
+        tat = re.search('(?<=pic)\w+', file)[0].split('_')[0]
         # find subject id (7 digit combination before word "TAT")
-        subj = file.split('-TAT')[0][-7:]
+        subj = file.split('_s')[1].split('_')[0]
+        # +++ +++ +++ +++ +++ +++ +++ +++ +++
         # --- Get basic transcript descriptors ---
         n_words = G.graph['tokens']
         n_sents = G.graph['sentences']
@@ -263,9 +270,11 @@ def graph_properties(graphs, filelist):
     #
     df.subj = pd.Categorical(df.subj.astype('str'))
     df.tat = pd.Categorical(df.tat.astype('str'))
-    df.tat = df.tat.cat.rename_categories({'8': '08'})
-    df.tat = df.tat.cat.reorder_categories(
-        ['08', '10', '13', '19', '21', '24', '28', '30'])
+    # +++ For General Public dataset +++
+    # df.tat = df.tat.cat.rename_categories({'8': '08'})
+    # df.tat = df.tat.cat.reorder_categories(
+    #     ['08', '10', '13', '19', '21', '24', '28', '30'])
+    # +++ +++ +++ +++ +++ +++ +++ +++ +++
     df.tat.value_counts()
     #
     return df

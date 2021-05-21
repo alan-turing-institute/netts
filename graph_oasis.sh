@@ -22,7 +22,7 @@ output_dir=/Users/CN/Dropbox/speech_graphs/oasis/
 # ------------------------------------------------------------------------------
 number_of_transcripts=430
 
-
+# TODO: Add ummm to interjections
 
 # # ========================== Check which transcripts are missing ====================================================
 # rm ${output_dir}/missing

@@ -27,7 +27,7 @@ from compile_graphs_dataset import get_graphs, graph_properties, exclude_empty_g
 from word_embedding_analysis import central_node_distance, adjacent_node_distance
 
 # --------------------- Import graphs ---------------------------------------
-graph_dir = '/Users/CN/Dropbox/speech_graphs/all_tats'
+graph_dir = '/Users/CN/Dropbox/speech_graphs/oasis'
 
 graphs, filelist = get_graphs(graph_dir)
 graphs, filelist = exclude_empty_graphs(graphs, filelist, be_quiet=True)
