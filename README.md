@@ -47,13 +47,13 @@ Below is the semantic speech graph constructed from this text.
 Plots of all basic graph measures are available in the basic_graph_analysis.ipynb notebook
   - Change graph_dir variable to the folder containing all pickled graphs (e.g. graph_dir = <graph_dir>)
   
-## 4. Count motifs in graphs
+## 4. Count graph motifs
   ```console
   python motifs.py <graph_dir>
   ```
   Output: motif_counts.csv
 
-## 5. Plot motif count measures
+## 5. Plot motif counts
 Plots of all motif count measures are available in the  motif_analysis.ipynb notebook
 
 # Additional Measures
