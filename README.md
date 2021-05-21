@@ -14,7 +14,7 @@ Below is the semantic speech graph constructed from this text.
 *Figure 1. Semantic Speech Graph. Nodes represents an entity mentioned by the speaker (e.g. I, man, jacket). Edges represent relations between nodes mentioned by the speaker (e.g. see, has on).*
 
 # Pipeline
-1. Construct semantic graphs from transcripts by running speech_graph.py on the transcript
+1. Construct semantic graphs from transcripts by running speech_graph.py on the transcript.
   To create a semantic graph for a transcript in the dataset, run
   ```console
   python speech_graph.py 3
