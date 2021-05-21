@@ -14,7 +14,7 @@ Below is the semantic speech graph constructed from this text.
 *Figure 1. Semantic Speech Graph. Nodes represents an entity mentioned by the speaker (e.g. I, man, jacket). Edges represent relations between nodes mentioned by the speaker (e.g. see, has on).*
 
 # Pipeline
-1. Construct semantic graphs from transcripts by running speech_graph.py on the transcript.
+1. Construct semantic graphs.
   To create a semantic graph for a transcript in the dataset, run
   ```console
   python speech_graph.py 3
@@ -37,7 +37,7 @@ Below is the semantic speech graph constructed from this text.
     - Number of transcripts in dataset, number of processed transcripts in this round, number of errors encountered
     - Detailed error report for each transcript where processing finished with an error
 
-2. Describe semantic graphs by running
+2. Describe semantic graphs
   ```console
   python describe_graphs.py /Users/CN/Dropbox/speech_graphs/oasis
   ```
@@ -46,7 +46,7 @@ Below is the semantic speech graph constructed from this text.
 3. Plot basic graph measures using basic_graph_analysis.ipynb notebook
   - Change graph_dir variable to the folder containing all pickled graphs (e.g. graph_dir = /Users/CN/Dropbox/speech_graphs/oasis)
   
-4. Count motifs in graphs by running
+4. Count motifs in graphs
   ```console
   python motifs.py /Users/CN/Dropbox/speech_graphs/oasis
   ```
