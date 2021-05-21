@@ -56,12 +56,19 @@ Plots of all basic graph measures are available in the basic_graph_analysis.ipyn
 ## 5. Plot motif count measures
 Plots of all motif count measures are available in the  motif_analysis.ipynb notebook
 
-## 6. For syntactic graph measures
+# Additional Measures
+Calculating additional measures for the transcripts to compare semantic graph measures with.
+
+## 1. Syntactic graph measures
 Use SpeechGraph tool from Natalia Mota to construct and describe syntactic measures
 
-## 7. For NLP measures
+## 2. NLP measures
 Use [NLP_psychosis](https://github.com/carobellum/NLP_psychosis) tools to calculate measures. 
 
-## 8. Compile all data into one table
-To compile all data (semantic graph data, syntactic graph data, nlp data), run ```compile_all_graph_data.py```
-  Output: graphs_data_all.csv
+## 3. Compile all data into one table
+To compile all data (semantic graph data, syntactic graph data, nlp data) into one table, run
+```console
+python compile_all_graph_data.py /Users/CN/Dropbox/speech_graphs/oasis
+```
+Output:
+- graphs_data_all.csv

@@ -30,7 +30,8 @@ from compile_graphs_dataset import get_graphs, graph_properties, exclude_empty_g
 
 # +++ Set Paths +++
 # Input directory for graph and motif data
-graph_dir = '/Users/CN/Dropbox/speech_graphs/oasis'
+# graph_dir = '/Users/CN/Dropbox/speech_graphs/oasis'
+graph_dir = sys.argv[1]
 
 # Output directory for figures
 output_figures = op.join(graph_dir, 'figures')
@@ -69,8 +70,7 @@ df = df.merge(syn, how='inner', on=[
 
 # --------------------- Add nlp measures ---------------------------------------
 
-nlp = pd.read_csv(
-    '/Users/CN/Dropbox/speech_graphs/nlp_measures/nlp_measures.csv')
+nlp = pd.read_csv(op.join(output_dir, 'nlp_measures.csv'))
 # Add to dataframe
 df = df.merge(nlp, how='inner', on=[
     'subj', 'tat'])
