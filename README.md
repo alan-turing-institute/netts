@@ -15,16 +15,34 @@ Below is the semantic speech graph constructed from this text.
 
 # Pipeline
 - Construct semantic graphs from transcripts by running speech_graph.py on the transcript
-  - For example, create a semantic graph for the fourth transcript in the dataset by running 
+  - To create a semantic graph for a transcript in the dataset, run
     ```console
     python speech_graph.py 3
     ```
-  - Or run speech_graph.py for several transcripts in bulk by ammending and running graph_tats.sh script
+  Output:
+    - log file (.txt file)
+    - pickled graph (.gpickle file)
+    - plotted graph (.png file)
+    
+  - Or create semantic graphs for a whole dataset of transcripts by ammending the graph_tats.sh script and running
+  ```console
+  graph_tats.sh
+  ```
 
-- Describe semantic graphs using describe_graphs.py (Creates graphs_data.csv)
+  Output:
+  - For each transcript in dataset
+    - log file (.txt file)
+    - pickled graph (.gpickle file)
+    - plotted graph (.png file)
+  - Summary report for full dataset, including
+    - Number of transcripts in dataset, number of processed transcripts in this round, number of errors encountered
+    - Detailed error report for each transcript where processing finished with an error
+
+- Describe semantic graphs by running
   ```console
   python describe_graphs.py /Users/CN/Dropbox/speech_graphs/oasis
   ```
+  Output: graphs_data.csv
   
 - Plot basic graph measures using basic_graph_analysis.ipynb notebook
   - Change graph_dir variable to the folder containing all pickled graphs (e.g. graph_dir = /Users/CN/Dropbox/speech_graphs/oasis)
@@ -33,7 +51,7 @@ Below is the semantic speech graph constructed from this text.
   ```console
   python motifs.py /Users/CN/Dropbox/speech_graphs/oasis
   ```
-  - (Creates motif_counts.csv)
+  Output: motif_counts.csv
 
 - Plot motif count measures using motif_analysis.ipynb notebook
 
