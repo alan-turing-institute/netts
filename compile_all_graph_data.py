@@ -31,8 +31,14 @@ from compile_graphs_dataset import get_graphs, graph_properties, exclude_empty_g
 # +++ Set Paths +++
 # Input directory for graph and motif data
 graph_dir = '/Users/CN/Dropbox/speech_graphs/oasis'
+
 # Output directory for figures
-output_dir = op.join(graph_dir, 'figures')
+output_figures = op.join(graph_dir, 'figures')
+if not os.path.isdir(output_figures):
+    print('Creating figures directory: {}'.format(output_figures))
+    os.mkdir(output_figures)
+
+output_dir = op.join(graph_dir, 'output')
 
 # +++ Import Data +++
 # --------------------- Import graph data ---------------------------------------
@@ -43,7 +49,7 @@ df = pd.read_csv(graph_data, index_col=0)
 # If already counted and motif_counts.csv exists, imports motif count data
 try:
     # Import motif count data
-    motif_counts = pd.read_csv(op.join(graph_dir, 'output/motif_counts.csv'))
+    motif_counts = pd.read_csv(op.join(output_dir, 'motif_counts.csv'))
     # df = pd.read_csv(op.join(graph_data))
 except FileNotFoundError:
     print('----- Error: Cannot find {}} -----\nIt seems motifs have not been counted yet.\nRun motifs.py to count motifs before running this cell.'.format(graph_data))
@@ -55,20 +61,20 @@ for column in motif_counts.columns:
 # --------------------- Add syntactic graph data ---------------------------------------
 
 # Import
-syn = pd.read_csv(op.join(graph_dir, 'output', 'syntactic_graph_data.csv', index_col=0)
+syn = pd.read_csv(op.join(output_dir, 'syntactic_graph_data.csv', index_col=0))
 # Add to dataframe
-df=df.merge(syn, how='inner', on=[
+df = df.merge(syn, how='inner', on=[
     'subj', 'tat'])
 
 
 # --------------------- Add nlp measures ---------------------------------------
 
-nlp=pd.read_csv(
+nlp = pd.read_csv(
     '/Users/CN/Dropbox/speech_graphs/nlp_measures/nlp_measures.csv')
 # Add to dataframe
-df=df.merge(nlp, how='inner', on=[
+df = df.merge(nlp, how='inner', on=[
     'subj', 'tat'])
 
 # --------------------- Write Full Dataset ---------------------------------------
 # Write Full Dataset
-df.to_csv(op.join(graph_dir, 'output/graph_data_all.csv'))
+df.to_csv(op.join(output_dir, 'graph_data_all.csv'))

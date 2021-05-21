@@ -26,9 +26,9 @@ sys.path.append(
 from compile_graphs_dataset import get_graphs, graph_properties, exclude_empty_graphs
 from word_embedding_analysis import central_node_distance, adjacent_node_distance
 
-# --------------------- Import graphs ---------------------------------------
+# --------------------- Set graph path ---------------------------------------
 graph_dir = '/Users/CN/Dropbox/speech_graphs/oasis'
-
+# --------------------- Import graphs ---------------------------------------
 graphs, filelist = get_graphs(graph_dir)
 graphs, filelist = exclude_empty_graphs(graphs, filelist, be_quiet=True)
 # --------------------- Calculate basic graph measures ---------------------------------------
@@ -47,4 +47,9 @@ df = central_node_distance(df)
 df = adjacent_node_distance(df, graphs)
 
 # --------------------- Save graph measures ---------------------------------------
-df.to_csv(op.join(graph_dir, 'output/graph_data.csv'))
+output_dir = op.join(graph_dir, 'output')
+if not os.path.isdir(output_dir):
+    print('Creating output directory: {}'.format(output_dir))
+    os.mkdir(output_dir)
+
+df.to_csv(op.join(output_dir, 'graph_data.csv'))
