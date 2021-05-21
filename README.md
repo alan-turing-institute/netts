@@ -40,18 +40,15 @@ Below is the semantic speech graph constructed from this text.
       - Detailed error report for each transcript where processing finished with an error
 
 2. Describe semantic graphs by running
-   
-   ```console
-   python describe_graphs.py /Users/CN/Dropbox/speech_graphs/oasis
-   ```
+  ```console
+  python describe_graphs.py /Users/CN/Dropbox/speech_graphs/oasis
+  ```
    Output: graphs_data.csv
   
 3. Plot basic graph measures using basic_graph_analysis.ipynb notebook
-   
   - Change graph_dir variable to the folder containing all pickled graphs (e.g. graph_dir = /Users/CN/Dropbox/speech_graphs/oasis)
   
 4. Count motifs in graphs by running
-   
   ```console
   python motifs.py /Users/CN/Dropbox/speech_graphs/oasis
   ```
