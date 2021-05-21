@@ -15,16 +15,16 @@ Below is the semantic speech graph constructed from this text.
 
 # Pipeline
 1. Construct semantic graphs from transcripts by running speech_graph.py on the transcript
-  - To create a semantic graph for a transcript in the dataset, run
+  To create a semantic graph for a transcript in the dataset, run
   ```console
   python speech_graph.py 3
   ```
   Output:
-    - log file (.txt file)
-    - pickled graph (.gpickle file)
-    - plotted graph (.png file)
+  - log file (.txt file)
+  - pickled graph (.gpickle file)
+  - plotted graph (.png file)
     
-  - To create semantic graphs for a whole dataset of transcripts, ammend the graph_tats.sh script and run
+  To create semantic graphs for a whole dataset of transcripts, ammend the graph_tats.sh script and run
   ```console
   graph_tats.sh
   ```
