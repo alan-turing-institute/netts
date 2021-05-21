@@ -15,7 +15,7 @@ Below is the semantic speech graph constructed from this text.
 
 # Pipeline
 ## 1. Construct semantic graphs.
-  To create a semantic graph for a transcript in the dataset, run
+  To create a semantic graph for a single transcript in the dataset, run
   ```console
   python speech_graph.py 3
   ```
@@ -37,23 +37,29 @@ Below is the semantic speech graph constructed from this text.
     - Number of transcripts in dataset, number of processed transcripts in this round, number of errors encountered
     - Detailed error report for each transcript where processing finished with an error
 
-2. Describe semantic graphs
+## 2. Describe semantic graphs
   ```console
   python describe_graphs.py /Users/CN/Dropbox/speech_graphs/oasis
   ```
   Output: graphs_data.csv
   
-3. Plot basic graph measures using basic_graph_analysis.ipynb notebook
+## 3. Plot basic graph measures using basic_graph_analysis.ipynb notebook
   - Change graph_dir variable to the folder containing all pickled graphs (e.g. graph_dir = /Users/CN/Dropbox/speech_graphs/oasis)
   
-4. Count motifs in graphs
+## 4. Count motifs in graphs
   ```console
   python motifs.py /Users/CN/Dropbox/speech_graphs/oasis
   ```
   Output: motif_counts.csv
 
-5. Plot motif count measures using motif_analysis.ipynb notebook
+## 5. Plot motif count measures using motif_analysis.ipynb notebook
 
-6. For syntactic graph measures: Use SpeechGraph tool from Natalia Mota to construct and describe syntactic measures
-7. For NLP measures: Use [NLP_psychosis](https://github.com/carobellum/NLP_psychosis) tools to calculate measures. 
-8. To compile all data (semantic graph data, syntactic graph data, nlp data), run ```compile_all_graph_data.py```
+## 6. For syntactic graph measures
+Use SpeechGraph tool from Natalia Mota to construct and describe syntactic measures
+
+## 7. For NLP measures
+Use [NLP_psychosis](https://github.com/carobellum/NLP_psychosis) tools to calculate measures. 
+
+## 8. Compile all data into one table
+To compile all data (semantic graph data, syntactic graph data, nlp data), run ```compile_all_graph_data.py```
+  Output: graphs_data_all.csv
