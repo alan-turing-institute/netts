@@ -39,17 +39,17 @@ Below is the semantic speech graph constructed from this text.
 
 ## 2. Describe semantic graphs
   ```console
-  python describe_graphs.py /Users/CN/Dropbox/speech_graphs/oasis
+  python describe_graphs.py <graph_dir>
   ```
   Output: graphs_data.csv
   
 ## 3. Plot basic graph measures
 Plots of all basic graph measures are available in the basic_graph_analysis.ipynb notebook
-  - Change graph_dir variable to the folder containing all pickled graphs (e.g. graph_dir = /Users/CN/Dropbox/speech_graphs/oasis)
+  - Change graph_dir variable to the folder containing all pickled graphs (e.g. graph_dir = <graph_dir>)
   
 ## 4. Count motifs in graphs
   ```console
-  python motifs.py /Users/CN/Dropbox/speech_graphs/oasis
+  python motifs.py <graph_dir>
   ```
   Output: motif_counts.csv
 
@@ -68,7 +68,7 @@ Use [NLP_psychosis](https://github.com/carobellum/NLP_psychosis) tools to calcul
 ## 3. Compile all data into one table
 To compile all data (semantic graph data, syntactic graph data, nlp data) into one table, run
 ```console
-python compile_all_graph_data.py /Users/CN/Dropbox/speech_graphs/oasis
+python compile_all_graph_data.py <graph_dir>
 ```
 Output:
 - graphs_data_all.csv
