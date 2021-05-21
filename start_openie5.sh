@@ -15,7 +15,7 @@ cd /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/OpenIE-sta
 # Running from a stand-alone jar.
 # java -Xmx10g -XX:+UseConcMarkSweepGC -jar openie-assembly-5.0-SNAPSHOT.jar
 # Running as HTTP Server
-java -Xmx10g -XX:+UseConcMarkSweepGC -jar openie-assembly-5.0-SNAPSHOT.jar --httpPort 6000
+java -Xmx10g -XX:+UseConcMarkSweepGC -jar openie-assembly-5.0-SNAPSHOT.jar  --ignore-errors --httpPort 6000
 
 # To see options, run
 # java -jar openie-assembly-5.0-SNAPSHOT.jar --usage

@@ -44,9 +44,9 @@ start_time = time.time()
 # ------------------------------------------------------------------------------
 # Get sentence
 # selected_file = 1
-# selected_file = 2916
 selected_file = int(sys.argv[1])
 data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
+
 
 # ++++++++ HBN Data ++++++++
 # hbn_data_dir = op.join(data_dir, 'HBN', 'movie_descriptions')
@@ -70,20 +70,21 @@ data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
 #     genpub_data_dir = op.join(data_dir, 'Kings', 'general_public_tat')
 #     input_file = op.join(genpub_data_dir, filename)
 
-# ++++++++ TAT files ++++++++
+# # ++++++++ TAT files ++++++++
+# # Make list of all transcripts
+# # Kings Pilot
+# tats = sorted(
+#     Path(op.join(data_dir, 'Kings/Prolific_pilot_all_transcripts')).rglob('*TAT*.txt'))
+# # Kings Study
+# tats.extend(
+#     sorted(Path(op.join(data_dir, 'Kings/Manual_2021-04-18')).rglob('*.txt')))
+
+# ++++++++ Oasis files ++++++++
 # Make list of all transcripts
-# Kings Pilot
+# Oasis study
 tats = sorted(
-    Path(op.join(data_dir, 'Kings/Prolific_pilot_all_transcripts')).rglob('*TAT*.txt'))
-# Kings Study
-tats.extend(
-    sorted(Path(op.join(data_dir, 'Kings/Manual_2021-04-18')).rglob('*.txt')))
+    Path(op.join(data_dir, 'oasis/TLI_1_min_disfluencies/')).rglob('*.txt'))
 
-# Process only unique transcripts
-tats = remove_duplicates(tats)
-
-bad_transcripts_list = '/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/bad_transcripts.csv'
-tats = remove_bad_transcripts(tats, bad_transcripts_list, be_quiet=True)
 
 # Import selected transcript
 input_file = tats[selected_file]
@@ -135,7 +136,12 @@ for i, sentence in enumerate(ex_stanza.sentence):
         sentence_text = (' ').join(
             [token.originalText for token in sentence.token if token.originalText])
         print('{}'.format(sentence_text))
-        extraction = extractorIE5.extract(sentence_text)
+        try:
+            extraction = extractorIE5.extract(sentence_text)
+        except:
+            print("\n- - - > Unexpected error in Ollie: {} \n\tOllie was unable to handle this sentence.\n\tSetting extraction to empty for this sentence.\n\tContinueing with next sentence.\n".format(
+                sys.exc_info()[0]))
+            extraction = []
         ex_ollie[i] = extraction
     else:
         print('====== Skipping sentence {}: Sentence has too few tokens: "{}" ======='.format(i + 1, (' ').join(
@@ -239,7 +245,8 @@ print("Processing transcript %s finished in --- %s seconds ---" %
       (filename, time.time() - start_time))
 # --- Save graph image ---
 # Initialize output
-output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/'
+output_dir = '/Users/CN/Dropbox/speech_graphs/oasis/'
+# # output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/'
 # stripping '.txt' is not sufficient since some files have a dot in their filename (i.e. '22895-20-task-7g47-6377612-TAT10-9-1_otter.ai (1).txt') which throws an error when trying to save
 valid_filename = filename.split('.')[0]
 output = op.join(output_dir, 'SpeechGraph_{0:04d}_{1}_{2}'.format(
@@ -248,4 +255,4 @@ plt.savefig(output)
 # --- Save graph object ---
 nx.write_gpickle(G, output + ".gpickle")
 # --- Show graph ---
-plt.show(block=False)
+# plt.show(block=False)
