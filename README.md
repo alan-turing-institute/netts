@@ -25,5 +25,11 @@ Below is the semantic speech graph constructed from this text.
   - Change graph_dir variable to the folder containing all pickled graphs (i.e. output directory of speech_graph.py script)
   
 - Plot basic graph measures using basic_graph_analysis.ipynb notebook
+  
 - Count motifs in graphs by running motifs.py (Creates motif_counts.csv)
-  - Plot motif count measures using motif_analysis.ipynb notebook
+
+- Plot motif count measures using motif_analysis.ipynb notebook
+
+- For syntactic graph measures: Use SpeechGraph tool from Natalia Mota to construct and describe syntactic measures
+- For NLP measures: Use [NLP_psychosis](https://github.com/carobellum/NLP_psychosis) tools to calculate measures. 
+- To compile all data (semantic graph data, syntactic graph data, nlp data), run ```compile_all_graph_data.py```
