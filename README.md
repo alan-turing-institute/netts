@@ -17,16 +17,23 @@ Below is the semantic speech graph constructed from this text.
 - Construct semantic graphs from transcripts by running speech_graph.py on the transcript
   - For example, create a semantic graph for the fourth transcript in the dataset by running 
     ```console
-    python ./speech_graph.py 3
-    ``` 
+    python speech_graph.py 3
+    ```
   - Or run speech_graph.py for several transcripts in bulk by ammending and running graph_tats.sh script
 
-- Describe graphs using describe_graphs.py (Creates graphs_data.csv)
-  - Change graph_dir variable to the folder containing all pickled graphs (i.e. output directory of speech_graph.py script)
+- Describe semantic graphs using describe_graphs.py (Creates graphs_data.csv)
+  ```console
+  python describe_graphs.py /Users/CN/Dropbox/speech_graphs/oasis
+  ```
   
 - Plot basic graph measures using basic_graph_analysis.ipynb notebook
+  - Change graph_dir variable to the folder containing all pickled graphs (e.g. graph_dir = /Users/CN/Dropbox/speech_graphs/oasis)
   
-- Count motifs in graphs by running motifs.py (Creates motif_counts.csv)
+- Count motifs in graphs by running
+  ```console
+  python motifs.py /Users/CN/Dropbox/speech_graphs/oasis
+  ```
+  - (Creates motif_counts.csv)
 
 - Plot motif count measures using motif_analysis.ipynb notebook
 
