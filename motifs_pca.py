@@ -297,6 +297,38 @@ output = op.join(output_dir, 'RepresentativeGraphs_unrotated' +
 plt.savefig(output)
 plt.show()
 
+
+fig = plt.figure(figsize=(25.6, 20))
+for g, G in enumerate(representative_graphs):
+    ax = plt.subplot(3,
+                     2, g + 1)
+    #
+    # Add Edges
+    G.add_edges_from(edges)
+    # Plot Graph and add edge labels
+    pos = nx.spring_layout(G)
+    nx.draw(G, pos,
+            edge_color='black',
+            width=1,
+            linewidths=1,
+            node_size=500,
+            node_color='pink',
+            alpha=0.9,
+            labels={node: node for node in G.nodes()})
+    edge_labels = dict([((u, v,), d['relation'])
+                        for u, v, d in G.edges(data=True)])
+    nx.draw_networkx_edge_labels(
+        G, pos, edge_labels=edge_labels, font_color='red')
+    if g % 2 == 0:
+        ax.title.set_text('Lowest PC {} Score'.format(int(np.ceil(g / 2) + 1)))
+    else:
+        ax.title.set_text('Highest PC {} Score'.format(int(np.ceil(g / 2))))
+
+output = op.join(output_dir, 'RepresentativeGraphs_unrotated_text' +
+                 '_{0}'.format(str(datetime.date.today())))
+plt.savefig(output)
+plt.show()
+
 # ----------------------- Sort raster plot by PC score -----------------------
 graph_scores = pd.DataFrame(
     index=graphs, data=score, columns=['PC1', 'PC2', 'PC3'])
