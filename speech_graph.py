@@ -79,11 +79,17 @@ data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
 # tats.extend(
 #     sorted(Path(op.join(data_dir, 'Kings/Manual_2021-04-18')).rglob('*.txt')))
 
-# ++++++++ Oasis files ++++++++
+# # ++++++++ Oasis files ++++++++
+# # Make list of all transcripts
+# # Oasis study
+# tats = sorted(
+#     Path(op.join(data_dir, 'oasis/TLI_1_min_disfluencies/')).rglob('*.txt'))
+
+# ++++++++ Ground truth files ++++++++
 # Make list of all transcripts
 # Oasis study
 tats = sorted(
-    Path(op.join(data_dir, 'oasis/TLI_1_min_disfluencies/')).rglob('*.txt'))
+    Path(op.join(data_dir, 'ground_truth_tat')).rglob('*.txt'))
 
 
 # Import selected transcript
@@ -245,7 +251,7 @@ print("Processing transcript %s finished in --- %s seconds ---" %
       (filename, time.time() - start_time))
 # --- Save graph image ---
 # Initialize output
-output_dir = '/Users/CN/Dropbox/speech_graphs/oasis/'
+output_dir = '/Users/CN/Dropbox/speech_graphs/ground_truth_tat/'
 # # output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/'
 # stripping '.txt' is not sufficient since some files have a dot in their filename (i.e. '22895-20-task-7g47-6377612-TAT10-9-1_otter.ai (1).txt') which throws an error when trying to save
 valid_filename = filename.split('.')[0]
