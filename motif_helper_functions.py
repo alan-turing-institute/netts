@@ -146,21 +146,27 @@ def biplot(score, coeff, y):
     n = coeff.shape[0]  # number of variables
     classes = np.unique(y)
     if classes[0] is not None:
+        # colors = sns.diverging_palette(
+        #     max(classes), min(classes), n=len(classes), sep=1, center='light', as_cmap=False)
         colors = sns.diverging_palette(
-            max(classes), min(classes), n=len(classes), sep=1, center='light', as_cmap=False)
+            max(classes), min(classes), n=len(classes), l=65, sep=1, center='dark', as_cmap=False)
     else:
         colors = 'g'
+    #
     # colors = ['g', 'r', 'y']
     # markers = ['o', '^', 'x']
+    scatter_points = []
     for s, l in enumerate(classes):
         # color based on group
-        plt.scatter(xs[y == l], ys[y == l], c=colors[s])
+        scatter_points.append(plt.scatter(
+            xs[y == l], ys[y == l], c=colors[s], alpha=0.6))
         for i in range(n):
             # plot as arrows the variable scores (each variable has a score for PC1 and one for PC2)
             plt.arrow(0, 0, coeff[i, 0], coeff[i, 1], color='k',
                       alpha=0.9, linestyle='-', linewidth=1.5, overhang=0.2)
             plt.text(coeff[i, 0] * 1.15, coeff[i, 1] * 1.15, "Var" +
                      str(i + 1), color='k', ha='center', va='center', fontsize=10)
+        #
         plt.xlabel("PC{}".format(1), size=14)
         plt.ylabel("PC{}".format(2), size=14)
         limx = int(xs.max()) + 1
@@ -169,6 +175,8 @@ def biplot(score, coeff, y):
         plt.ylim([-limy, limy])
         plt.grid()
         plt.tick_params(axis='both', which='both', labelsize=14)
+    #
+    plt.legend(scatter_points, classes)
 
 
 class Arrow3D(FancyArrowPatch):
@@ -203,8 +211,10 @@ def biplot_3d(score, coeff, y):
     # Define colors
     classes = np.unique(y)
     if classes[0] is not None:
+        # colors = sns.diverging_palette(
+        #     max(classes), min(classes), n=len(classes), s=75, l=50, sep=1, center='dark', as_cmap=False)
         colors = sns.diverging_palette(
-            max(classes), min(classes), n=len(classes), s=75, l=50, sep=1, center='dark', as_cmap=False)
+            max(classes), min(classes), n=len(classes), l=65, sep=1, center='dark', as_cmap=False)
     else:
         colors = 'g'
     #
@@ -289,7 +299,7 @@ def biplot_with_inset(score, coeff, labels, graphs, x_PC=1, y_PC=2):
     classes = np.unique(labels)
     if classes[0] is not None:
         colors = sns.diverging_palette(
-            max(classes), min(classes), n=len(classes), sep=1, center='light', as_cmap=False)
+            max(classes), min(classes), n=len(classes), sep=1, center='dark', as_cmap=False)
     else:
         colors = 'green'
     #
