@@ -314,3 +314,75 @@ def graph_properties(graphs, filelist):
     df.tat.value_counts()
     #
     return df
+
+
+def graph_properties_undirected(graphs):
+    """
+
+    Parameters
+    ----------
+    graphs : list containing all undirected graphs
+
+    Returns
+    -------
+    df : DataFrame with graph descriptions.
+        'max_degree_centrality'
+        'density'
+        'diameter'
+        'average_shortest_path'
+        'clustering'
+
+    """
+    # --- Properties for undirected version of the graph (w/o self-loops or PEs) ---
+    g_properties = []
+    for g, G in enumerate(graphs):
+        # --- Get basic graph descriptors ---
+        n_nodes = len(G.nodes())
+        n_edges = G.size()
+        #
+        # number of parallel edges
+        arr = nx.to_numpy_matrix(G)
+        #
+        #
+        # Degree centrality
+        degree_cents = nx.degree_centrality(G)
+        degree_cents = dict(sorted(degree_cents.items(),
+                                   key=lambda item: item[1], reverse=True))
+        max_deg_cent = next(iter(degree_cents.items()))[1]
+        #
+        density = nx.density(G)
+        #
+        # Get only largest connected component subgraph
+        s = sorted(nx.connected_components(G), key=len, reverse=True)[0]
+        S = G.subgraph(s).copy()
+        #
+        diameter = nx.diameter(S)
+        #
+        average_shortest_path = nx.average_shortest_path_length(S)
+        #
+        avg_clustering = nx.average_clustering(S)
+        #
+        # --- Collect Properties ---
+        g_properties.append([
+            n_nodes,
+            n_edges,
+            max_deg_cent,
+            density,
+            diameter,
+            average_shortest_path,
+            avg_clustering,
+        ])
+    #
+    # --------------------- Make dataframe ---------------------------------------
+    df = pd.DataFrame(g_properties, columns=[
+        'nodes',
+        'edges',
+        'max_degree_centrality',
+        'density',
+        'diameter',
+        'average_shortest_path',
+        'clustering',
+    ])
+    #
+    #
+    return df
