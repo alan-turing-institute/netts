@@ -562,3 +562,20 @@ plt.show()
 # plt.show()
 
 # np.round(np.abs(rotazted_loading_promax - rotated_loading_varimax), decimals=4)
+
+
+# HR Salary Calculation
+
+
+associate_salary = 1986.52
+assistant_salary = 1842.49
+
+one_time_paid = 2066.95
+
+
+3 * (associate_salary - assistant_salary) - (one_time_paid - associate_salary)
+
+
+paid_back = 80.42999999999984
+
+owed = 351.6600000000001

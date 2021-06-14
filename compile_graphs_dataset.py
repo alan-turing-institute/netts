@@ -97,7 +97,7 @@ def graph_properties(graphs, filelist):
         'edges'                         No of edges
         'unconnected'                   No of unconnected nodes
         'average_total_degree'          
-        'parallel_edges'
+        'parallel_edges'                No of parallel edges
         'lsc'
         'lcc'
         'L1'
@@ -137,6 +137,7 @@ def graph_properties(graphs, filelist):
         # --- Get basic transcript descriptors ---
         n_words = G.graph['tokens']
         n_sents = G.graph['sentences']
+        mean_sentence_length = int(n_words) / int(n_sents)
         #
         # --- Get basic graph descriptors ---
         n_nodes = len(G.nodes())
@@ -166,10 +167,17 @@ def graph_properties(graphs, filelist):
         L2 = cycle_lengths.count(2)
         L3 = cycle_lengths.count(3)
         #
-        # Number of weakly connected components
+        # Weakly connected component sizes
         sizes_weakly_conn_components = [len(c) for c in sorted(
             nx.weakly_connected_components(G), key=len, reverse=True)]
+        # Number of weakly connected components
         number_weakly_conn_components = len(sizes_weakly_conn_components)
+        # Max, Mean, Median, SD of weakly connected component sizes
+        cc_sizes = np.array(sizes_weakly_conn_components)
+        cc_size_mean = np.mean(cc_sizes, axis=0)
+        cc_size_med = np.median(cc_sizes, axis=0)
+        cc_size_sd = np.std(cc_sizes, axis=0)
+        cc_size_max = np.max(cc_sizes)
         #
         # Degree centrality
         degree_cents = nx.degree_centrality(G)
@@ -183,12 +191,14 @@ def graph_properties(graphs, filelist):
         in_degree_cents = dict(sorted(in_degree_cents.items(),
                                       key=lambda item: item[1], reverse=True))
         max_indeg_cent = next(iter(in_degree_cents.items()))
+        max_indegree_centrality_value = max_indeg_cent[1]
         #
         # Outdegree centrality
         out_degree_cents = nx.out_degree_centrality(G)
         out_degree_cents = dict(sorted(out_degree_cents.items(),
                                        key=lambda item: item[1], reverse=True))
         max_outdeg_cent = next(iter(out_degree_cents.items()))
+        max_outdegree_centrality_value = max_outdeg_cent[1]
         #
         # Confidence measures of relations
         confidence_vals = [edge[2]['confidence']
@@ -212,6 +222,16 @@ def graph_properties(graphs, filelist):
         #
         avg_clustering = nx.average_clustering(S)
         #
+        # Calculate how many adjacent edges come from the same sentence or consecutive sentences
+        consecutive_edges = 0
+        for node in list(G.nodes):
+            sentence_ids = sorted([edge[2]['sentence']
+                                   for edge in G.edges(node, data=True)])
+            diffs = np.diff(np.array(sentence_ids))
+            if diffs != []:
+                consecutive_edges = consecutive_edges + len(
+                    [i for i, diff in enumerate(diffs, 1) if diff in [0, 1, -1]])
+        #
         # --- Collect Properties ---
         g_properties.append([
             subj,
@@ -230,17 +250,25 @@ def graph_properties(graphs, filelist):
             L2,
             L3,
             sizes_weakly_conn_components,
+            cc_size_mean,
+            cc_size_med,
+            cc_size_sd,
+            cc_size_max,
             number_weakly_conn_components,
             max_deg_cent,
             max_deg_node,
             max_indeg_cent,
             max_outdeg_cent,
+            max_indegree_centrality_value,
+            max_outdegree_centrality_value,
+            mean_sentence_length,
             mean_confidence,
             std_confidence,
             density,
             diameter,
             average_shortest_path,
             avg_clustering,
+            consecutive_edges,
         ])
     #
     # --------------------- Make dataframe ---------------------------------------
@@ -255,17 +283,25 @@ def graph_properties(graphs, filelist):
         'lsc', 'lcc',
         'L1', 'L2', 'L3',
         'sizes_connected_components',
+        'cc_size_mean',
+        'cc_size_med',
+        'cc_size_sd',
+        'cc_size_max',
         'connected_components',
         'max_degree_centrality',
         'max_degree_node',
         'max_indegree_centrality',
         'max_outdegree_centrality',
+        'max_indegree_centrality_value',
+        'max_outdegree_centrality_value',
+        'mean_sentence_length',
         'mean_confidence',
         'std_confidence',
         'density',
         'diameter',
         'average_shortest_path',
         'clustering',
+        'consecutive_edges',
     ])
     #
     df.subj = pd.Categorical(df.subj.astype('str'))
