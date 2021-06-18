@@ -316,33 +316,78 @@ def graph_properties(graphs, filelist):
     return df
 
 
-def graph_properties_undirected(graphs):
+def graph_properties_random(graphs):
     """
 
     Parameters
     ----------
-    graphs : list containing all undirected graphs
+    graphs : list containing all random graphs
 
     Returns
     -------
     df : DataFrame with graph descriptions.
+        'average_total_degree'          
+        'parallel_edges'                No of parallel edges
+        'lsc'
+        'lcc'
+        'L1'
+        'L2'
+        'L3'
+        'sizes_connected_components'    
+        'connected_components'
         'max_degree_centrality'
+        'max_degree_node'
+        'max_indegree_centrality'
+        'max_outdegree_centrality'
+        'mean_confidence'
+        'std_confidence'
         'density'
         'diameter'
         'average_shortest_path'
         'clustering'
 
     """
-    # --- Properties for undirected version of the graph (w/o self-loops or PEs) ---
+    # --------------------- Collect properties ---------------------------------------
     g_properties = []
     for g, G in enumerate(graphs):
+        #
         # --- Get basic graph descriptors ---
         n_nodes = len(G.nodes())
         n_edges = G.size()
+        # average total degree
+        # for a directed graph, this is equivalent to: degrees = list(G.degree()); degree = [d[1] for d in degrees]; sum(degree) / len(degree);
+        average_total_degree = (n_edges * 2) / n_nodes
         #
         # number of parallel edges
         arr = nx.to_numpy_matrix(G)
+        parallel_edges = np.sum(arr >= 2)
         #
+        # number of bidirectional edges
+        n_bidirectional_edges = print_bidirectional_edges(G, quiet=True)
+        # LSC
+        lsc = len(max(nx.strongly_connected_components(G), key=len))
+        # LCC
+        lcc = len(max(nx.weakly_connected_components(G), key=len))
+        #
+        # Recurrence measures: L1, L2, L3
+        cycles = list(nx.simple_cycles(G))
+        cycle_lengths = [len(cycle) for cycle in cycles]
+        # equivalent to cycle_lengths.count(1):
+        L1 = len(list(nx.selfloop_edges(G)))
+        L2 = cycle_lengths.count(2)
+        L3 = cycle_lengths.count(3)
+        #
+        # Weakly connected component sizes
+        sizes_weakly_conn_components = [len(c) for c in sorted(
+            nx.weakly_connected_components(G), key=len, reverse=True)]
+        # Number of weakly connected components
+        number_weakly_conn_components = len(sizes_weakly_conn_components)
+        # Max, Mean, Median, SD of weakly connected component sizes
+        cc_sizes = np.array(sizes_weakly_conn_components)
+        cc_size_mean = np.mean(cc_sizes, axis=0)
+        cc_size_med = np.median(cc_sizes, axis=0)
+        cc_size_sd = np.std(cc_sizes, axis=0)
+        cc_size_max = np.max(cc_sizes)
         #
         # Degree centrality
         degree_cents = nx.degree_centrality(G)
@@ -350,11 +395,27 @@ def graph_properties_undirected(graphs):
                                    key=lambda item: item[1], reverse=True))
         max_deg_cent = next(iter(degree_cents.items()))[1]
         #
-        density = nx.density(G)
+        # Indegree centrality
+        in_degree_cents = nx.in_degree_centrality(G)
+        in_degree_cents = dict(sorted(in_degree_cents.items(),
+                                      key=lambda item: item[1], reverse=True))
+        max_indeg_cent = next(iter(in_degree_cents.items()))
+        max_indegree_centrality_value = max_indeg_cent[1]
+        #
+        # Outdegree centrality
+        out_degree_cents = nx.out_degree_centrality(G)
+        out_degree_cents = dict(sorted(out_degree_cents.items(),
+                                       key=lambda item: item[1], reverse=True))
+        max_outdeg_cent = next(iter(out_degree_cents.items()))
+        max_outdegree_centrality_value = max_outdeg_cent[1]
+        #
+        # --- Properties for undirected version of the graph (w/o self-loops or PEs) ---
+        G_basic = nx.Graph(G)
+        density = nx.density(G_basic)
         #
         # Get only largest connected component subgraph
-        s = sorted(nx.connected_components(G), key=len, reverse=True)[0]
-        S = G.subgraph(s).copy()
+        s = sorted(nx.connected_components(G_basic), key=len, reverse=True)[0]
+        S = G_basic.subgraph(s).copy()
         #
         diameter = nx.diameter(S)
         #
@@ -362,11 +423,27 @@ def graph_properties_undirected(graphs):
         #
         avg_clustering = nx.average_clustering(S)
         #
+        #
         # --- Collect Properties ---
         g_properties.append([
             n_nodes,
             n_edges,
+            average_total_degree,
+            parallel_edges,
+            n_bidirectional_edges,
+            lsc,
+            lcc,
+            L1,
+            L2,
+            L3,
+            cc_size_mean,
+            cc_size_med,
+            cc_size_sd,
+            cc_size_max,
+            number_weakly_conn_components,
             max_deg_cent,
+            max_indegree_centrality_value,
+            max_outdegree_centrality_value,
             density,
             diameter,
             average_shortest_path,
@@ -375,14 +452,24 @@ def graph_properties_undirected(graphs):
     #
     # --------------------- Make dataframe ---------------------------------------
     df = pd.DataFrame(g_properties, columns=[
-        'nodes',
-        'edges',
+        'nodes', 'edges',
+        'average_total_degree',
+        'parallel_edges',
+        'bidirectional_edges',
+        'lsc', 'lcc',
+        'L1', 'L2', 'L3',
+        'cc_size_mean',
+        'cc_size_med',
+        'cc_size_sd',
+        'cc_size_max',
+        'connected_components',
         'max_degree_centrality',
+        'max_indegree_centrality_value',
+        'max_outdegree_centrality_value',
         'density',
         'diameter',
         'average_shortest_path',
-        'clustering',
+        'clustering'
     ])
-    #
     #
     return df

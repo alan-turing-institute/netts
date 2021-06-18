@@ -40,7 +40,7 @@ import scipy
 
 
 # SemanticSpeechGraph functions
-from compile_graphs_dataset import get_graphs, graph_properties, exclude_empty_graphs, graph_properties_undirected
+from compile_graphs_dataset import get_graphs, graph_properties, exclude_empty_graphs, graph_properties_random
 # --------------------- Import graphs for which to generate random graphs ---------------------------------------
 graph_dir = '/Users/CN/Dropbox/speech_graphs/oasis'
 output_figures = op.join(graph_dir, 'figures')
@@ -54,20 +54,6 @@ print('Imported and described {0} graphs.\n{1} subjects described {2} ± {3} pic
 df.head()
 
 # --------------------- Find appropriate number of random graphs where graph measures converge ---------------------------------------
-# Select largest and smallest graphs (according to number of nodes and number of edges) and one graph each in the middle
-# df_sorted = df
-# df_sorted['graph'] = graphs
-# # Select largest, middle and smallest graphs (according to number of nodes)
-# df_sorted.sort_values(by=['nodes'], ascending=[
-#                       False], inplace=True, ignore_index=True)
-# graph_sizes_selection = [df_sorted.graph.values[0],
-#                    df_sorted.graph.values[round(len(df_sorted) / 2)], df_sorted.graph.values[-1]]
-# # Select largest, middle and smallest graphs (according to number of edges)
-# df_sorted.sort_values(by=['edges'], ascending=[
-#                       False], inplace=True, ignore_index=True)
-# graph_sizes_selection.extend([df_sorted.graph.values[0],
-#                         df_sorted.graph.values[round(len(df_sorted) / 2)], df_sorted.graph.values[-1]])
-
 graph_sizes = [(len(list(G.nodes())), len(list(G.edges()))) for G in graphs]
 unique_graph_sizes = list(dict.fromkeys(graph_sizes))
 
@@ -91,10 +77,10 @@ for number_of_nodes, number_of_edges in graph_sizes_selection:
         random_graphs = []
         for i in range(0, step):
             random_graphs.append(nx.gnm_random_graph(
-                n=number_of_nodes, m=number_of_edges))
+                n=number_of_nodes, m=number_of_edges, directed=True))
         #
         # Collect properties of random graphs
-        random_graph_properties = graph_properties_undirected(random_graphs)
+        random_graph_properties = graph_properties_random(random_graphs)
         random_graph_properties['step'] = step
         list_of_dataframes.append(random_graph_properties)
 
@@ -108,7 +94,8 @@ measures_of_interest = list(random_graph_data.columns)[2:-1]
 fig = plt.figure(figsize=(25, 10))
 for v, variable in enumerate(measures_of_interest):
     #
-    ax = plt.subplot(2, np.ceil(len(measures_of_interest) / 2), v + 1)
+    ax = plt.subplot(int(np.ceil(np.sqrt(len(measures_of_interest)))),
+                     int(np.ceil(np.sqrt(len(measures_of_interest)))), v + 1)
     sns.lineplot(
         data=random_graph_data,
         x="step", y=variable, hue="nodes", style="nodes",
@@ -116,7 +103,7 @@ for v, variable in enumerate(measures_of_interest):
     )
     plt.title(variable)
 
-output = op.join(output_figures, 'RandomGraphs_Steps_nodeswise')
+output = op.join(output_figures, 'RandomGraphs_directed_Steps_nodeswise')
 plt.savefig(output)
 plt.show()
 
@@ -133,23 +120,23 @@ for v, variable in enumerate(measures_of_interest):
     )
     plt.title(variable)
 
-output = op.join(output_figures, 'RandomGraphs_Steps_edgewise')
+output = op.join(output_figures, 'RandomGraphs_directed_Steps_edgewise')
 plt.savefig(output)
 plt.show()
 
 
 # --------------------- Generate undirected random graphs for all graph sizes in dataset ---------------------------------------
 
-no_random_graphs = 100
+no_random_graphs = 300
 list_of_dataframes = []
 for number_of_nodes, number_of_edges in unique_graph_sizes:
     random_graphs = []
     for i in range(0, no_random_graphs):
         random_graphs.append(nx.gnm_random_graph(
-            n=number_of_nodes, m=number_of_edges))
+            n=number_of_nodes, m=number_of_edges, directed=True))
     #
     # Collect properties of random graphs
-    random_graph_properties = graph_properties_undirected(random_graphs)
+    random_graph_properties = graph_properties_random(random_graphs)
     random_graph_properties['no_random_graphs'] = no_random_graphs
     # Add random graphs to dataframe
     random_graph_properties['graph'] = random_graphs
@@ -224,10 +211,27 @@ oasis_avg.group.value_counts()
 
 # --------------------- Compare groups ---------------------------------------
 
-variable_list = ['clustering_normF', 'clustering_normZ', 'max_degree_centrality_normF',
-                 'max_degree_centrality_normZ', 'density_normF', 'density_normZ',
-                 'diameter_normF', 'diameter_normZ', 'average_shortest_path_normF',
-                 'average_shortest_path_normZ']
+
+# variable_list = ['bidirectional_edges_normF', 'bidirectional_edges_normZ', 'lsc_normF',
+#                  'lsc_normZ', 'lcc_normF', 'lcc_normZ',
+#                  'L2_normF', 'L2_normZ', 'L3_normF', 'L3_normZ']
+
+variable_list = ['cc_size_mean_normF',
+                 'cc_size_mean_normZ', 'cc_size_med_normF', 'cc_size_med_normZ',
+                 'cc_size_sd_normF', 'cc_size_sd_normZ', 'cc_size_max_normF',
+                 'cc_size_max_normZ', 'connected_components_normF',
+                 'connected_components_normZ']
+
+# variable_list = ['max_degree_centrality_normF',
+#                  'max_degree_centrality_normZ', 'max_indegree_centrality_value_normF',
+#                  'max_indegree_centrality_value_normZ',
+#                  'max_outdegree_centrality_value_normF',
+#                  'max_outdegree_centrality_value_normZ']
+
+# variable_list = ['density_normF',
+#                  'density_normZ', 'diameter_normF', 'diameter_normZ',
+#                  'average_shortest_path_normF', 'average_shortest_path_normZ',
+#                  'clustering_normF', 'clustering_normZ']
 
 group_comparisons = [('CON', 'FEP'), ('CON', 'CHR'), ('CHR', 'FEP')]
 
@@ -260,7 +264,30 @@ for v, variable in enumerate(variable_list):
     plt.title(stats_summary)
 
 plt.subplots_adjust(hspace=0.4)
-output = op.join(output_figures, 'Hist_normalised_' +
+output = op.join(output_figures, 'Hist_normalised_directed_2' +
                  '_{}'.format('_'.join(variable_list), str(datetime.date.today())))
 plt.savefig(output)
 plt.show()
+
+oasis_avg[oasis_avg.columns[58:]]
+
+
+# ----------- Correlate
+
+scipy.stats.pearsonr(oasis_avg.cc_size_mean_normZ,
+                     oasis_avg.mean_sentence_length)
+
+scipy.stats.pearsonr(oasis_avg.cc_size_mean_normZ,
+                     oasis_avg.edges)
+
+scipy.stats.pearsonr(oasis_avg.cc_size_med_normZ,
+                     oasis_avg.mean_sentence_length)
+
+scipy.stats.pearsonr(oasis_avg.cc_size_med_normZ,
+                     oasis_avg.mean_sentence_length)
+
+scipy.stats.pearsonr(oasis_avg.cc_size_sd_normZ,
+                     oasis_avg.words)
+
+scipy.stats.pearsonr(oasis_avg.cc_size_sd_normZ,
+                     oasis_avg.mean_sentence_length)

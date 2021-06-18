@@ -18,6 +18,7 @@ library(sjPlot)
 library(sjmisc)
 library(sjlabelled)
 library(ggplot2)
+library(jtools)
 library(lattice)
 library(ggthemes)
 library(ggpubr)
@@ -149,17 +150,154 @@ anova(model)
 
 # Import project data
 data_path='/Users/CN/Dropbox/speech_graphs/oasis/output'
-file= "graph_data_with_pca_avg.csv"
+# file= "graph_data_with_pca_avg.csv"
+file= "oasis_data_normalised.csv"
 data_avg <- data.frame(read.csv(file.path(data_path, file)))
 
 data_avg$subj <- as.factor(data_avg$X)
 data_avg$group <- as.factor(data_avg$group)
+data_avg$group <- factor(data_avg$group, levels = c("CON", "CHR", "FEP"))
 
 # Check that the correct variables are numeric (all apart from subj, tat, group)
 unlist(lapply(data_avg, is.numeric))
 
 # Bring wide format table into long format
 head(data_avg)
+
+data_avg$fragmentation <- data_avg$connected_components_normZ/data_avg$cc_size_med_normZ
+
+# ---- Test for significant effect of group on number of connected components ----
+# Test for significant effect of group on fragmentation
+model <- lm( fragmentation ~ group  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( fragmentation ~ mean_sentence_length + group  , data=data_avg, na.action=na.omit)
+anova(model)
+effect_plot(model, pred = group, interval = TRUE, partial.residuals = TRUE,
+            jitter = c(0.1,0))
+summary(model)
+
+model <- lm( fragmentation ~ nodes + group  , data=data_avg, na.action=na.omit)
+anova(model)
+effect_plot(model, pred = group, interval = TRUE, partial.residuals = TRUE,
+            jitter = c(0.1,0))
+summary(model)
+
+model <- lm( fragmentation ~ edges + group  , data=data_avg, na.action=na.omit)
+anova(model)
+effect_plot(model, pred = group, interval = TRUE, partial.residuals = TRUE,
+            jitter = c(0.1,0))
+summary(model)
+
+model <- lm( fragmentation ~ words + group  , data=data_avg, na.action=na.omit)
+anova(model)
+effect_plot(model, pred = group, interval = TRUE, partial.residuals = TRUE,
+            jitter = c(0.1,0))
+summary(model)
+
+
+# ---- Test for significant effect of group on number of connected components ----
+# Test for significant effect of group on connected_components_normZ
+model <- lm( connected_components_normZ ~ group  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( connected_components_normZ ~ mean_sentence_length + group  , data=data_avg, na.action=na.omit)
+anova(model)
+effect_plot(model, pred = group, interval = TRUE, partial.residuals = TRUE,
+            jitter = c(0.1,0))
+summary(model)
+
+model <- lm( connected_components_normZ ~ nodes + group  , data=data_avg, na.action=na.omit)
+anova(model)
+effect_plot(model, pred = group, interval = TRUE, partial.residuals = TRUE,
+            jitter = c(0.1,0))
+summary(model)
+
+model <- lm( connected_components_normZ ~ edges + group  , data=data_avg, na.action=na.omit)
+anova(model)
+effect_plot(model, pred = group, interval = TRUE, partial.residuals = TRUE,
+            jitter = c(0.1,0))
+summary(model)
+
+model <- lm( connected_components_normZ ~ words + group  , data=data_avg, na.action=na.omit)
+anova(model)
+effect_plot(model, pred = group, interval = TRUE, partial.residuals = TRUE,
+            jitter = c(0.1,0))
+summary(model)
+
+
+# +++ Regress out mean sentence length +++
+model <- lm( connected_components_normZ ~ mean_sentence_length  , data=data_avg, na.action=na.omit)
+number_cc_residuals <- residuals(model)
+
+model <- lm( group ~ mean_sentence_length  , data=data_avg, na.action=na.omit)
+group_residuals <- residuals(model)
+
+
+# ---- Test for significant effect of group on Median size of connected components ----
+
+# Test for significant effect of group on cc_size_med_normZ
+model <- lm( cc_size_med_normZ ~ group  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( cc_size_med_normZ ~ mean_sentence_length + group  , data=data_avg, na.action=na.omit)
+anova(model)
+effect_plot(model, pred = group, interval = TRUE, partial.residuals = TRUE,
+            jitter = c(0.1,0))
+summary(model)
+
+model <- lm( cc_size_med_normZ ~ nodes + group  , data=data_avg, na.action=na.omit)
+anova(model)
+effect_plot(model, pred = group, interval = TRUE, partial.residuals = TRUE,
+            jitter = c(0.1,0))
+summary(model)
+
+model <- lm( cc_size_med_normZ ~ edges + group  , data=data_avg, na.action=na.omit)
+anova(model)
+effect_plot(model, pred = group, interval = TRUE, partial.residuals = TRUE,
+            jitter = c(0.1,0))
+summary(model)
+
+model <- lm( cc_size_med_normZ ~ words + group  , data=data_avg, na.action=na.omit)
+anova(model)
+effect_plot(model, pred = group, interval = TRUE, partial.residuals = TRUE,
+            jitter = c(0.1,0))
+summary(model)
+
+
+
+
+# ---- Test for significant effect of group on Mean size of connected components ----
+
+# Test for significant effect of group on cc_size_mean_normZ
+model <- lm( cc_size_mean_normZ ~ group  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( cc_size_mean_normZ ~ mean_sentence_length + group  , data=data_avg, na.action=na.omit)
+anova(model)
+effect_plot(model, pred = group, interval = TRUE, partial.residuals = TRUE,
+            jitter = c(0.1,0))
+summary(model)
+
+model <- lm( cc_size_mean_normZ ~ nodes + group  , data=data_avg, na.action=na.omit)
+anova(model)
+effect_plot(model, pred = group, interval = TRUE, partial.residuals = TRUE,
+            jitter = c(0.1,0))
+summary(model)
+
+model <- lm( cc_size_mean_normZ ~ edges + group  , data=data_avg, na.action=na.omit)
+anova(model)
+effect_plot(model, pred = group, interval = TRUE, partial.residuals = TRUE,
+            jitter = c(0.1,0))
+summary(model)
+
+model <- lm( cc_size_mean_normZ ~ words + group  , data=data_avg, na.action=na.omit)
+anova(model)
+effect_plot(model, pred = group, interval = TRUE, partial.residuals = TRUE,
+            jitter = c(0.1,0))
+summary(model)
+
+
 
 # ---- Test for significant effect of group on PC1 score ----
 # Test for significant effect of group on PC1 score 

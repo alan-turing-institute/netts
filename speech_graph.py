@@ -43,7 +43,7 @@ import datetime
 start_time = time.time()
 # ------------------------------------------------------------------------------
 # Get sentence
-# selected_file = 1
+# selected_file = 2
 selected_file = int(sys.argv[1])
 data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
 
@@ -257,7 +257,7 @@ output_dir = '/Users/CN/Dropbox/speech_graphs/ground_truth_tat/'
 valid_filename = filename.split('.')[0]
 output = op.join(output_dir, 'SpeechGraph_{0:04d}_{1}_{2}'.format(
     selected_file, valid_filename, str(datetime.date.today())))
-plt.savefig(output)
+plt.savefig(output, transparent=True)
 # --- Save graph object ---
 nx.write_gpickle(G, output + ".gpickle")
 # --- Show graph ---
