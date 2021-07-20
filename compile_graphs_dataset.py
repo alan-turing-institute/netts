@@ -121,18 +121,22 @@ def graph_properties(graphs, filelist):
     g_properties = []
     for g, G in enumerate(graphs):
         file = filelist[g]
-        # find tat index (two-digit combination from 00 to 39 after word "TAT")
-        # +++ For General Public dataset +++
-        # tat = re.search('(?<=TAT)\w+', file)[0]
-        # if len(tat) > 2:
-        #     tat = tat.split('_')[0]
-        # subj = file.split('-TAT')[0][-7:]
-        # +++ +++ +++ +++ +++ +++ +++ +++ +++
-        # +++ For Oasis dataset +++
-        # find tat id (number between 'pic' and '_' )
-        tat = re.search('(?<=pic)\w+', file)[0].split('_')[0]
-        # find subject id (7 digit combination before word "TAT")
-        subj = file.split('_s')[1].split('_')[0]
+        # --- Get subject and tat identifiers ---
+        #
+        if 'oasis' in file:
+            # +++ For Oasis dataset +++
+            # tat index is number between 'pic' and '_'
+            tat = re.search('(?<=pic)\w+', file)[0].split('_')[0]
+            # subject index is 7 digit combination after '_s'
+            subj = file.split('_s')[1].split('_')[0]
+        elif 'all_tats' in file:
+            # +++ For General Public dataset +++
+            # tat index is two-digit combination from 00 to 39 after word "TAT"
+            tat = re.search('(?<=TAT)\w+', file)[0]
+            if len(tat) > 2:
+                tat = tat.split('_')[0]
+            # subject index is 7 digit combination before word "TAT"
+            subj = file.split('-TAT')[0][-7:]
         # +++ +++ +++ +++ +++ +++ +++ +++ +++
         # --- Get basic transcript descriptors ---
         n_words = G.graph['tokens']
@@ -304,14 +308,15 @@ def graph_properties(graphs, filelist):
         'consecutive_edges',
     ])
     #
+    # --- Make subject and tat index categorical ---
     df.subj = pd.Categorical(df.subj.astype('str'))
     df.tat = pd.Categorical(df.tat.astype('str'))
-    # +++ For General Public dataset +++
-    # df.tat = df.tat.cat.rename_categories({'8': '08'})
-    # df.tat = df.tat.cat.reorder_categories(
-    #     ['08', '10', '13', '19', '21', '24', '28', '30'])
+    if 'all_tats' in file:
+        # +++ For General Public dataset +++
+        df.tat = df.tat.cat.rename_categories({'8': '08'})
+        df.tat = df.tat.cat.reorder_categories(
+            ['08', '10', '13', '19', '21', '24', '28', '30'])
     # +++ +++ +++ +++ +++ +++ +++ +++ +++
-    df.tat.value_counts()
     #
     return df
 
