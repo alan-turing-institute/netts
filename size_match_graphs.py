@@ -18,7 +18,7 @@ import os.path as op
 import sys
 sys.path.append(
     '/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/')
-
+import pandas as pd
 import numpy as np
 
 
@@ -40,6 +40,23 @@ graphs_genpub, filelist = exclude_empty_graphs(
     graphs_genpub, filelist, be_quiet=True)
 genpub = graph_properties(graphs_genpub, filelist)
 
+# --------------------- Add group id to OASIS data ---------------------------------------
+
+id_data = pd.read_csv(
+    '/Users/CN/Documents/Projects/Cambridge/data/oasis/ids_oasis.csv', delimiter=';')
+oasis['group'] = np.nan
+for s, subj in enumerate(id_data.Subject):
+    oasis.at[oasis.subj == str(subj), 'group'] = id_data.Group[s]
+
+oasis.group = pd.Categorical(oasis.group.astype('str'))
+oasis.group = oasis.group.cat.rename_categories({'ARMS': 'CHR'})
+
+oasis.group = oasis.group.cat.reorder_categories(
+    ['CON', 'CHR', 'FEP'])
+
+oasis[size_matches == 0].group.value_counts()
+
+
 # --------------------- Find a size-matched graph for each oasis graph in the general public dataset ---------------------------------------
 genpub_sizes = [(n, e) for n, e in zip(genpub.nodes, genpub.edges)]
 
@@ -56,8 +73,3 @@ print('Of the {0} graphs, {1} have at least one size match ({2} ± {3} matches o
     size_matches[np.where(size_matches > 0)].min(),
     size_matches[np.where(size_matches > 0)].max(),
     np.where(size_matches == 0)[0].shape[0]))
-
-
-(n, e) in genpub_sizes
-matches = [(n_o, e_o) for n_o, e_o in zip(oasis.nodes, oasis.edges)
-           for n_gp, e_gp in zip(genpub.nodes, genpub.edges)]
