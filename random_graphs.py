@@ -42,8 +42,9 @@ import scipy
 # SemanticSpeechGraph functions
 from compile_graphs_dataset import get_graphs, graph_properties, exclude_empty_graphs, graph_properties_random
 # --------------------- Import graphs for which to generate random graphs ---------------------------------------
-graph_dir = '/Users/CN/Dropbox/speech_graphs/oasis'
+graph_dir = '/Users/CN/Dropbox/speech_graphs/all_tats'
 output_figures = op.join(graph_dir, 'figures')
+output_dir = op.join(graph_dir, 'output')
 
 graphs, filelist = get_graphs(graph_dir)
 graphs, filelist = exclude_empty_graphs(graphs, filelist, be_quiet=True)
@@ -53,76 +54,77 @@ print('Imported and described {0} graphs.\n{1} subjects described {2} ± {3} pic
     df.shape[0], len(df.subj.unique()), df.subj.value_counts().mean(), round(df.subj.value_counts().std(), 2)))
 df.head()
 
-# --------------------- Find appropriate number of random graphs where graph measures converge ---------------------------------------
+# --------------------- Get list of graph sizes in the dataset (unique combinations of number of nodes and number of edges) ---------------------------------------
 graph_sizes = [(len(list(G.nodes())), len(list(G.edges()))) for G in graphs]
 unique_graph_sizes = list(dict.fromkeys(graph_sizes))
 
-# Choose largest and smallest by node
-unique_graph_sizes.sort(key=lambda x: x[0])
-graph_sizes_selection = [unique_graph_sizes[0], unique_graph_sizes[round(
-    len(unique_graph_sizes) / 2)], unique_graph_sizes[-1]]
-
-# Choose largest and smallest by edge
-unique_graph_sizes.sort(key=lambda x: x[1])
-graph_sizes_selection.extend([unique_graph_sizes[0], unique_graph_sizes[round(
-    len(unique_graph_sizes) / 2)], unique_graph_sizes[-1]])
-
-
-# Create different number of random graphs for this sample of graph sizes
-# steps = [10, 50]
-steps = [10, 20, 40, 80, 100, 150, 200, 250, 400]
-list_of_dataframes = []
-for number_of_nodes, number_of_edges in graph_sizes_selection:
-    for step in steps:
-        random_graphs = []
-        for i in range(0, step):
-            random_graphs.append(nx.gnm_random_graph(
-                n=number_of_nodes, m=number_of_edges, directed=True))
-        #
-        # Collect properties of random graphs
-        random_graph_properties = graph_properties_random(random_graphs)
-        random_graph_properties['step'] = step
-        list_of_dataframes.append(random_graph_properties)
-
-random_graph_data = pd.concat(list_of_dataframes)
-
-# --------------------- Plot where graph measures converge ---------------------------------------
-# Plot convergence
-measures_of_interest = list(random_graph_data.columns)[2:-1]
-
-# for variable in measures_of_interest:
-fig = plt.figure(figsize=(25, 10))
-for v, variable in enumerate(measures_of_interest):
-    #
-    ax = plt.subplot(int(np.ceil(np.sqrt(len(measures_of_interest)))),
-                     int(np.ceil(np.sqrt(len(measures_of_interest)))), v + 1)
-    sns.lineplot(
-        data=random_graph_data,
-        x="step", y=variable, hue="nodes", style="nodes",
-        markers=True, dashes=False, palette="husl"
-    )
-    plt.title(variable)
-
-output = op.join(output_figures, 'RandomGraphs_directed_Steps_nodeswise')
-plt.savefig(output)
-plt.show()
-
-
-# for variable in measures_of_interest:
-fig = plt.figure(figsize=(25, 10))
-for v, variable in enumerate(measures_of_interest):
-    #
-    ax = plt.subplot(2, np.ceil(len(measures_of_interest) / 2), v + 1)
-    sns.lineplot(
-        data=random_graph_data,
-        x="step", y=variable, hue="edges", style="edges",
-        markers=True, dashes=False, palette="husl"
-    )
-    plt.title(variable)
-
-output = op.join(output_figures, 'RandomGraphs_directed_Steps_edgewise')
-plt.savefig(output)
-plt.show()
+# # --------------------- Optional: Find appropriate number of random graphs where graph measures converge ---------------------------------------
+# # Choose largest and smallest by node
+# unique_graph_sizes.sort(key=lambda x: x[0])
+# graph_sizes_selection = [unique_graph_sizes[0], unique_graph_sizes[round(
+#     len(unique_graph_sizes) / 2)], unique_graph_sizes[-1]]
+#
+# # Choose largest and smallest by edge
+# unique_graph_sizes.sort(key=lambda x: x[1])
+# graph_sizes_selection.extend([unique_graph_sizes[0], unique_graph_sizes[round(
+#     len(unique_graph_sizes) / 2)], unique_graph_sizes[-1]])
+#
+#
+# # Create different number of random graphs for this sample of graph sizes
+# # steps = [10, 50]
+# steps = [10, 20, 40, 80, 100, 150, 200, 250, 400]
+# list_of_dataframes = []
+# for number_of_nodes, number_of_edges in graph_sizes_selection:
+#     for step in steps:
+#         random_graphs = []
+#         for i in range(0, step):
+#             random_graphs.append(nx.gnm_random_graph(
+#                 n=number_of_nodes, m=number_of_edges, directed=True))
+#         #
+#         # Collect properties of random graphs
+#         random_graph_properties = graph_properties_random(random_graphs)
+#         random_graph_properties['step'] = step
+#         list_of_dataframes.append(random_graph_properties)
+#
+# random_graph_data = pd.concat(list_of_dataframes)
+#
+# # --------------------- Plot where graph measures converge ---------------------------------------
+# # Plot convergence
+# measures_of_interest = list(random_graph_data.columns)[2:-1]
+#
+# # for variable in measures_of_interest:
+# fig = plt.figure(figsize=(25, 10))
+# for v, variable in enumerate(measures_of_interest):
+#     #
+#     ax = plt.subplot(int(np.ceil(np.sqrt(len(measures_of_interest)))),
+#                      int(np.ceil(np.sqrt(len(measures_of_interest)))), v + 1)
+#     sns.lineplot(
+#         data=random_graph_data,
+#         x="step", y=variable, hue="nodes", style="nodes",
+#         markers=True, dashes=False, palette="husl"
+#     )
+#     plt.title(variable)
+#
+# output = op.join(output_figures, 'RandomGraphs_directed_Steps_nodeswise')
+# plt.savefig(output)
+# plt.show()
+#
+#
+# # for variable in measures_of_interest:
+# fig = plt.figure(figsize=(25, 10))
+# for v, variable in enumerate(measures_of_interest):
+#     #
+#     ax = plt.subplot(2, np.ceil(len(measures_of_interest) / 2), v + 1)
+#     sns.lineplot(
+#         data=random_graph_data,
+#         x="step", y=variable, hue="edges", style="edges",
+#         markers=True, dashes=False, palette="husl"
+#     )
+#     plt.title(variable)
+#
+# output = op.join(output_figures, 'RandomGraphs_directed_Steps_edgewise')
+# plt.savefig(output)
+# plt.show()
 
 
 # --------------------- Generate undirected random graphs for all graph sizes in dataset ---------------------------------------
@@ -170,6 +172,9 @@ for v, variable in enumerate(measures_of_interest):
     #
     df[variable + '_normF'] = df[variable + '_normF'].astype('float')
     df[variable + '_normZ'] = df[variable + '_normZ'].astype('float')
+
+# --------------------- Write out normalised data ---------------------------------------
+df.to_csv(op.join(output_dir, 'graph_data_normalised.csv'))
 
 # --------------------- Average across tats ---------------------------------------
 # Make subj and tat categorical
