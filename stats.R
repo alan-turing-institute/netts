@@ -267,7 +267,7 @@ summary(model)
 
 
 
-# ---- Test for significant effect of group on Mean size of connected components ----
+# ---- Test for significant effect of group controlling for number of nodes in the non-normalised connected component measures ----
 
 # Test for significant effect of group on cc_size_mean_normZ
 model <- lm( cc_size_mean_normZ ~ group  , data=data_avg, na.action=na.omit)
@@ -296,6 +296,95 @@ anova(model)
 effect_plot(model, pred = group, interval = TRUE, partial.residuals = TRUE,
             jitter = c(0.1,0))
 summary(model)
+
+
+# Test for significant effect of group on connected_components
+model <- lm( connected_components ~ group  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( connected_components ~ mean_sentence_length + group  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( connected_components ~ mean_sentence_length  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( connected_components ~ nodes + group  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( connected_components ~ nodes  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( connected_components ~ edges + group  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( connected_components ~ edges  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( connected_components ~ words + group  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( connected_components ~ words  , data=data_avg, na.action=na.omit)
+anova(model)
+
+
+# Test for significant effect of group on cc_size_med
+model <- lm( cc_size_med ~ group  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( cc_size_med ~ mean_sentence_length + group  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( cc_size_med ~ mean_sentence_length  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( cc_size_med ~ nodes + group  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( cc_size_med ~ nodes  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( cc_size_med ~ edges + group  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( cc_size_med ~ edges  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( cc_size_med ~ words + group  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( cc_size_med ~ words  , data=data_avg, na.action=na.omit)
+anova(model)
+
+
+
+# Test for significant effect of group on cc_size_mean
+model <- lm( cc_size_mean ~ group  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( cc_size_mean ~ mean_sentence_length + group  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( cc_size_mean ~ mean_sentence_length  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( cc_size_mean ~ nodes + group  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( cc_size_mean ~ nodes  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( cc_size_mean ~ edges + group  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( cc_size_mean ~ edges  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( cc_size_mean ~ words + group  , data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( cc_size_mean ~ words  , data=data_avg, na.action=na.omit)
+anova(model)
+
 
 
 
