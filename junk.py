@@ -579,3 +579,33 @@ one_time_paid = 2066.95
 paid_back = 80.42999999999984
 
 owed = 351.6600000000001
+
+
+syn_nonavg = pd.read_csv(
+    '/Users/CN/Dropbox/speech_graphs/oasis/output/syntactic_graph_data.csv')
+
+syn_nonavg.subj = syn_nonavg.subj.astype('int')
+syn_nonavg.set_index('subj')
+syn = (syn_nonavg.groupby((syn_nonavg.subj != syn_nonavg.subj.shift()).cumsum())
+       .mean()
+       .reset_index(drop=True))
+
+syn.subj = syn.subj.astype('int')
+syn.to_csv(
+    '/Users/CN/Dropbox/speech_graphs/oasis/output/syntactic_graph_data_avg.csv')
+
+
+avg = (raw.groupby((raw.subj != raw.subj.shift()).cumsum())
+       .mean()
+       .reset_index(drop=True))
+
+avg.subj = avg.subj.astype('float')
+avg.subj = avg.subj.astype('int')
+nlp.subj = nlp.subj.astype('int')
+
+
+ls = [el == sorted(avg.subj)[e] for e, el in enumerate(sorted(nlp.subj))]
+ls = [el == sorted(avg.subj)[e] for e, el in enumerate(sorted(syn.subj))]
+
+avg.to_csv(
+    '/Users/CN/Dropbox/speech_graphs/oasis/output/graph_data_normalised_avg.csv')

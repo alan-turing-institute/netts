@@ -37,35 +37,43 @@ import scipy
 # SemanticSpeechGraph functions
 from compile_graphs_dataset import get_graphs, graph_properties, exclude_empty_graphs
 
+# Community detection toolbox
+import bct
+from netneurotools import plotting
+
+
 # --------------------- Set graph path ---------------------------------------
 graph_dir = '/Users/CN/Dropbox/speech_graphs/oasis'
 output_dir = op.join(graph_dir, 'output')
+output_figs = op.join(graph_dir, 'figures')
 
-# --------------------- Import basic graph measures ---------------------------------------
-oasis = pd.read_csv(op.join(output_dir, 'graph_data_normalised_avg.csv'))
-
-# --------------------- Import syntactic graph measures ---------------------------------------
-syntactic = pd.read_csv(op.join(output_dir, 'syntactic_graph_data_avg.csv'))
-# Exclude subject 12
-syntactic = syntactic[syntactic.subj != 12]
-
-# --------------------- Import semantic coherence measures ---------------------------------------
+# --------------------- Import all graph measures ---------------------------------------
+oasis = pd.read_csv(op.join(output_dir, 'graph_data_all_avg.csv'), index_col=0)
+corrMatrix = oasis.drop(columns='subj').corr()
 
 
-# # --------------------- Save graph measures averaged across TATs ( = one datapoint per participant ) ---------------------------------------
+# --------------------- Plot correlation matrix ---------------------------------------
 
-# df['group_n'] = None
-# df.group_n = df.group.cat.codes * 100
-# df_avg = (df.groupby((df.subj != df.subj.shift()).cumsum())
-#           .mean()
-#           .reset_index(drop=True))
+# plt.figure(figsize=(25.6, 20))
+# # sns.heatmap(corrMatrix, mask=np.triu(corrMatrix), annot=True)
+# sns.heatmap(corrMatrix, annot=True)
+# output = op.join(
+#     output_figs, 'CorrMat_All_GraphProps')
+# plt.savefig(output)
+# plt.show()
 
-# df_avg['group'] = pd.Categorical(df_avg.group_n)
 
-# df_avg.group = df_avg.group.cat.rename_categories(
-#     {0: 'CON', -56: 'FEP', 100: 'CHR'})
-# df_avg.group.cat.reorder_categories(
-#     ['CON', 'CHR', 'FEP'], inplace=True)
-# df_avg.group.value_counts()
+# --------------------- Louvain Clustering ---------------------------------------
 
-# df.to_csv(op.join(output_dir, 'graph_data_avg.csv'))
+corr = corrMatrix.copy().to_numpy()
+nonegative[corr < 0] = 0
+
+ci, Q = bct.community_louvain(nonegative, gamma=1)
+num_ci = len(np.unique(ci))
+print('{} clusters detected with a modularity of {:.2f}.'.format(num_ci, Q))
+
+
+plotting.plot_mod_heatmap(corr, ci, vmin=-1, vmax=1, cmap='viridis',
+                          xticklabels=corrMatrix.columns, yticklabels=corrMatrix.columns)
+
+plt.show()
