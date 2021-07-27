@@ -180,3 +180,21 @@ if 'all_tats' in file:
 
 # --------------------- Save syntactic graph measures ---------------------------------------
 syntactic_data.to_csv(op.join(graph_dir, 'output/syntactic_graph_data.csv'))
+
+# --------------------- Save syntactic graph measures averaged across pictures (i.e. TATs) ---------------------------------------
+# Make numeric columns numeric
+syntactic_data.dtypes
+non_numeric_cols = ['syn_File', 'subj', 'tat',
+                    'syn_Hub', 'syn_2nd Hub', 'syn_Pair',
+                    'syn_LSCHub']
+numeric_cols = [
+    col for col in syntactic_data.columns if col not in non_numeric_cols]
+for col in numeric_cols:
+    syntactic_data[col] = syntactic_data[col].astype('float64')
+
+syntactic_data_avg = (syntactic_data.groupby((syntactic_data.subj != syntactic_data.subj.shift()).cumsum())
+                      .mean()
+                      .reset_index())
+
+syntactic_data_avg.to_csv(
+    op.join(graph_dir, 'output/syntactic_graph_data_avg.csv'))

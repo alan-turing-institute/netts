@@ -42,7 +42,7 @@ import scipy
 # SemanticSpeechGraph functions
 from compile_graphs_dataset import get_graphs, graph_properties, exclude_empty_graphs, graph_properties_random
 # --------------------- Import graphs for which to generate random graphs ---------------------------------------
-graph_dir = '/Users/CN/Dropbox/speech_graphs/all_tats'
+graph_dir = '/Users/CN/Dropbox/speech_graphs/oasis'
 output_figures = op.join(graph_dir, 'figures')
 output_dir = op.join(graph_dir, 'output')
 
@@ -174,7 +174,7 @@ for v, variable in enumerate(measures_of_interest):
     df[variable + '_normZ'] = df[variable + '_normZ'].astype('float')
 
 # --------------------- Write out normalised data ---------------------------------------
-df.to_csv(op.join(output_dir, 'graph_data_normalised.csv'))
+# df.to_csv(op.join(output_dir, 'graph_data_normalised.csv'))
 
 # --------------------- Average across tats ---------------------------------------
 # Make subj and tat categorical
@@ -204,7 +204,7 @@ df['group_n'] = None
 df.group_n = df.group.cat.codes * 100
 oasis_avg = (df.groupby((df.subj != df.subj.shift()).cumsum())
              .mean()
-             .reset_index(drop=True))
+             .reset_index())
 
 oasis_avg['group'] = pd.Categorical(oasis_avg.group_n)
 
