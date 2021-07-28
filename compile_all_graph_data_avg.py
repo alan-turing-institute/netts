@@ -52,6 +52,8 @@ df = pd.read_csv(graph_data_norm)
 # Import
 syn = pd.read_csv(
     op.join(output_dir, 'syntactic_graph_data_avg.csv'))
+
+# syn = syn[syn.subj != 12]
 # Add to dataframe
 merged = df.merge(syn, how='left', on=[
     'subj'])
@@ -60,16 +62,20 @@ merged = df.merge(syn, how='left', on=[
 # --------------------- Add nlp measures ---------------------------------------
 
 nlp = pd.read_csv(op.join(output_dir, 'nlp_measures_avg.csv'))
+# nlp = nlp[nlp.subj != 12]
+
 # Add to dataframe
 merged = merged.merge(nlp, how='left', on=[
     'subj'])
 
 # --------------------- Clean ---------------------------------------
 merged = merged.drop(
-    columns=['Unnamed: 0_x', 'Unnamed: 0.1', 'tat_x', 'Unnamed: 0_y', 'Unnamed: 0', 'tat_y', 'tat'])
+    columns=['Unnamed: 0_x', 'tat_x', 'Unnamed: 0_y', 'Unnamed: 0', 'tat_y'])
 
 merged = merged.drop(
-    columns=['tat_y', 'tat'])
+    columns=['Unnamed: 0.1_y'])  # Unnamed: 0.1_x'
+merged = merged.drop(
+    columns=['Unnamed: 0.1_x'])  #
 # --------------------- Write Full Dataset ---------------------------------------
 # Write Full Dataset
 merged.to_csv(op.join(output_dir, 'graph_data_all_avg.csv'))

@@ -603,9 +603,21 @@ avg.subj = avg.subj.astype('float')
 avg.subj = avg.subj.astype('int')
 nlp.subj = nlp.subj.astype('int')
 
+len(list(komi.words))
+komi=komi[komi.subj != 12]
+len(list(avg.words))
+ls = [el == sorted(avg.words)[e] for e, el in enumerate(sorted(komi.words))]
+
+
+avg.subj = avg.subj.astype('int')
 
 ls = [el == sorted(avg.subj)[e] for e, el in enumerate(sorted(nlp.subj))]
 ls = [el == sorted(avg.subj)[e] for e, el in enumerate(sorted(syn.subj))]
 
 avg.to_csv(
     '/Users/CN/Dropbox/speech_graphs/oasis/output/graph_data_normalised_avg.csv')
+
+avg['subjects'] = avg.subj
+
+df = pd.read_csv('/Users/CN/Dropbox/speech_graphs/oasis/output/graph_data_normalised_avg.csv')
+df.subj
