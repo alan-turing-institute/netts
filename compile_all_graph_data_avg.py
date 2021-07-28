@@ -47,6 +47,18 @@ graph_data_norm = op.join(graph_dir, 'output/graph_data_normalised_avg.csv')
 df = pd.read_csv(graph_data_norm)
 
 
+# --------------------- Add residualised graph data ---------------------------------------
+
+# Import
+res = pd.read_csv(
+    op.join(output_dir, 'graph_data_residualised_avg.csv'))
+
+res = res[['subj', 'connected_components_res',
+           'cc_size_med_res', 'cc_size_mean_res']]
+
+merged = df.merge(res, how='left', on=[
+    'subj'])
+
 # --------------------- Add syntactic graph data ---------------------------------------
 
 # Import
@@ -55,7 +67,7 @@ syn = pd.read_csv(
 
 # syn = syn[syn.subj != 12]
 # Add to dataframe
-merged = df.merge(syn, how='left', on=[
+merged = merged.merge(syn, how='left', on=[
     'subj'])
 
 

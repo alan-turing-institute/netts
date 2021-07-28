@@ -45,7 +45,7 @@ from netneurotools import plotting
 # --------------------- Set graph path ---------------------------------------
 graph_dir = '/Users/CN/Dropbox/speech_graphs/oasis'
 output_dir = op.join(graph_dir, 'output')
-output_figs = op.join(graph_dir, 'figures')
+output_figures = op.join(graph_dir, 'figures')
 
 
 # --------------------- Import all graph measures ---------------------------------------
@@ -61,23 +61,23 @@ oasis.subj.unique()
 #                    'parallel_edges_normZ', 'L1_normF', 'group_n', 'group', 'subj']
 #
 # --------------------- Select only columns that are in Sarahs paper and the connected component measures ---------------------------------------
-# selected_columns = ['words', 'sentences', 'mean_sentence_length', 'nodes', 'edges',
-#                     'cc_size_mean', 'cc_size_med', 'connected_components',
-#                     'max_degree_centrality', 'max_indegree_centrality_value', 'max_outdegree_centrality_value',
-#                     'cc_size_mean_normZ', 'cc_size_med_normZ', 'connected_components_normZ',
-#                     'syn_WC', 'syn_Nodes', 'syn_Edges', 'syn_RE', 'syn_PE', 'syn_L1',
-#                     'syn_L2', 'syn_L3', 'syn_LCC', 'syn_LSC', 'syn_ATD', 'syn_Density',
-#                     'syn_Diameter', 'syn_ASP', 'syn_CC', 'syn_Degree', 'syn_Degree.1',
-#                     'syn_Degree.2', 'syn_Degree.3', 'No. words', 'No. sent.',
-#                     'Sent. length', 'Coh.', 'Max similarity', 'Tangent', 'On-topic']
+selected_columns = ['words', 'sentences', 'mean_sentence_length', 'nodes', 'edges',
+                    'cc_size_mean', 'cc_size_med', 'connected_components',
+                    'max_degree_centrality', 'max_indegree_centrality_value', 'max_outdegree_centrality_value',
+                    'cc_size_mean_normZ', 'cc_size_med_normZ', 'connected_components_normZ',
+                    'syn_WC', 'syn_Nodes', 'syn_Edges', 'syn_RE', 'syn_PE', 'syn_L1',
+                    'syn_L2', 'syn_L3', 'syn_LCC', 'syn_LSC', 'syn_ATD', 'syn_Density',
+                    'syn_Diameter', 'syn_ASP', 'syn_CC', 'syn_Degree', 'syn_Degree.1',
+                    'syn_Degree.2', 'syn_Degree.3', 'No. words', 'No. sent.',
+                    'Sent. length', 'Coh.', 'Max similarity', 'Tangent', 'On-topic']
 
-# selected_columns = ['words', 'sentences', 'mean_sentence_length', 'nodes', 'edges',
-#                     'cc_size_mean', 'cc_size_med', 'connected_components',
-#                     'max_degree_centrality', 'max_indegree_centrality_value', 'max_outdegree_centrality_value',
-#                     'cc_size_mean_normZ', 'cc_size_med_normZ', 'connected_components_normZ',
-#                     'syn_LCC', 'syn_LSC', 'syn_CC',
-#                     'No. words', 'No. sent.', 'Sent. length',
-#                     'Coh.', 'Max similarity', 'Tangent', 'On-topic']
+selected_columns = ['words', 'sentences', 'mean_sentence_length', 'nodes', 'edges',
+                    'cc_size_mean', 'cc_size_med', 'connected_components',
+                    'max_degree_centrality', 'max_indegree_centrality_value', 'max_outdegree_centrality_value',
+                    'cc_size_mean_normZ', 'cc_size_med_normZ', 'connected_components_normZ',
+                    'syn_LCC', 'syn_LSC', 'syn_CC',
+                    'No. words', 'No. sent.', 'Sent. length',
+                    'Coh.', 'Max similarity', 'Tangent', 'On-topic']
 
 selected_columns = ['nodes', 'edges', 'words', 'sentences', 'mean_sentence_length',
                     'cc_size_mean', 'cc_size_med', 'connected_components',
@@ -109,6 +109,6 @@ ax.set_xticklabels(corrMatrix.columns, rotation=30, ha="right")
 
 # plt.xticks(rotation=90)
 output = op.join(
-    output_figs, 'Clustered_oasis_slim_cc')
+    output_figures, 'Clustered_oasis')
 plt.savefig(output)
 plt.show()
