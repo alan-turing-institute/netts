@@ -42,7 +42,7 @@ import scipy
 # SemanticSpeechGraph functions
 from compile_graphs_dataset import get_graphs, graph_properties, exclude_empty_graphs, graph_properties_random
 # --------------------- Import graphs for which to generate random graphs ---------------------------------------
-graph_dir = '/Users/CN/Dropbox/speech_graphs/oasis'
+graph_dir = '/Users/CN/Dropbox/speech_graphs/all_tats'
 output_figures = op.join(graph_dir, 'figures')
 output_dir = op.join(graph_dir, 'output')
 
@@ -57,6 +57,7 @@ df.head()
 # --------------------- Get list of graph sizes in the dataset (unique combinations of number of nodes and number of edges) ---------------------------------------
 graph_sizes = [(len(list(G.nodes())), len(list(G.edges()))) for G in graphs]
 unique_graph_sizes = list(dict.fromkeys(graph_sizes))
+
 
 # --------------------- Optional: Find appropriate number of random graphs where graph measures converge ---------------------------------------
 # Choose largest and smallest by node
@@ -93,7 +94,11 @@ random_graph_data = pd.concat(list_of_dataframes)
 # measures_of_interest = list(random_graph_data.columns)[2:-1]
 # measures_of_interest = ['connected_components', 'cc_size_mean', 'cc_size_med',
 #                         'max_degree_centrality', 'max_indegree_centrality_value', 'max_outdegree_centrality_value']
-measures_of_interest = ['connected_components', 'cc_size_mean', 'cc_size_med']
+# measures_of_interest = ['connected_components', 'cc_size_mean', 'cc_size_med']
+# measures_of_interest = ['max_degree_centrality_abs',
+#                         'max_indegree_centrality_abs', 'max_outdegree_centrality_abs']
+measures_of_interest = ['max_degree_centrality',
+                        'max_indegree_centrality_value', 'max_outdegree_centrality_value']
 
 # for variable in measures_of_interest:
 fig = plt.figure(figsize=(25, 10))
@@ -108,7 +113,7 @@ for v, variable in enumerate(measures_of_interest):
     )
     plt.title(variable)
 
-output = op.join(output_figures, 'RandomGraphs_directed_Steps_nodeswise_{}_3'.format(
+output = op.join(output_figures, 'RandomGraphs_directed_Steps_nodeswise_{}_degcent_val'.format(
     str(datetime.date.today())))
 plt.savefig(output)
 plt.show()
@@ -126,7 +131,7 @@ for v, variable in enumerate(measures_of_interest):
     )
     plt.title(variable)
 
-output = op.join(output_figures, 'RandomGraphs_directed_Steps_edgewise_{}_3'.format(
+output = op.join(output_figures, 'RandomGraphs_directed_Steps_edgewise_{}_degcent_val'.format(
     str(datetime.date.today())))
 plt.savefig(output)
 plt.show()
@@ -180,34 +185,37 @@ for v, variable in enumerate(measures_of_interest):
     df[variable + '_normF'] = df[variable + '_normF'].astype('float')
     df[variable + '_normZ'] = df[variable + '_normZ'].astype('float')
 
-# --------------------- Write out normalised data ---------------------------------------
-# df.to_csv(op.join(output_dir, 'graph_data_normalised.csv'))
+
+# --------------------- Add group ID ---------------------------------------
 
 # Make subj and tat categorical
 df.subj = pd.Categorical(df.subj.astype('int'))
 df.tat = pd.Categorical(df.tat.astype('str'))
 
+if 'oasis' in graph_dir:
+    id_data = pd.read_csv(
+        '/Users/CN/Documents/Projects/Cambridge/data/oasis/ids_oasis.csv', delimiter=';')
+    df['group'] = np.nan
+    for s, subj in enumerate(id_data.Subject):
+        df.at[df.subj.astype('str') == str(subj), 'group'] = id_data.Group[s]
+    #
+    df.group = pd.Categorical(df.group.astype('str'))
+    df.group = df.group.cat.rename_categories({'ARMS': 'CHR'})
+    #
+    df.group = df.group.cat.reorder_categories(
+        ['CON', 'CHR', 'FEP'])
+    #
+    print('--- Groups ---\n{}'.format(df.group.value_counts()))
+    #
+    # Exclude subject 12 because of bad quality transcripts
+    df.shape
+    # df = df[df.subj.values != '12']
+    #
+    df['group_n'] = None
+    df.group_n = df.group.cat.codes * 100
 
-id_data = pd.read_csv(
-    '/Users/CN/Documents/Projects/Cambridge/data/oasis/ids_oasis.csv', delimiter=';')
-df['group'] = np.nan
-for s, subj in enumerate(id_data.Subject):
-    df.at[df.subj.astype('str') == str(subj), 'group'] = id_data.Group[s]
-
-df.group = pd.Categorical(df.group.astype('str'))
-df.group = df.group.cat.rename_categories({'ARMS': 'CHR'})
-
-df.group = df.group.cat.reorder_categories(
-    ['CON', 'CHR', 'FEP'])
-
-print('--- Groups ---\n{}'.format(df.group.value_counts()))
-
-# Exclude subject 12 because of bad quality transcripts
-df.shape
-# df = df[df.subj.values != '12']
-
-df['group_n'] = None
-df.group_n = df.group.cat.codes * 100
+# --------------------- Write out normalised data ---------------------------------------
+df.to_csv(op.join(output_dir, 'graph_data_normalised.csv'))
 
 # --------------------- Average across tats ---------------------------------------
 df_avg = (df.groupby((df.subj != df.subj.shift()).cumsum())
@@ -227,14 +235,14 @@ for subject in df.subj.cat.categories:
     intersection = np.logical_and(intersection, match_nodes)
     df_avg.loc[intersection, 'subj'] = subject
 
-
-df_avg['group'] = pd.Categorical(df_avg.group_n)
-
-df_avg.group = df_avg.group.cat.rename_categories(
-    {0: 'CON', -56: 'FEP', 100: 'CHR'})
-df_avg.group.cat.reorder_categories(
-    ['CON', 'CHR', 'FEP'], inplace=True)
-df_avg.group.value_counts()
+if 'oasis' in graph_dir:
+    df_avg['group'] = pd.Categorical(df_avg.group_n)
+    #
+    df_avg.group = df_avg.group.cat.rename_categories(
+        {0: 'CON', -56: 'FEP', 100: 'CHR'})
+    df_avg.group.cat.reorder_categories(
+        ['CON', 'CHR', 'FEP'], inplace=True)
+    df_avg.group.value_counts()
 
 # (To control that subject assignment worked)
 # for subj in df.subj.cat.categories:
@@ -250,17 +258,17 @@ df_avg.to_csv(op.join(output_dir, 'graph_data_normalised_avg.csv'))
 #                  'lsc_normZ', 'lcc_normF', 'lcc_normZ',
 #                  'L2_normF', 'L2_normZ', 'L3_normF', 'L3_normZ']
 
-variable_list = ['cc_size_mean_normF',
-                 'cc_size_mean_normZ', 'cc_size_med_normF', 'cc_size_med_normZ',
-                 'cc_size_sd_normF', 'cc_size_sd_normZ', 'cc_size_max_normF',
-                 'cc_size_max_normZ', 'connected_components_normF',
-                 'connected_components_normZ']
+# variable_list = ['cc_size_mean_normF',
+#                  'cc_size_mean_normZ', 'cc_size_med_normF', 'cc_size_med_normZ',
+#                  'cc_size_sd_normF', 'cc_size_sd_normZ', 'cc_size_max_normF',
+#                  'cc_size_max_normZ', 'connected_components_normF',
+#                  'connected_components_normZ']
 
-# variable_list = ['max_degree_centrality_normF',
-#                  'max_degree_centrality_normZ', 'max_indegree_centrality_value_normF',
-#                  'max_indegree_centrality_value_normZ',
-#                  'max_outdegree_centrality_value_normF',
-#                  'max_outdegree_centrality_value_normZ']
+variable_list = ['max_degree_centrality_abs_normZ',
+                 'max_indegree_centrality_abs_normZ', 'max_indegree_centrality_abs_normZ',
+                 'max_degree_centrality_abs',
+                 'max_indegree_centrality_abs',
+                 'max_indegree_centrality_abs']
 
 # variable_list = ['density_normF',
 #                  'density_normZ', 'diameter_normF', 'diameter_normZ',
@@ -298,7 +306,7 @@ for v, variable in enumerate(variable_list):
     plt.title(stats_summary)
 
 plt.subplots_adjust(hspace=0.4)
-output = op.join(output_figures, 'Hist_normalised_directed_2' +
+output = op.join(output_figures, 'Hist_normalised_directed_degcent' +
                  '_{}'.format('_'.join(variable_list), str(datetime.date.today())))
 plt.savefig(output)
 plt.show()

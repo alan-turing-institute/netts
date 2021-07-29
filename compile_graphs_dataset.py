@@ -183,6 +183,8 @@ def graph_properties(graphs, filelist):
         cc_size_sd = np.std(cc_sizes, axis=0)
         cc_size_max = np.max(cc_sizes)
         #
+        #
+        # --------------------- Calculate additional measures ---------------------------------------
         # Degree centrality
         degree_cents = nx.degree_centrality(G)
         degree_cents = dict(sorted(degree_cents.items(),
@@ -203,6 +205,16 @@ def graph_properties(graphs, filelist):
                                        key=lambda item: item[1], reverse=True))
         max_outdeg_cent = next(iter(out_degree_cents.items()))
         max_outdegree_centrality_value = max_outdeg_cent[1]
+        #
+        #
+        # Calculate absolute values for degree centrality (reverse normalisation by multiplying with nodes-1)
+        max_deg_cent_abs = max_deg_cent * \
+            (n_nodes - 1)
+        max_indegree_centrality_abs = max_indegree_centrality_value * \
+            (n_nodes - 1)
+        max_outdegree_centrality_abs = max_outdegree_centrality_value * \
+            (n_nodes - 1)
+        #
         #
         # Confidence measures of relations
         confidence_vals = [edge[2]['confidence']
@@ -265,6 +277,9 @@ def graph_properties(graphs, filelist):
             max_outdeg_cent,
             max_indegree_centrality_value,
             max_outdegree_centrality_value,
+            max_deg_cent_abs,
+            max_indegree_centrality_abs,
+            max_outdegree_centrality_abs,
             mean_sentence_length,
             mean_confidence,
             std_confidence,
@@ -298,6 +313,9 @@ def graph_properties(graphs, filelist):
         'max_outdegree_centrality',
         'max_indegree_centrality_value',
         'max_outdegree_centrality_value',
+        'max_degree_centrality_abs',
+        'max_indegree_centrality_abs',
+        'max_outdegree_centrality_abs',
         'mean_sentence_length',
         'mean_confidence',
         'std_confidence',
@@ -414,6 +432,15 @@ def graph_properties_random(graphs):
         max_outdeg_cent = next(iter(out_degree_cents.items()))
         max_outdegree_centrality_value = max_outdeg_cent[1]
         #
+        #
+        # Calculate absolute values for degree centrality (reverse normalisation by multiplying with nodes-1)
+        max_deg_cent_abs = max_deg_cent * \
+            (n_nodes - 1)
+        max_indegree_centrality_abs = max_indegree_centrality_value * \
+            (n_nodes - 1)
+        max_outdegree_centrality_abs = max_outdegree_centrality_value * \
+            (n_nodes - 1)
+        #
         # --- Properties for undirected version of the graph (w/o self-loops or PEs) ---
         G_basic = nx.Graph(G)
         density = nx.density(G_basic)
@@ -449,6 +476,9 @@ def graph_properties_random(graphs):
             max_deg_cent,
             max_indegree_centrality_value,
             max_outdegree_centrality_value,
+            max_deg_cent_abs,
+            max_indegree_centrality_abs,
+            max_outdegree_centrality_abs,
             density,
             diameter,
             average_shortest_path,
@@ -471,6 +501,9 @@ def graph_properties_random(graphs):
         'max_degree_centrality',
         'max_indegree_centrality_value',
         'max_outdegree_centrality_value',
+        'max_degree_centrality_abs',
+        'max_indegree_centrality_abs',
+        'max_outdegree_centrality_abs',
         'density',
         'diameter',
         'average_shortest_path',

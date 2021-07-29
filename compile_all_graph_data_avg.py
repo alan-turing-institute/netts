@@ -54,7 +54,7 @@ res = pd.read_csv(
     op.join(output_dir, 'graph_data_residualised_avg.csv'))
 
 res = res[['subj', 'connected_components_res',
-           'cc_size_med_res', 'cc_size_mean_res']]
+           'cc_size_med_res', 'cc_size_mean_res', 'max_degree_centrality_abs_res', 'max_indegree_centrality_abs_res', 'max_outdegree_centrality_abs_res']]
 
 merged = df.merge(res, how='left', on=[
     'subj'])

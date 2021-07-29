@@ -151,7 +151,8 @@ anova(model)
 # Import project data
 data_path='/Users/CN/Dropbox/speech_graphs/oasis/output'
 # file= "graph_data_with_pca_avg.csv"
-file= "oasis_data_normalised.csv"
+# file= "oasis_data_normalised.csv"
+file = "graph_data_all_avg.csv"
 data_avg <- data.frame(read.csv(file.path(data_path, file)))
 
 data_avg$subj <- as.factor(data_avg$X)
@@ -165,6 +166,71 @@ unlist(lapply(data_avg, is.numeric))
 head(data_avg)
 
 data_avg$fragmentation <- data_avg$connected_components_normZ/data_avg$cc_size_med_normZ
+
+# ---- Test for significant effect of group on semantic coherence controlling for words ----
+model <- lm( `Coh.` ~ group, data=data_avg, na.action=na.omit)
+anova(model)
+
+# Controlling for number of words
+model <- lm( `Coh.` ~ group  + `No..words`, data=data_avg, na.action=na.omit)
+anova(model)
+
+# Controlling for number of nodes
+model <- lm( `Coh.` ~ group  + nodes, data=data_avg, na.action=na.omit)
+anova(model)
+
+# +++ Effect on number of nodes +++
+# Controlling for number of words in nodes
+model <- lm( nodes ~ group  + `No..words`, data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( nodes ~ group  + `Coh.`, data=data_avg, na.action=na.omit)
+anova(model)
+
+# +++ Effect on max_degree_centrality +++
+# Controlling for number of words in nodes
+model <- lm( max_degree_centrality ~ group  + nodes, data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( max_degree_centrality ~ group  + `No..words`, data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( max_degree_centrality ~ group  + `Coh.`, data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( `Coh.` ~ group  + max_degree_centrality, data=data_avg, na.action=na.omit)
+anova(model)
+
+# +++ Effect on max_degree_centrality_abs_res +++
+# Controlling for number of words in nodes
+
+model <- lm( max_degree_centrality_abs_res ~ group  + nodes, data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( max_degree_centrality_abs_res ~ group  + `No..words`, data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( max_degree_centrality_abs_res ~ group  + `Coh.`, data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( `Coh.` ~ group  + max_degree_centrality_abs_res, data=data_avg, na.action=na.omit)
+anova(model)
+
+# +++ Effect on max_degree_centrality_abs_normZ +++
+# Controlling for number of words in nodes
+
+model <- lm( max_degree_centrality_abs_normZ ~ group  + nodes, data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( max_degree_centrality_abs_normZ ~ group  + `No..words`, data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( max_degree_centrality_abs_normZ ~ group  + `Coh.`, data=data_avg, na.action=na.omit)
+anova(model)
+
+model <- lm( `Coh.` ~ group  + max_degree_centrality_abs_normZ, data=data_avg, na.action=na.omit)
+anova(model)
+
 
 # ---- Test for significant effect of group on number of connected components ----
 # Test for significant effect of group on fragmentation
