@@ -35,7 +35,8 @@ from itertools import chain
 import numpy as np
 from nlp_helper_functions import expand_contractions, remove_interjections, replace_problematic_symbols, remove_irrelevant_text, process_sent, get_transcript_properties, remove_duplicates, remove_bad_transcripts
 from visualise_paragraph_functions import create_edges_ollie, create_edges_stanza, get_word_types, get_adj_edges, get_prep_edges, get_obl_edges, add_obl_edges, get_node_synonyms, split_node_synonyms, split_nodes, merge_corefs, clean_nodes, clean_parallel_edges, add_adj_edges, add_prep_edges, get_unconnected_nodes
-# from filelists import tat_pilot_files, hbn_movie_files, genpub_files, all_tat_files, dct_story_files
+from filelists import tat_pilot_files, hbn_movie_files, genpub_files, all_tat_files, dct_story_files
+
 import time
 import datetime
 # ------------------------------------------------------------------------------
@@ -61,14 +62,14 @@ data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
 # output_dir = '/Users/CN/Dropbox/speech_graphs/dct'
 
 # ++++++++ All TAT files ++++++++
-# output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/'
-# filename = all_tat_files[selected_file]
-# if selected_file < 119:
-#     tat_data_dir = op.join(data_dir, 'Kings', 'Prolific_pilot_all_transcripts')
-#     input_file = op.join(tat_data_dir, filename)
-# else:
-#     genpub_data_dir = op.join(data_dir, 'Kings', 'general_public_tat')
-#     input_file = op.join(genpub_data_dir, filename)
+output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/'
+filename = all_tat_files[selected_file]
+if selected_file < 119:
+    tat_data_dir = op.join(data_dir, 'Kings', 'Prolific_pilot_all_transcripts')
+    input_file = op.join(tat_data_dir, filename)
+else:
+    genpub_data_dir = op.join(data_dir, 'Kings', 'general_public_tat')
+    input_file = op.join(genpub_data_dir, filename)
 
 # # ++++++++ TAT files ++++++++
 # # Make list of all transcripts
@@ -88,13 +89,13 @@ data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
 # ++++++++ Ground truth files ++++++++
 # Make list of all transcripts
 # Oasis study
-tats = sorted(
-    Path(op.join(data_dir, 'ground_truth_tat')).rglob('*.txt'))
+# tats = sorted(
+#     Path(op.join(data_dir, 'ground_truth_tat')).rglob('*.txt'))
 
 
 # Import selected transcript
-input_file = tats[selected_file]
-filename = input_file.name
+# input_file = tats[selected_file]
+# filename = input_file.name
 with open(input_file, 'r') as fh:
     orig_text = fh.read()
 
@@ -251,7 +252,7 @@ print("Processing transcript %s finished in --- %s seconds ---" %
       (filename, time.time() - start_time))
 # --- Save graph image ---
 # Initialize output
-output_dir = '/Users/CN/Dropbox/speech_graphs/ground_truth_tat/'
+output_dir = '/Users/CN/Dropbox/speech_graphs/tool_demo/'
 # # output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/'
 # stripping '.txt' is not sufficient since some files have a dot in their filename (i.e. '22895-20-task-7g47-6377612-TAT10-9-1_otter.ai (1).txt') which throws an error when trying to save
 valid_filename = filename.split('.')[0]
