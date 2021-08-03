@@ -21,6 +21,6 @@ cd /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/
 python -u ./speech_graph.py 30
 
 # --- Process transcripts and pipe output to txt file --------------------------------------------
-transcript_no = 30
+transcript_no=30
 output_dir=/Users/CN/Dropbox/speech_graphs/tool_demo
 python -u ./speech_graph.py ${transcript_no} > ${output_dir}/SpeechGraph_`zeropad ${transcript_no} 4`_`date +%F`.txt 2>&1 # (pipe output and error msgs to text file)

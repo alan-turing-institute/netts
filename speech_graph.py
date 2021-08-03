@@ -12,9 +12,6 @@
 # source /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/venv/bin/activate
 # Usage: python ./speech_graph.py 3
 #        tat=3; python -u ./speech_graph.py ${tat} > figures/SpeechGraph_log_${tat}_`date +%F` # (pipe output to text file)
-# TODO: Plot graphs coloured by confidence / extraction type
-# TODO: Look at the few transcripts that threw errors and debug them
-# TODO: Look at stanza graph edges and see if they are correct
 # ------------------------------------------------------------------------------
 
 
