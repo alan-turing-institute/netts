@@ -15,6 +15,10 @@ Below is the semantic speech graph constructed from this text.
 
 # Pipeline
 ## 1. Construct semantic graphs.
+  Start OpenIE5 server.
+    ```console
+  start_openie5.sh
+  ```
   To create a semantic graph for a single transcript in the dataset, run
   ```console
   python speech_graph.py 3
