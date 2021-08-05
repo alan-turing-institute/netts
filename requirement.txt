@@ -1,0 +1,6 @@
+pyopenie
+stanza
+networkx
+matplotlib
+numpy
+nlkt
