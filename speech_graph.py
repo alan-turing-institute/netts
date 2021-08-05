@@ -146,8 +146,7 @@ n_tokens, n_sententences, _ = get_transcript_properties(text, ex_stanza)
 # Ollie can handle more than one sentence at a time, but need to loop through sentences to keep track of sentence index
 extractorIE5 = OpenIE5('http://localhost:6000')  # Initialize Ollie
 
-print(ex_stanza)
-exit()
+
 ex_ollie = {}
 for i, sentence in enumerate(ex_stanza.sentence):
     if len(sentence.token) > 1:
@@ -167,6 +166,8 @@ for i, sentence in enumerate(ex_stanza.sentence):
             [token.originalText for token in sentence.token if token.originalText])))
 
 print('+++++++++++++++++++\n')
+
+
 # --------------------- Create ollie edges ---------------------------------------
 ollie_edges, ollie_edges_text_excerpts, ollie_one_node_edges, ollie_one_node_edges_text_excerpts = create_edges_ollie(
     ex_ollie)
@@ -262,6 +263,10 @@ print("\n+++ Edges: +++ \n\n %s \n\n+++++++++++++++++++" % (edge_labels))
 # Print execution time
 print("Processing transcript %s finished in --- %s seconds ---" %
       (filename, time.time() - start_time))
+
+# Dont have this output dir so just exiting here for now
+quit()
+
 # --- Save graph image ---
 # Initialize output
 output_dir = '/Users/CN/Dropbox/speech_graphs/tool_demo/'
