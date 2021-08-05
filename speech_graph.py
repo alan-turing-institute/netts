@@ -18,13 +18,15 @@
 import networkx as nx
 import os
 import os.path as op
+import nltk
+nltk.download('punkt')
 from pathlib import Path
 import stanza
 import pandas as pd
 from stanza.server import CoreNLPClient
 import sys
-sys.path.append(
-    '/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/')
+#sys.path.append(
+#    '/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/')
 from pyopenie import OpenIE5
 import matplotlib.pyplot as plt
 from copy import deepcopy
@@ -42,8 +44,10 @@ start_time = time.time()
 # ------------------------------------------------------------------------------
 # Get sentence
 # selected_file = 2
-selected_file = int(sys.argv[1])
-data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
+selected_file = Path(sys.argv[1])
+if not selected_file.exists():
+    raise IOError("Cannot find file")
+#data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
 
 
 # ++++++++ HBN Data ++++++++
@@ -59,14 +63,16 @@ data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
 # output_dir = '/Users/CN/Dropbox/speech_graphs/dct'
 
 # ++++++++ All TAT files ++++++++
-output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/'
-filename = all_tat_files[selected_file]
-if selected_file < 119:
-    tat_data_dir = op.join(data_dir, 'Kings', 'Prolific_pilot_all_transcripts')
-    input_file = op.join(tat_data_dir, filename)
-else:
-    genpub_data_dir = op.join(data_dir, 'Kings', 'general_public_tat')
-    input_file = op.join(genpub_data_dir, filename)
+input_file = selected_file
+output_dir = '/Users/hduncan/Work/NetSpy/netspy'
+
+#filename = all_tat_files[selected_file]
+#if selected_file < 119:
+#    tat_data_dir = op.join(data_dir, 'Kings', 'Prolific_pilot_all_transcripts')
+#    input_file = op.join(tat_data_dir, filename)
+#else:
+#    genpub_data_dir = op.join(data_dir, 'Kings', 'general_public_tat')
+#    input_file = op.join(genpub_data_dir, filename)
 
 # # ++++++++ TAT files ++++++++
 # # Make list of all transcripts
@@ -93,14 +99,19 @@ else:
 # Import selected transcript
 # input_file = tats[selected_file]
 # filename = input_file.name
+filename=str(selected_file)
 with open(input_file, 'r') as fh:
     orig_text = fh.read()
+    print(orig_text)
 
 # ------------------------------------------------------------------------------
 # ------- Clean text -------
 # Need to replace problematic symbols before ANYTHING ELSE, because other tools cannot work with problematic symbols
 text = replace_problematic_symbols(orig_text)  # replace ’ with '
+print(text)
 text = expand_contractions(text)  # expand it's to it is
+print(text)
+
 text = remove_interjections(text)  # remove Ums and Mmms
 text = remove_irrelevant_text(text)
 text = text.strip()  # remove trailing and leading whitespace
@@ -114,7 +125,7 @@ print("\n+++ Transcript +++ \n\n %s" % (transcript))
 # ------------------------------------------------------------------------------
 # ------- Print cleaned text -------
 print("\n+++ Paragraph: +++ \n\n %s \n\n+++++++++++++++++++" % (text))
-
+exit()
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # ------- Run Stanford CoreNLP (Stanza) -------
