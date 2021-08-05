@@ -125,7 +125,7 @@ print("\n+++ Transcript +++ \n\n %s" % (transcript))
 # ------------------------------------------------------------------------------
 # ------- Print cleaned text -------
 print("\n+++ Paragraph: +++ \n\n %s \n\n+++++++++++++++++++" % (text))
-exit()
+
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # ------- Run Stanford CoreNLP (Stanza) -------
@@ -137,6 +137,8 @@ with CoreNLPClient(properties={
 }, be_quiet=True) as client:
     ex_stanza = client.annotate(text)
 
+
+
 # ------- Basic Transcript Descriptors -------
 n_tokens, n_sententences, _ = get_transcript_properties(text, ex_stanza)
 # ------------------------------------------------------------------------------
@@ -144,6 +146,8 @@ n_tokens, n_sententences, _ = get_transcript_properties(text, ex_stanza)
 # Ollie can handle more than one sentence at a time, but need to loop through sentences to keep track of sentence index
 extractorIE5 = OpenIE5('http://localhost:6000')  # Initialize Ollie
 
+print(ex_stanza)
+exit()
 ex_ollie = {}
 for i, sentence in enumerate(ex_stanza.sentence):
     if len(sentence.token) > 1:
