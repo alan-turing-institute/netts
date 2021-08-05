@@ -3,4 +3,4 @@ stanza
 networkx
 matplotlib
 numpy
-nlkt
+nltk
