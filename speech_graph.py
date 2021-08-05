@@ -19,7 +19,7 @@ import networkx as nx
 import os
 import os.path as op
 import nltk
-nltk.download('punkt')
+
 from pathlib import Path
 import stanza
 import pandas as pd
@@ -38,6 +38,11 @@ from filelists import tat_pilot_files, hbn_movie_files, genpub_files, all_tat_fi
 
 import time
 import datetime
+
+# Install packages
+nltk.download('punkt')
+stanza.install_corenlp()
+
 # ------------------------------------------------------------------------------
 # Time execution of script
 start_time = time.time()
