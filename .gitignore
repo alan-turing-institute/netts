@@ -2,6 +2,10 @@ untracked/
 
 package_names
 
+*.jar
+languageModel
+.DS_Store
+
 # orca files
 cache/
 test.edgelist
