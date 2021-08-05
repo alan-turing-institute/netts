@@ -13,15 +13,35 @@ Below is the semantic speech graph constructed from this text.
 ![Semantic speech graph example](semantic_speech_graph_example.png)
 *Figure 1. Semantic Speech Graph. Nodes represents an entity mentioned by the speaker (e.g. I, man, jacket). Edges represent relations between nodes mentioned by the speaker (e.g. see, has on).*
 
-# Pipeline
-## 1. Construct semantic graphs.
+## Dependencies
+
+### Python dependencies
+
+```bash
+pip install -r requirements
+```
+
+### [OpenIE5](https://github.com/dair-iitd/OpenIE-standalone/tree/v5.0.1) and language models
+
+Download precompilled binary from [here](https://drive.google.com/file/d/0B9L6Jr6rcJcKZG1idDB6eGp4cTg/view) and place in the root directory.
+
+Create a folder called `data`
+
+```bash
+mkdir data
+```
+
+Download the language model from [here](https://drive.google.com/file/d/0B-5EkZMOlIt2cFdjYUJZdGxSREU/view?usp=sharing) and place in the data folder. 
+
+## Pipeline
+### 1. Construct semantic graphs.
   Start OpenIE5 server.
-  ```console
-  start_openie5.sh
+  ```bash
+  java -Xmx10g -XX:+UseConcMarkSweepGC -jar openie-assembly-5.0-SNAPSHOT.jar  --ignore-errors --httpPort 6000
   ```
   To create a semantic graph for a single transcript in the dataset, run
   ```console
-  python speech_graph.py 3
+  python speech_graph.py demo_data/3138838-TAT10.txt
   ```
   Output:
   - log file (.txt file)
@@ -41,35 +61,35 @@ Below is the semantic speech graph constructed from this text.
     - Number of transcripts in dataset, number of processed transcripts in this round, number of errors encountered
     - Detailed error report for each transcript where processing finished with an error
 
-## 2. Describe semantic graphs
+### 2. Describe semantic graphs
   ```console
   python describe_graphs.py <graph_dir>
   ```
   Output: graphs_data.csv
   
-## 3. Plot basic graph measures
+### 3. Plot basic graph measures
 Plots of all basic graph measures are available in the basic_graph_analysis.ipynb notebook
   - Change graph_dir variable to the folder containing all pickled graphs (e.g. graph_dir = <graph_dir>)
   
-## 4. Count graph motifs
+### 4. Count graph motifs
   ```console
   python motifs.py <graph_dir>
   ```
   Output: motif_counts.csv
 
-## 5. Plot motif counts
+### 5. Plot motif counts
 Plots of all motif count measures are available in the  motif_analysis.ipynb notebook
 
-# Additional Measures
+## Additional Measures
 Calculating additional measures for the transcripts to compare semantic graph measures with.
 
-## 1. Syntactic graph measures
+### 1. Syntactic graph measures
 Use SpeechGraph tool from Natalia Mota to construct and describe syntactic measures
 
-## 2. NLP measures
+### 2. NLP measures
 Use [NLP_psychosis](https://github.com/carobellum/NLP_psychosis) tools to calculate measures. 
 
-## 3. Compile all data into one table
+### 3. Compile all data into one table
 To compile all data (semantic graph data, syntactic graph data, nlp data) into one table, run
 ```console
 python compile_all_graph_data.py <graph_dir>
