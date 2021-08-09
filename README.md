@@ -18,12 +18,12 @@ Below is the semantic speech graph constructed from this text.
 ### Python dependencies
 
 ```bash
-pip install -r requirements
+pip install -r requirements.txt
 ```
 
 ### [OpenIE5](https://github.com/dair-iitd/OpenIE-standalone/tree/v5.0.1) and language models
 
-Download precompilled binary from [here](https://drive.google.com/file/d/0B9L6Jr6rcJcKZG1idDB6eGp4cTg/view) and place in the root directory.
+Download precompilled binary from [here](https://drive.google.com/file/d/19z8LO-CYOfJfV5agm82PZ2JNWNUPIB6D/view?usp=sharing) and place in the project root directory.
 
 Create a folder called `data`
 
@@ -37,7 +37,7 @@ Download the language model from [here](https://drive.google.com/file/d/0B-5EkZM
 ### 1. Construct semantic graphs.
   Start OpenIE5 server.
   ```bash
-  java -Xmx10g -XX:+UseConcMarkSweepGC -jar openie-assembly-5.0-SNAPSHOT.jar  --ignore-errors --httpPort 6000
+  java -Xmx20g -XX:+UseConcMarkSweepGC -jar openie-assembly-5.0-SNAPSHOT.jar  --ignore-errors --httpPort 6000
   ```
   To create a semantic graph for a single transcript in the dataset, run
   ```console
