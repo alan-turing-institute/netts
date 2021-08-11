@@ -4,7 +4,7 @@
 
 ### Closes
 <!-- List of issues this closes -->
-- [ ] Closes ####
+- Closes ####
 
 ### Checks
 - [ ] Have you added unit tests?
