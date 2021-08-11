@@ -11,7 +11,7 @@ labels: "Bug, Needs Triage"
 
 - [ ] I have confirmed this bug exists on the latest version of netspy
 
-- [ ] (optional) I have confirmed this bug exists on the master branch of netspy
+- [ ] (optional) I have confirmed this bug exists on the main branch of netspy
 
 ---
 
