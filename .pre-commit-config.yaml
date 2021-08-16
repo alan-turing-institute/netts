@@ -5,13 +5,13 @@ repos:
     rev: v3.2.0
     hooks:
     -  id: trailing-whitespace
-       exclude: legacy\/.*
+       exclude: legacy\/.*, demo_data\/.*
     -  id: end-of-file-fixer
-       exclude: legacy\/.*
+       exclude: legacy\/.*, demo_data\/.*
     -  id: check-yaml
-       exclude: legacy\/.*
+       exclude: legacy\/.*, demo_data\/.*
     -  id: check-added-large-files
-       exclude: legacy\/.*
+       exclude: legacy\/.*, demo_data\/.*
 
 
 - repo: local
