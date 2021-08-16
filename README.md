@@ -1,7 +1,7 @@
 # Netspy - Networks of Transcribed Speech in Python
 Toolbox for constructing semantic speech networks from speech transcripts.
 
-
+![example workflow](https://github.com/alan-turing-institute/netspy/actions/workflows/unit-tests.yml/badge.svg)
 [![codecov](https://codecov.io/gh/alan-turing-institute/netspy/branch/main/graph/badge.svg?token=58uMq5hbNt)](https://codecov.io/gh/alan-turing-institute/netspy)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
