@@ -17,8 +17,12 @@ Below is the semantic speech graph constructed from this text.
 
 ### Python dependencies
 
+To get started install [Poetry](https://python-poetry.org/docs/).
+
+Then ensure all dependencies are installed:
+
 ```bash
-pip install -r requirements.txt
+poetry install
 ```
 
 ### [OpenIE5](https://github.com/dair-iitd/OpenIE-standalone/tree/v5.0.1) and language models
@@ -28,7 +32,7 @@ Download precompilled binary from [here](https://drive.google.com/file/d/19z8LO-
 Create a folder called `data`
 
 ```bash
-mkdir data
+mkdir legacy/data
 ```
 
 Download the language model from [here](https://drive.google.com/file/d/0B-5EkZMOlIt2cFdjYUJZdGxSREU/view?usp=sharing) and place in the data folder. 
@@ -41,7 +45,7 @@ Download the language model from [here](https://drive.google.com/file/d/0B-5EkZM
   ```
   To create a semantic graph for a single transcript in the dataset, run
   ```console
-  python speech_graph.py demo_data/3138838-TAT10.txt
+  poetry run python legacy/speech_graph.py demo_data/3138838-TAT10.txt
   ```
   Output:
   - log file (.txt file)
