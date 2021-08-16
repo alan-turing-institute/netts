@@ -25,6 +25,12 @@ Then ensure all dependencies are installed:
 poetry install
 ```
 
+### Pre-commit
+
+```bash
+poetry run pre-commit run --all-files
+```
+
 ### [OpenIE5](https://github.com/dair-iitd/OpenIE-standalone/tree/v5.0.1) and language models
 
 Download precompilled binary from [here](https://drive.google.com/file/d/19z8LO-CYOfJfV5agm82PZ2JNWNUPIB6D/view?usp=sharing) and place in the project root directory.
@@ -35,7 +41,7 @@ Create a folder called `data`
 mkdir legacy/data
 ```
 
-Download the language model from [here](https://drive.google.com/file/d/0B-5EkZMOlIt2cFdjYUJZdGxSREU/view?usp=sharing) and place in the data folder. 
+Download the language model from [here](https://drive.google.com/file/d/0B-5EkZMOlIt2cFdjYUJZdGxSREU/view?usp=sharing) and place in the data folder.
 
 ## Pipeline
 ### 1. Construct semantic graphs.
@@ -51,7 +57,7 @@ Download the language model from [here](https://drive.google.com/file/d/0B-5EkZM
   - log file (.txt file)
   - pickled graph (.gpickle file)
   - plotted graph (.png file)
-    
+
   To create semantic graphs for a whole dataset of transcripts, ammend the graph_tats.sh script and run
   ```console
   graph_tats.sh
@@ -70,11 +76,11 @@ Download the language model from [here](https://drive.google.com/file/d/0B-5EkZM
   python describe_graphs.py <graph_dir>
   ```
   Output: graphs_data.csv
-  
+
 ### 3. Plot basic graph measures
 Plots of all basic graph measures are available in the basic_graph_analysis.ipynb notebook
   - Change graph_dir variable to the folder containing all pickled graphs (e.g. graph_dir = <graph_dir>)
-  
+
 ### 4. Count graph motifs
   ```console
   python motifs.py <graph_dir>
@@ -91,7 +97,7 @@ Calculating additional measures for the transcripts to compare semantic graph me
 Use SpeechGraph tool from Natalia Mota to construct and describe syntactic measures
 
 ### 2. NLP measures
-Use [NLP_psychosis](https://github.com/carobellum/NLP_psychosis) tools to calculate measures. 
+Use [NLP_psychosis](https://github.com/carobellum/NLP_psychosis) tools to calculate measures.
 
 ### 3. Compile all data into one table
 To compile all data (semantic graph data, syntactic graph data, nlp data) into one table, run
@@ -100,5 +106,3 @@ python compile_all_graph_data.py <graph_dir>
 ```
 Output:
 - graphs_data_all.csv
-
-
