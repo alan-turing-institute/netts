@@ -49,7 +49,7 @@ jobs:
       shell: bash
       run: |
         python -m poetry install
-        
+
     - uses: actions/setup-python@v2
 
     - uses: pre-commit/action@v2.0.3
