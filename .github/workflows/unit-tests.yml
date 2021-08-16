@@ -49,7 +49,7 @@ jobs:
     - name: Install dependencies
       shell: bash
       run: |
-        poetry env use  $(pyenv which python)
+        poetry env use ${{ matrix.python-version }}
         poetry install
 
     - name: Display Python version
