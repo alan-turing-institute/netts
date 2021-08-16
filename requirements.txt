@@ -1,7 +1,0 @@
-pyopenie
-stanza
-networkx
-matplotlib
-numpy
-nltk
-pandas
