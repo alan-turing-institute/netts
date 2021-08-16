@@ -25,7 +25,6 @@ jobs:
     - name: Bootstrap poetry
       shell: bash
       run: |
-        poetry env use  $(pyenv which python)
         python -m ensurepip
         python -m pip install --upgrade pip
         python -m pip install poetry
@@ -50,7 +49,8 @@ jobs:
     - name: Install dependencies
       shell: bash
       run: |
-        python -m poetry install
+        poetry env use  $(pyenv which python)
+        poetry install
 
     - name: Display Python version
       run: poetry run python -c "import sys; print(sys.version)"
