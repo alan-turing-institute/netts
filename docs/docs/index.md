@@ -16,8 +16,8 @@ Netspy is a package and CLI for constructing semantic speech networks from speec
 
 ## Getting started
 
-Install with pip:
+Install development version:
 
 ```bash
-pip install netspy
+pip install git+https://github.com/alan-turing-institute/netspy
 ```
