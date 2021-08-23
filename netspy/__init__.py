@@ -2,3 +2,6 @@
 speech transcripts.
 """
 __version__ = "0.1.0"
+
+from netspy.types import MultiDiGraph
+from netspy.speech_graph import speech_graph
