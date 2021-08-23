@@ -30,27 +30,47 @@ import nltk
 import numpy as np
 import pandas as pd
 import stanza
-from filelists import (all_tat_files, dct_story_files, genpub_files,
-                       hbn_movie_files, tat_pilot_files)
-from nlp_helper_functions import (expand_contractions,
-                                  get_transcript_properties, process_sent,
-                                  remove_bad_transcripts, remove_duplicates,
-                                  remove_interjections, remove_irrelevant_text,
-                                  replace_problematic_symbols)
+
 # sys.path.append(
 #    '/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/')
 from pyopenie import OpenIE5
 from stanza.server import CoreNLPClient
-from visualise_paragraph_functions import (add_adj_edges, add_obl_edges,
-                                           add_prep_edges, clean_nodes,
-                                           clean_parallel_edges,
-                                           create_edges_ollie,
-                                           create_edges_stanza, get_adj_edges,
-                                           get_node_synonyms, get_obl_edges,
-                                           get_prep_edges,
-                                           get_unconnected_nodes,
-                                           get_word_types, merge_corefs,
-                                           split_node_synonyms, split_nodes)
+
+from netspy.filelists import (
+    all_tat_files,
+    dct_story_files,
+    genpub_files,
+    hbn_movie_files,
+    tat_pilot_files,
+)
+from netspy.nlp_helper_functions import (
+    expand_contractions,
+    get_transcript_properties,
+    process_sent,
+    remove_bad_transcripts,
+    remove_duplicates,
+    remove_interjections,
+    remove_irrelevant_text,
+    replace_problematic_symbols,
+)
+from netspy.visualise_paragraph_functions import (
+    add_adj_edges,
+    add_obl_edges,
+    add_prep_edges,
+    clean_nodes,
+    clean_parallel_edges,
+    create_edges_ollie,
+    create_edges_stanza,
+    get_adj_edges,
+    get_node_synonyms,
+    get_obl_edges,
+    get_prep_edges,
+    get_unconnected_nodes,
+    get_word_types,
+    merge_corefs,
+    split_node_synonyms,
+    split_nodes,
+)
 
 # Install packages
 nltk.download("punkt")
