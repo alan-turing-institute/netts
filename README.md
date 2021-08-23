@@ -1,8 +1,23 @@
 # Netspy - Networks of Transcribed Speech in Python
-![example workflow](https://github.com/alan-turing-institute/netspy/actions/workflows/unit-tests.yml/badge.svg)
-[![codecov](https://codecov.io/gh/alan-turing-institute/netspy/branch/main/graph/badge.svg?token=58uMq5hbNt)](https://codecov.io/gh/alan-turing-institute/netspy)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
+
+<div align="center">
+    <a>
+        <img alt="Test Status" src="https://github.com/alan-turing-institute/netspy/actions/workflows/unit-tests.yml/badge.svg">
+    </a>
+    <a alt="codecov" href="https://codecov.io/gh/alan-turing-institute/netspy">
+        <img src="https://codecov.io/gh/alan-turing-institute/netspy/branch/main/graph/badge.svg?token=58uMq5hbNt">
+        </img>
+    </a>
+    <a alt="Formatting: Black" href="https://github.com/psf/blac">
+        <img src="https://img.shields.io/badge/code%20style-black-000000.svg">
+        </img>
+    </a>
+    <a alt="Imports: isort" href="https://pycqa.github.io/isort/">
+        <img src="https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)">
+        </img>
+    </a>
+
+</div>
 
 Toolbox for constructing semantic speech networks from speech transcripts.
 
