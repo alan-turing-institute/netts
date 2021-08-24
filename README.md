@@ -41,6 +41,12 @@ poetry run pre-commit run --all-files
 ```bash
 poetry run pytest --cov=netspy tests/
 ```
+
+### Preview docs
+```bash
+poetry run mkdocs serve --config-file docs/mkdocs.yml
+```
+
 ### [OpenIE5](https://github.com/dair-iitd/OpenIE-standalone/tree/v5.0.1) and language models
 
 Download precompilled binary from [here](https://drive.google.com/file/d/19z8LO-CYOfJfV5agm82PZ2JNWNUPIB6D/view?usp=sharing) and place in the project root directory.
