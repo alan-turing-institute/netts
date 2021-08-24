@@ -1,6 +1,6 @@
-from typing import Optional
 from functools import lru_cache
 from pathlib import Path
+from typing import Optional
 
 from pydantic import BaseSettings
 
@@ -13,14 +13,14 @@ class Settings(BaseSettings):
     netspy_dir: Path = NETSPY_DIR
 
     @property
-    def nltk_dir(self):
+    def nltk_dir(self) -> Path:
         return self.netspy_dir / "nltk_data"
 
     @property
-    def core_nlp_dir(self):
+    def core_nlp_dir(self) -> Path:
         return self.netspy_dir / "stanza_corenlp"
 
-    def mk_netspy_dir(self):
+    def mk_netspy_dir(self) -> None:
         """Create the netspy directory"""
         self.netspy_dir.mkdir(mode=0o777, exist_ok=True)
 
@@ -32,5 +32,5 @@ class Settings(BaseSettings):
 @lru_cache()
 def get_settings(netspy_dir: Optional[Path] = None) -> Settings:
     if netspy_dir:
-        return Settings(netspy_dir = netspy_dir)
+        return Settings(netspy_dir=netspy_dir)
     return Settings()

@@ -6,9 +6,9 @@ from netspy.install_models import install_corenlp, install_nltk_punk
 
 
 class TestNLTK:
-    def test_download_with_path(self, tmp_path):
+    def test_download_with_path(self, tmp_path: Path) -> None:
 
-        netspy_directory = tmp_path / 'netspy'
+        netspy_directory = tmp_path / "netspy"
         install_nltk_punk(netspy_directory)
 
         assert netspy_directory.exists()
@@ -21,9 +21,9 @@ class TestNLTK:
         expected_directory_subdir = list(nltk_directory.iterdir())[0]
         assert "tokenizers" in expected_directory_subdir.parts[-1]
 
-    def test_download_with_path_exists(self, tmp_path):
+    def test_download_with_path_exists(self, tmp_path: Path) -> None:
 
-        netspy_directory = tmp_path / 'netspy'
+        netspy_directory = tmp_path / "netspy"
         netspy_directory.mkdir()
         install_nltk_punk(netspy_directory)
 
@@ -32,7 +32,7 @@ class TestNLTK:
         expected_directory_subdir = list(nltk_directory.iterdir())[0]
         assert "tokenizers" in expected_directory_subdir.parts[-1]
 
-    def test_download_without_path(self):
+    def test_download_without_path(self) -> None:
 
         settings = Settings()
 
