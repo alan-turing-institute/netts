@@ -17,7 +17,7 @@ class Settings(BaseSettings):
 
     @property
     def core_nlp_dir(self):
-        return self.core_nlp_dir / "stanza_corenlp"
+        return self.netspy_dir / "stanza_corenlp"
 
     def mk_netspy_dir(self):
         """Create the netspy directory"""
