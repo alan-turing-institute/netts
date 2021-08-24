@@ -1,3 +1,4 @@
+from typing import Optional
 from functools import lru_cache
 from pathlib import Path
 
@@ -29,6 +30,7 @@ class Settings(BaseSettings):
 
 
 @lru_cache()
-def get_settings() -> Settings:
-
+def get_settings(netspy_dir: Optional[Path] = None) -> Settings:
+    if netspy_dir:
+        return Settings(netspy_dir = netspy_dir)
     return Settings()
