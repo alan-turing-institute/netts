@@ -26,7 +26,7 @@ from netspy.contractions import CONTRACTION_MAP
 # import gensim
 
 
-def expand_contractions(text, contraction_mapping=CONTRACTION_MAP):
+def expand_contractions(text: str, contraction_mapping=CONTRACTION_MAP):
     contractions_pattern = re.compile(
         "({})".format("|".join(contraction_mapping.keys())),
         flags=re.IGNORECASE | re.DOTALL,

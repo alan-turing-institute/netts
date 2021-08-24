@@ -20,6 +20,7 @@ import os
 import os.path as op
 import sys
 import time
+import typing
 from copy import deepcopy
 from itertools import chain
 from pathlib import Path
@@ -53,6 +54,7 @@ from netspy.nlp_helper_functions import (
     remove_irrelevant_text,
     replace_problematic_symbols,
 )
+from netspy.types import MultiDiGraph
 from netspy.visualise_paragraph_functions import (
     add_adj_edges,
     add_obl_edges,
@@ -72,11 +74,11 @@ from netspy.visualise_paragraph_functions import (
     split_nodes,
 )
 
-from netspy.types import MultiDiGraph
-
 # Install packages
 nltk.download("punkt")
 stanza.install_corenlp()
+
+
 def speech_graph(transcript: str) -> MultiDiGraph:
 
     # ------------------------------------------------------------------------------
@@ -89,7 +91,6 @@ def speech_graph(transcript: str) -> MultiDiGraph:
     # if not selected_file.exists():
     #     raise IOError("Cannot find file")
     # data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
-
 
     # ++++++++ HBN Data ++++++++
     # hbn_data_dir = op.join(data_dir, 'HBN', 'movie_descriptions')
@@ -136,7 +137,6 @@ def speech_graph(transcript: str) -> MultiDiGraph:
     # tats = sorted(
     #     Path(op.join(data_dir, 'ground_truth_tat')).rglob('*.txt'))
 
-
     # Import selected transcript
     # input_file = tats[selected_file]
     # filename = input_file.name
@@ -162,7 +162,6 @@ def speech_graph(transcript: str) -> MultiDiGraph:
     # transcript = filename.strip(".txt")
     # print("\n+++ Transcript +++ \n\n %s" % (transcript))
 
-
     # ------------------------------------------------------------------------------
     # ------- Print cleaned text -------
     print("\n+++ Paragraph: +++ \n\n %s \n\n+++++++++++++++++++" % (text))
@@ -181,14 +180,12 @@ def speech_graph(transcript: str) -> MultiDiGraph:
     ) as client:
         ex_stanza = client.annotate(text)
 
-
     # ------- Basic Transcript Descriptors -------
     n_tokens, n_sententences, _ = get_transcript_properties(text, ex_stanza)
     # ------------------------------------------------------------------------------
     # ------- Run OpenIE5 (Ollie) -------
     # Ollie can handle more than one sentence at a time, but need to loop through sentences to keep track of sentence index
     extractorIE5 = OpenIE5("http://localhost:6000")  # Initialize Ollie
-
 
     ex_ollie = {}
     for i, sentence in enumerate(ex_stanza.sentence):
@@ -223,7 +220,6 @@ def speech_graph(transcript: str) -> MultiDiGraph:
             )
 
     print("+++++++++++++++++++\n")
-
 
     # --------------------- Create ollie edges ---------------------------------------
     (
@@ -308,7 +304,6 @@ def speech_graph(transcript: str) -> MultiDiGraph:
 
     edges = clean_parallel_edges(edges)
 
-
     # --------------------- Speech Graph ---------------------------------------
     fig = plt.figure(figsize=(25.6, 9.6))
 
@@ -322,6 +317,7 @@ def speech_graph(transcript: str) -> MultiDiGraph:
     # Add Edges
     G.add_edges_from(edges)
     return G
+
 
 def plot_graph(graph: MultiDiGraph) -> None:
     # Plot Graph and add edge labels
@@ -350,7 +346,6 @@ def plot_graph(graph: MultiDiGraph) -> None:
         ]
     )
     nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_labels, font_color="red")
-
 
     # plt.axis("off")
     # # Print resulting edges
