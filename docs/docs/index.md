@@ -21,3 +21,16 @@ Install development version:
 ```bash
 pip install git+https://github.com/alan-turing-institute/netspy
 ```
+
+
+## Install language models
+
+Netspy requires additional dependencies to run. You can install them with:
+
+```bash
+netspy install
+```
+
+<details>
+By default these will install to a `netspy` directory in your home directory. If you would like to install in a different location set an environment variable called `NETSPY_DIR`.
+</details>
