@@ -16,4 +16,4 @@ if not logger.hasHandlers():
     logger.addHandler(log_handler)
 
 stanza_logger = logging.getLogger("stanza")
-stanza_logger.setLevel(logging.ERROR)
+stanza_logger.setLevel(logging.INFO)
