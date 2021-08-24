@@ -2,7 +2,7 @@ import shutil
 from pathlib import Path
 
 from netspy.config import HOME_DIR, Settings, get_settings
-from netspy.install_models import install_corenlp, install_nltk_punk
+from netspy.install_models import install_nltk_punk
 
 
 class TestNLTK:

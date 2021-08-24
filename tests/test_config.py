@@ -1,6 +1,5 @@
-import shutil
 from pathlib import Path
-from netspy.config import NETSPY_DIR, Settings, get_settings
+from netspy.config import Settings, get_settings
 
 
 def test_config_dir(tmp_path: Path) -> None:

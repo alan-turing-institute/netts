@@ -46,7 +46,7 @@ repos:
   hooks:
     - id: system
       name: Pylint
-      entry: poetry run pylint netspy tests
+      entry: poetry run pylint netspy tests -j 0
       pass_filenames: false
       language: system
 - repo: local

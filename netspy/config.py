@@ -25,6 +25,7 @@ class Settings(BaseSettings):
         self.netspy_dir.mkdir(mode=0o777, exist_ok=True)
 
     class Config:
+        #pylint: disable=R0903
         env_file = ".env"
         env_file_encoding = "utf-8"
 

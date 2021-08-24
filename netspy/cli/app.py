@@ -12,13 +12,13 @@ setting = get_settings()
 
 @app.command()
 def install(
-    dir: Optional[Path] = typer.Option(
+    directory: Optional[Path] = typer.Option(
         None, help="Directory to install netspy dependencies to"
     )
 ) -> None:
     """Install all tool dependencies and langauge models"""
 
-    netspy.install_models(dir)
+    netspy.install_models(directory)
 
 
 @app.command()

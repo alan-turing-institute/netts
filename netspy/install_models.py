@@ -5,11 +5,8 @@ from typing import Optional, Union
 
 import nltk
 import stanza
-from click import core
 
-from netspy.config import NETSPY_DIR, get_settings
-
-settings = get_settings()
+from netspy.config import get_settings
 
 
 def install_nltk_punk(netspy_dir: Optional[Union[str, Path]] = None) -> None:
