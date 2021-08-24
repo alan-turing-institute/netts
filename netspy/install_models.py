@@ -15,6 +15,9 @@ settings = get_settings()
 def install_nltk_punk(nltk_download_dir: Optional[Union[str, Path]] = None) -> None:
     """Install nltk punk
 
+    Install nltk punk package to ``nltk_download_dir``. If not given will create a
+    directory in ``Path.home() / "netspy" / "nltk_data``
+
     Args:
         nlt_download_dir (Optional[Union[str, Path]], optional): Directory to install nltk data. Defaults to None.
     """
@@ -32,6 +35,9 @@ def install_nltk_punk(nltk_download_dir: Optional[Union[str, Path]] = None) -> N
 
 def install_corenlp(corenlp_dir: Optional[Union[str, Path]] = None) -> None:
     """Install CoreNLP server
+
+    Install the CoreNLP server to ``corenlp_dir``. If not given will create a
+    directory in ``Path.home() / "netspy" / "stanza_corenlp``
 
     Args:
         corenlp_dir (Optional[Union[str, Path]], optional): Directory to install corenlp data. Defaults to None.
@@ -52,11 +58,13 @@ def install_models(
     nltk_download_dir: Optional[Union[str, Path]] = None,
     corenlp_download_dir: Optional[Union[str, Path]] = None,
 ) -> None:
-    """Install all files required by nltk and Stanford CoreNLP
+    """Install all files required by nltk and Stanford CoreNLP.
+
+    If ``nltk_download_dir`` or ``corenlp_download_dir`` not provided a
+    `netspy` directory will be created in the users home directory.
 
     Args:
         nlt_download_dir (Optional[Union[str, Path]], optional): Directory to download ntlk files to. Defaults to None.
-            If None will download to nltk_default_download_dir()
 
     Raises:
         IOError: Directory parents of nlt_download_dir or corenlp_download_dir do not exist
