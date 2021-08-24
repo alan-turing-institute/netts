@@ -1,10 +1,11 @@
-from pydantic import BaseSettings
+from functools import lru_cache
 from pathlib import Path
 
-from functools import lru_cache
+from pydantic import BaseSettings
 
 HOME_DIR = Path.home()
 NETSPY_DIR = HOME_DIR / "netspy"
+
 
 class Settings(BaseSettings):
 
@@ -19,13 +20,13 @@ class Settings(BaseSettings):
         return self.core_nlp_dir / "stanza_corenlp"
 
     def mk_netspy_dir(self):
-        """Create the netspy directory
-        """
-        self.netspy_dir.mkdir(mode = 0o777, exist_ok=True)
+        """Create the netspy directory"""
+        self.netspy_dir.mkdir(mode=0o777, exist_ok=True)
 
     class Config:
-        env_file = '.env'
-        env_file_encoding = 'utf-8'
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+
 
 @lru_cache()
 def get_settings() -> Settings:

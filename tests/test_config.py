@@ -1,5 +1,7 @@
-from netspy.config import get_settings, Settings
 import shutil
+
+from netspy.config import Settings, get_settings
+
 
 def test_config_dir(tmp_path):
 
@@ -7,7 +9,7 @@ def test_config_dir(tmp_path):
 
     # If netspy_dir exists then use a tmp directory
     if settings.netspy_dir.exists():
-        settings = Settings(netspy_dir = tmp_path)
+        settings = Settings(netspy_dir=tmp_path)
 
     # Create directory and clean up after
     try:
