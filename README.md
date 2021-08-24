@@ -61,7 +61,12 @@ Download the language model from [here](https://drive.google.com/file/d/0B-5EkZM
   ```
   To create a semantic graph for a single transcript in the dataset, run
   ```console
-  poetry run python legacy/speech_graph.py demo_data/3138838-TAT10.txt
+  poetry run python
+  ```
+  ```python
+  from speech_graph import plot_graph, speech_graph
+  go = speech_graph(<transcript>)
+  plot_graph(go)
   ```
   Output:
   - log file (.txt file)
