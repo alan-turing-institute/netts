@@ -1,0 +1,58 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+    -  id: trailing-whitespace
+       exclude: legacy|demo_data\/.* \/.*
+    -  id: end-of-file-fixer
+       exclude: legacy|demo_data\/.* \/.*
+    -  id: check-yaml
+       exclude: legacy|demo_data\/.* \/.*
+    -  id: check-added-large-files
+       exclude: legacy|demo_data\/.* \/.*
+
+- repo: local
+  hooks:
+    - id: system
+      name: Black
+      entry: poetry run black netspy tests
+      pass_filenames: false
+      language: system
+- repo: local
+  hooks:
+    - id: system
+      name: isort
+      entry: poetry run isort netspy tests
+      pass_filenames: false
+      language: system
+- repo: local
+  hooks:
+    - id: system
+      name: Safety
+      # Ignore pip vulnerability
+      entry: poetry run safety check --full-report -i 40291
+      pass_filenames: false
+      language: system
+- repo: local
+  hooks:
+    - id: system
+      name: MyPy
+      entry: poetry run mypy netspy tests
+      pass_filenames: false
+      language: system
+- repo: local
+  hooks:
+    - id: system
+      name: Pylint
+      entry: poetry run pylint netspy tests
+      pass_filenames: false
+      language: system
+- repo: local
+  hooks:
+    - id: system
+      name: Flake8
+      entry: poetry run flake8 netspy tests
+      pass_filenames: false
+      language: system

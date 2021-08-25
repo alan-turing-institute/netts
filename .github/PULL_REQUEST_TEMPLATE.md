@@ -12,5 +12,4 @@
 - [ ] Are all tests and linting passing?
 
 ### Information for reviewer
-Anything the reviewer should pay attention to. Include information on how to check your code (e.g. what commands to run).
-
+<!-- Anything the reviewer should pay attention to. Include information on how to check your code (e.g. what commands to run). -->

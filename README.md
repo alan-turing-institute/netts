@@ -1,4 +1,9 @@
 # Netspy - Networks of Transcribed Speech in Python
+![example workflow](https://github.com/alan-turing-institute/netspy/actions/workflows/unit-tests.yml/badge.svg)
+[![codecov](https://codecov.io/gh/alan-turing-institute/netspy/branch/main/graph/badge.svg?token=58uMq5hbNt)](https://codecov.io/gh/alan-turing-institute/netspy)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
+
 Toolbox for constructing semantic speech networks from speech transcripts.
 
 This toolbox was built as part of an ongoing project investigating the potential of [speech markers to predict psychosis risk](https://www.turing.ac.uk/research/research-projects/towards-incoherent-speech-predictor-psychosis-risk) funded by the [Alan Turing Institute](https://www.turing.ac.uk) and led by [Sarah Morgan](https://www.neuroscience.cam.ac.uk/directory/profile.php?SarahMorgan) at the [University of Cambridge](https://www.cam.ac.uk). Tools were written by [Caroline Nettekoven](https://www.neuroscience.cam.ac.uk/directory/profile.php?caronettekoven) at the  [Cambridge Brain Mapping Unit](http://www.bmu.psychiatry.cam.ac.uk).
@@ -10,15 +15,36 @@ The algorithms in this toolbox create a semantic speech graph from transcribed s
 
 Below is the semantic speech graph constructed from this text.
 
-![Semantic speech graph example](semantic_speech_graph_example.png)
+![Semantic speech graph example](legacy/semantic_speech_graph_example.png)
 *Figure 1. Semantic Speech Graph. Nodes represents an entity mentioned by the speaker (e.g. I, man, jacket). Edges represent relations between nodes mentioned by the speaker (e.g. see, has on).*
 
-## Dependencies
+## Developer Dependencies
 
 ### Python dependencies
 
+To get started install [Poetry](https://python-poetry.org/docs/).
+
+Then ensure all dependencies are installed:
+
 ```bash
-pip install -r requirements.txt
+poetry install
+```
+
+### Pre-commit
+
+```bash
+poetry run pre-commit run --all-files
+```
+
+### Unit tests
+
+```bash
+poetry run pytest --cov=netspy tests/
+```
+
+### Preview docs
+```bash
+poetry run mkdocs serve --config-file docs/mkdocs.yml
 ```
 
 ### [OpenIE5](https://github.com/dair-iitd/OpenIE-standalone/tree/v5.0.1) and language models
@@ -28,10 +54,10 @@ Download precompilled binary from [here](https://drive.google.com/file/d/19z8LO-
 Create a folder called `data`
 
 ```bash
-mkdir data
+mkdir legacy/data
 ```
 
-Download the language model from [here](https://drive.google.com/file/d/0B-5EkZMOlIt2cFdjYUJZdGxSREU/view?usp=sharing) and place in the data folder. 
+Download the language model from [here](https://drive.google.com/file/d/0B-5EkZMOlIt2cFdjYUJZdGxSREU/view?usp=sharing) and place in the data folder.
 
 ## Pipeline
 ### 1. Construct semantic graphs.
@@ -41,13 +67,13 @@ Download the language model from [here](https://drive.google.com/file/d/0B-5EkZM
   ```
   To create a semantic graph for a single transcript in the dataset, run
   ```console
-  python speech_graph.py demo_data/3138838-TAT10.txt
+  poetry run python legacy/speech_graph.py demo_data/3138838-TAT10.txt
   ```
   Output:
   - log file (.txt file)
   - pickled graph (.gpickle file)
   - plotted graph (.png file)
-    
+
   To create semantic graphs for a whole dataset of transcripts, ammend the graph_tats.sh script and run
   ```console
   graph_tats.sh
@@ -66,11 +92,11 @@ Download the language model from [here](https://drive.google.com/file/d/0B-5EkZM
   python describe_graphs.py <graph_dir>
   ```
   Output: graphs_data.csv
-  
+
 ### 3. Plot basic graph measures
 Plots of all basic graph measures are available in the basic_graph_analysis.ipynb notebook
   - Change graph_dir variable to the folder containing all pickled graphs (e.g. graph_dir = <graph_dir>)
-  
+
 ### 4. Count graph motifs
   ```console
   python motifs.py <graph_dir>
@@ -87,7 +113,7 @@ Calculating additional measures for the transcripts to compare semantic graph me
 Use SpeechGraph tool from Natalia Mota to construct and describe syntactic measures
 
 ### 2. NLP measures
-Use [NLP_psychosis](https://github.com/carobellum/NLP_psychosis) tools to calculate measures. 
+Use [NLP_psychosis](https://github.com/carobellum/NLP_psychosis) tools to calculate measures.
 
 ### 3. Compile all data into one table
 To compile all data (semantic graph data, syntactic graph data, nlp data) into one table, run
@@ -96,5 +122,3 @@ python compile_all_graph_data.py <graph_dir>
 ```
 Output:
 - graphs_data_all.csv
-
-
