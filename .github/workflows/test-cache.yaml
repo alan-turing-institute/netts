@@ -25,6 +25,7 @@ jobs:
       shell: bash
       run: |
         python -m poetry config virtualenvs.in-project true
+        python -m poetry config virtualenvs.create true
 
     - name: Set up cache
       uses: actions/cache@v2
@@ -43,12 +44,12 @@ jobs:
       run: | 
         ls .venv
         pwd
-    
-    # - name: Install dependencies
-    #   shell: bash
-    #   run: |
-    #     poetry env use 3.7
-    #     poetry install
+
+    - name: Install dependencies
+      run: |
+        poetry env use 3.7
+        poetry install
+      if: cache.outputs.cache-hit != 'true'
 
     - name: Display Python version
-      run: poetry run python -c "import sys; print(sys.version)"
+      run: poetry run python -c "import sys; print(sys.version); import netspy"
