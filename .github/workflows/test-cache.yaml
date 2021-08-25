@@ -43,11 +43,12 @@ jobs:
       run: | 
         ls .venv
         pwd
-    - name: Install dependencies
-      shell: bash
-      run: |
-        poetry env use 3.7
-        poetry install
+    
+    # - name: Install dependencies
+    #   shell: bash
+    #   run: |
+    #     poetry env use 3.7
+    #     poetry install
 
     - name: Display Python version
       run: poetry run python -c "import sys; print(sys.version)"
