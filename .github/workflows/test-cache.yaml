@@ -33,15 +33,15 @@ jobs:
         path: .venv
         key: venv-${{ runner.os }}-${{ steps.full-python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
 
-    - name: Ensure cache is healthy
-      if: steps.cache.outputs.cache-hit == 'true'
-      shell: bash
-      run: timeout 10s python -m poetry run pip --version || rm -rf .venv
+    # - name: Ensure cache is healthy
+    #   if: steps.cache.outputs.cache-hit == 'true'
+    #   shell: bash
+    #   run: timeout 10s python -m poetry run pip --version || rm -rf .venv
 
     - name: Install dependencies
       shell: bash
       run: |
-        poetry env use ${{ matrix.python-version }}
+        poetry env use 3.7
         poetry install
 
     - name: Display Python version
