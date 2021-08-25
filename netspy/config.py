@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     def core_nlp_dir(self) -> Path:
         return self.netspy_dir / "stanza_corenlp"
 
+    @property
+    def openie5_dir(self) -> Path:
+        return self.netspy_dir / "openie5"
+
     def mk_netspy_dir(self) -> None:
         """Create the netspy directory"""
         self.netspy_dir.mkdir(mode=0o777, exist_ok=True)
