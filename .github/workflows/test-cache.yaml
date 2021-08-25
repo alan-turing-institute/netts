@@ -49,7 +49,7 @@ jobs:
       run: |
         poetry env use 3.7
         poetry install
-      if: cache.outputs.cache-hit != 'true'
+      if: steps.cache.outputs.cache-hit != 'true'
 
     - name: Display Python version
       run: poetry run python -c "import sys; print(sys.version); import netspy"
