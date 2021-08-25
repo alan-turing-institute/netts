@@ -38,6 +38,9 @@ jobs:
     #   shell: bash
     #   run: timeout 10s python -m poetry run pip --version || rm -rf .venv
 
+    - name: show venv
+      shell: bash
+      run: ls .venv
     - name: Install dependencies
       shell: bash
       run: |
