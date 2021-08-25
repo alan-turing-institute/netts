@@ -40,7 +40,9 @@ jobs:
 
     - name: show venv
       shell: bash
-      run: ls .venv
+      run: | 
+        ls .venv
+        pwd
     - name: Install dependencies
       shell: bash
       run: |
