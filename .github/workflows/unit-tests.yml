@@ -41,17 +41,17 @@ jobs:
 
     - name: Install dependencies
       shell: bash
-      if: steps.cache.outputs.cache-hit != 'true'
+      # if: steps.cache.outputs.cache-hit != 'true'
       run: |
-        poetry env use ${{ matrix.python-version }}
-        poetry install
+        python -m poetry env use ${{ matrix.python-version }}
+        python -m poetry install
 
     - name: Display Python version
       run: poetry run python -c "import sys; print(sys.version)"
 
     - name: Generate Report
       run: |
-        poetry run pytest --cov=netspy --cov-report=xml tests
+        python -m poetry run pytest --cov=netspy --cov-report=xml tests
 
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v2
