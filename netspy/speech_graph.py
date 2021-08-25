@@ -37,13 +37,13 @@ import stanza
 from pyopenie import OpenIE5
 from stanza.server import CoreNLPClient
 
-from netspy.filelists import (
-    all_tat_files,
-    dct_story_files,
-    genpub_files,
-    hbn_movie_files,
-    tat_pilot_files,
-)
+#from netspy.filelists import (
+#    all_tat_files,
+#    dct_story_files,
+#    genpub_files,
+#    hbn_movie_files,
+#    tat_pilot_files,
+#)
 from netspy.nlp_helper_functions import (
     expand_contractions,
     get_transcript_properties,
