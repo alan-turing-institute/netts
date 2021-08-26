@@ -347,6 +347,14 @@ def plot_graph(graph: MultiDiGraph) -> None:
     )
     nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_labels, font_color="red")
 
+    # Get current working directory to output the png and gpickle files
+    output_dir = Path().resolve()
+    output=(output_dir / 'output_filename')
+    # Save as png in folder script is run from
+    plt.savefig(output, transparent=True)
+    # Ditto as gpickle
+    nx.write_gpickle(graph, output + ".gpickle")
+    
     # plt.axis("off")
     # # Print resulting edges
     # print("\n+++ Edges: +++ \n\n %s \n\n+++++++++++++++++++" % (edge_labels))
@@ -373,6 +381,6 @@ def plot_graph(graph: MultiDiGraph) -> None:
     # )
     # plt.savefig(output, transparent=True)
     # # --- Save graph object ---
-    # nx.write_gpickle(G, output + ".gpickle")
+    # nx.write_gpickle(graph, output + ".gpickle")
     # # --- Show graph ---
     # # plt.show(block=False)
