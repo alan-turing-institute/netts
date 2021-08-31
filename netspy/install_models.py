@@ -77,7 +77,7 @@ def install_language_model(netspy_dir: Optional[Union[str, Path]]) -> None:
         return
 
     # Create parent directory if required
-    fname.parents[-1].mkdir(exist_ok=True)
+    fname.parents[0].mkdir(exist_ok=True)
     gdown.download(url, output=str(fname))
 
 
