@@ -357,7 +357,7 @@ def plot_graph(graph: MultiDiGraph, ext: str = None) -> None:
         # Ditto as gpickle
         output = str(output) + ".gpickle"
         nx.write_gpickle(graph, output)
-    
+
     # plt.axis("off")
     # # Print resulting edges
     # print("\n+++ Edges: +++ \n\n %s \n\n+++++++++++++++++++" % (edge_labels))
