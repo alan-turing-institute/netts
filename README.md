@@ -70,9 +70,16 @@ Download the language model from [here](https://drive.google.com/file/d/0B-5EkZM
   poetry run python
   ```
   ```python
-  from speech_graph import plot_graph, speech_graph
-  go = speech_graph(<transcript>)
-  plot_graph(go)
+  import netspy
+  from netspy.speech_graph import plot_graph, speech_graph
+  text=open("../demo_data/3138849-TAT10.txt","r")
+  transcript=text.read()
+  text.close()
+  go = speech_graph(transcript)
+  # To plot a png graph to current working directory:
+  plot_graph(go, 'png')
+  # To generate a gpickle file to current working directory:
+  plot_graph(go, 'gpickle')
   ```
   Output:
   - log file (.txt file)

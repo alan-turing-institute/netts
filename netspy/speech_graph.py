@@ -319,7 +319,7 @@ def speech_graph(transcript: str) -> MultiDiGraph:
     return G
 
 
-def plot_graph(graph: MultiDiGraph) -> None:
+def plot_graph(graph: MultiDiGraph, ext: str = None) -> None:
     # Plot Graph and add edge labels
     pos = nx.spring_layout(graph)
     nx.draw(
@@ -349,12 +349,15 @@ def plot_graph(graph: MultiDiGraph) -> None:
 
     # Get current working directory to output the png and gpickle files
     output_dir = Path().resolve()
-    output=(output_dir / 'output_filename')
-    # Save as png in folder script is run from
-    plt.savefig(output, transparent=True)
-    # Ditto as gpickle
-    nx.write_gpickle(graph, output + ".gpickle")
-    
+    output = output_dir / "output_filename"
+    if ext == None or ext == "png":
+        # Save as png in folder script is run from
+        plt.savefig(output, transparent=True)
+    if ext == "gpickle":
+        # Ditto as gpickle
+        output = str(output) + ".gpickle"
+        nx.write_gpickle(graph, output)
+
     # plt.axis("off")
     # # Print resulting edges
     # print("\n+++ Edges: +++ \n\n %s \n\n+++++++++++++++++++" % (edge_labels))
