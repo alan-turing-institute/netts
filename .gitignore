@@ -5,6 +5,7 @@ package_names
 *.jar
 languageModel
 .DS_Store
+.dependencies
 
 # orca files
 cache/
