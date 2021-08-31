@@ -12,8 +12,6 @@ class TestNLTK:
         install_nltk_punk(netspy_directory)
 
         assert netspy_directory.exists()
-
-        # Verify we got tokenizer directory
         nltk_directory = get_settings().nltk_dir
         assert nltk_directory.exists()
 

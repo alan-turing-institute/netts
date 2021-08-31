@@ -19,7 +19,7 @@ def install_nltk_punk(netspy_dir: Optional[Union[str, Path]] = None) -> None:
     settings = get_settings(netspy_dir)
     settings.mk_netspy_dir()
 
-    logger.info("Downloading: NTLK punkt library to: %s", settings.nltk_dir)
+    logger.info("Downloading: NLTK punkt library to: %s", settings.nltk_dir)
 
     if settings.nltk_dir.exists():
         logger.warning("NLTK directory already exists: %s", settings.nltk_dir)

@@ -30,6 +30,12 @@ Then ensure all dependencies are installed:
 poetry install
 ```
 
+Install additional dependencies to `~/netspy`:
+
+```bash
+netspy install
+```
+
 ### Pre-commit
 
 ```bash
