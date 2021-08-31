@@ -1,6 +1,6 @@
 from functools import lru_cache
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 from pydantic import BaseSettings
 
@@ -21,8 +21,8 @@ class Settings(BaseSettings):
         return self.netspy_dir / "stanza_corenlp"
 
     @property
-    def openie5_dir(self) -> Path:
-        return self.netspy_dir / "openie5"
+    def open_ie_dir(self) -> Path:
+        return self.netspy_dir / "openie"
 
     def mk_netspy_dir(self) -> None:
         """Create the netspy directory"""
@@ -35,7 +35,7 @@ class Settings(BaseSettings):
 
 
 @lru_cache()
-def get_settings(netspy_dir: Optional[Path] = None) -> Settings:
+def get_settings(netspy_dir: Optional[Union[str, Path]] = None) -> Settings:
     if netspy_dir:
         return Settings(netspy_dir=netspy_dir)
     return Settings()
