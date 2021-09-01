@@ -3,9 +3,10 @@
 from pathlib import Path
 from typing import Optional, Union
 
-import gdown
+import requests
 import nltk
 import stanza
+import tqdm
 
 from netspy.config import get_settings
 from netspy.logger import logger
@@ -39,7 +40,7 @@ def install_corenlp(netspy_dir: Optional[Union[str, Path]] = None) -> None:
     stanza.install_corenlp(dir=settings.core_nlp_dir)
 
 
-def install_openie5(netspy_dir: Optional[Union[str, Path]]) -> None:
+def install_openie5(netspy_dir: Optional[Union[str, Path]] = None) -> int:
 
     settings = get_settings(netspy_dir)
     settings.mk_netspy_dir()
@@ -49,14 +50,66 @@ def install_openie5(netspy_dir: Optional[Union[str, Path]]) -> None:
 
     logger.info("Downloading: OpenIE 5.1 binary to: %s", settings.open_ie_dir)
 
-    url = "https://drive.google.com/u/0/uc?id=19z8LO-CYOfJfV5agm82PZ2JNWNUPIB6D"
+    url = "https://netspy.blob.core.windows.net/netspy/openie-assembly-5.0-SNAPSHOT.jar"
+    sas = "?sv=2020-04-08&st=2021-09-01T14%3A49%3A27Z&se=2022-08-31T14%3A49%3A00Z&sr=c&sp=rl&sig=eODqh0aLqLO5gVrgehkRRa498JytTT9qFh6ptOwbzBc%3D"
+
     fname = settings.open_ie_dir / "openie-assembly-5.0-SNAPSHOT.jar"
 
     if fname.exists():
         logger.info("OpenIE 5.1 binary to already exits")
         return
 
-    gdown.download(url, output=str(fname))
+    resp = requests.get(url = url +  sas, stream=True)
+
+    file_size = int(resp.headers.get("content-length"))
+    chunk_size = 131072
+    description = "Downloading OpenIE5"
+    with fname.open(mode = "wb") as f:
+        with tqdm.tqdm(total=file_size, unit='B', unit_scale=True, desc = description) as pbar:
+            for chunk in resp.iter_content(chunk_size=chunk_size):
+                if chunk:
+                    f.write(chunk)
+                    pbar.update(len(chunk))
+    
+    resp.raise_for_status()
+
+    return resp.status_code
+
+def install_language_model(netspy_dir: Optional[Union[str, Path]] = None) -> int:
+
+    settings = get_settings(netspy_dir)
+    settings.mk_netspy_dir()
+
+    if not settings.open_ie_dir.exists():
+        settings.open_ie_dir.mkdir()
+
+    logger.info("Downloading: LanguageModel: %s", settings.open_ie_dir)
+
+    url = "https://netspy.blob.core.windows.net/netspy/languageModel.zip"
+    sas = "?sv=2020-04-08&st=2021-09-01T14%3A49%3A27Z&se=2022-08-31T14%3A49%3A00Z&sr=c&sp=rl&sig=eODqh0aLqLO5gVrgehkRRa498JytTT9qFh6ptOwbzBc%3D"
+
+    fname = settings.open_ie_dir / "languageModel"
+
+    if fname.exists():
+        logger.info("OpenIE 5.1 binary to already exits")
+        return
+
+    resp = requests.get(url = url +  sas, stream=True)
+
+    file_size = int(resp.headers.get("content-length"))
+    chunk_size = 131072
+    description = "Downloading OpenIE5"
+    with fname.open(mode = "wb") as f:
+        with tqdm.tqdm(total=file_size, unit='B', unit_scale=True, desc = description) as pbar:
+            for chunk in resp.iter_content(chunk_size=chunk_size):
+                if chunk:
+                    f.write(chunk)
+                    pbar.update(len(chunk))
+    
+    resp.raise_for_status()
+
+    return resp.status_code
+
 
 
 def install_language_model(netspy_dir: Optional[Union[str, Path]]) -> None:

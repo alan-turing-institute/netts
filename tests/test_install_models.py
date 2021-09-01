@@ -1,8 +1,8 @@
 import shutil
 from pathlib import Path
-
+import pytest
 from netspy.config import HOME_DIR, Settings, get_settings
-from netspy.install_models import install_nltk_punk
+from netspy.install_models import install_nltk_punk, install_corenlp, install_openie5, install_language_model
 
 
 class TestNLTK:
@@ -52,3 +52,22 @@ class TestNLTK:
             if not next(settings.netspy_dir.iterdir(), None):
                 print("Removeing netspy_dir")
                 settings.netspy_dir.rmdir()
+
+# class TestCoreNLP:
+#     @pytest.mark.release
+#     def test_core_nlp(self, tmp_path: Path) -> None:
+
+#         print("Running CORENLP")  
+#         netspy_directory = tmp_path / "netspy"
+#         install_corenlp(netspy_directory)
+
+#         assert netspy_directory.exists()
+
+class TestOpenIE:
+    def test_download_openie5(self):
+
+        install_openie5()
+
+    def test_install_language_model(self):
+
+        install_language_model()
