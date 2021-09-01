@@ -280,6 +280,503 @@ def test_speech_graph() -> None:
         ("photo", 1),
     ]
 
+    expected_dict_graph4 = {
+        "transcript": "This image is pretty boring. Kind of represents, um, olden times when wife and the child … When the wife and the child would just stay at home whilst the father is the bread earner. Um, it’s quite a sad photo but also in lighting because of the way that women have grown since this time and it has been able to portray development of women through time, which is obviously very good.\n",
+        "sentences": 3,
+        "tokens": 71,
+        "unconnected_nodes": ["lighting", "way", "woman"],
+    }
+
+    expected_dict_node4 = {
+        "image": {},
+        "pretty boring": {},
+        "child": {},
+        "home": {},
+        "father": {},
+        "bread": {},
+        "wife": {},
+        "time": {},
+        "obviously": {},
+        "it": {},
+        "development": {},
+        "women": {},
+        "photo": {},
+    }
+
+    expected_dict_adj4 = {
+        "image": {
+            "pretty boring": {
+                0: {
+                    "relation": "is",
+                    "confidence": 0.8132903905488816,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 0,
+                    "node2_args": [],
+                }
+            }
+        },
+        "pretty boring": {},
+        "child": {
+            "home": {
+                0: {
+                    "relation": "would stay",
+                    "confidence": 0.858772576540734,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 1,
+                    "node2_args": [],
+                }
+            },
+            "bread": {
+                0: {
+                    "relation": "is",
+                    "confidence": 0.9728040566432826,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 1,
+                    "node2_args": [],
+                }
+            },
+        },
+        "home": {},
+        "father": {
+            "bread": {
+                0: {
+                    "relation": "is",
+                    "confidence": 0.9251282565798027,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 1,
+                    "node2_args": [],
+                }
+            }
+        },
+        "bread": {},
+        "wife": {
+            "home": {
+                0: {
+                    "relation": "would stay",
+                    "confidence": 0.858772576540734,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 1,
+                    "node2_args": [],
+                }
+            },
+            "bread": {
+                0: {
+                    "relation": "is",
+                    "confidence": 0.9728040566432826,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 1,
+                    "node2_args": [],
+                }
+            },
+        },
+        "time": {
+            "obviously": {
+                0: {
+                    "relation": "is",
+                    "confidence": 0.7697412098918558,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 2,
+                    "node2_args": ["very good"],
+                }
+            }
+        },
+        "obviously": {},
+        "it": {
+            "development": {
+                0: {
+                    "relation": "to portray",
+                    "confidence": 0.41051436014453063,
+                    "context": None,
+                    "negated": False,
+                    "passive": False,
+                    "extractor": "ollie",
+                    "sentence": 2,
+                    "node2_args": ["through time"],
+                },
+                1: {
+                    "relation": "has been",
+                    "confidence": 0.45170382506656653,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 2,
+                    "node2_args": [],
+                },
+            },
+            "photo": {
+                0: {
+                    "relation": "is",
+                    "confidence": 0.5222094630377523,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 2,
+                    "node2_args": ["because of the way"],
+                }
+            },
+        },
+        "development": {
+            "women": {0: {"relation": "of", "extractor": "preposition", "sentence": 2}}
+        },
+        "women": {
+            "time": {
+                0: {
+                    "relation": "have grown",
+                    "confidence": 0.8942434158739456,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 2,
+                    "node2_args": [],
+                }
+            }
+        },
+        "photo": {},
+    }
+
+    expected_dict_pred4 = {
+        "image": {},
+        "pretty boring": {
+            "image": {
+                0: {
+                    "relation": "is",
+                    "confidence": 0.8132903905488816,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 0,
+                    "node2_args": [],
+                }
+            }
+        },
+        "child": {},
+        "home": {
+            "child": {
+                0: {
+                    "relation": "would stay",
+                    "confidence": 0.858772576540734,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 1,
+                    "node2_args": [],
+                }
+            },
+            "wife": {
+                0: {
+                    "relation": "would stay",
+                    "confidence": 0.858772576540734,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 1,
+                    "node2_args": [],
+                }
+            },
+        },
+        "father": {},
+        "bread": {
+            "father": {
+                0: {
+                    "relation": "is",
+                    "confidence": 0.9251282565798027,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 1,
+                    "node2_args": [],
+                }
+            },
+            "child": {
+                0: {
+                    "relation": "is",
+                    "confidence": 0.9728040566432826,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 1,
+                    "node2_args": [],
+                }
+            },
+            "wife": {
+                0: {
+                    "relation": "is",
+                    "confidence": 0.9728040566432826,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 1,
+                    "node2_args": [],
+                }
+            },
+        },
+        "wife": {},
+        "time": {
+            "women": {
+                0: {
+                    "relation": "have grown",
+                    "confidence": 0.8942434158739456,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 2,
+                    "node2_args": [],
+                }
+            }
+        },
+        "obviously": {
+            "time": {
+                0: {
+                    "relation": "is",
+                    "confidence": 0.7697412098918558,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 2,
+                    "node2_args": ["very good"],
+                }
+            }
+        },
+        "it": {},
+        "development": {
+            "it": {
+                0: {
+                    "relation": "to portray",
+                    "confidence": 0.41051436014453063,
+                    "context": None,
+                    "negated": False,
+                    "passive": False,
+                    "extractor": "ollie",
+                    "sentence": 2,
+                    "node2_args": ["through time"],
+                },
+                1: {
+                    "relation": "has been",
+                    "confidence": 0.45170382506656653,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 2,
+                    "node2_args": [],
+                },
+            }
+        },
+        "women": {
+            "development": {
+                0: {"relation": "of", "extractor": "preposition", "sentence": 2}
+            }
+        },
+        "photo": {
+            "it": {
+                0: {
+                    "relation": "is",
+                    "confidence": 0.5222094630377523,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 2,
+                    "node2_args": ["because of the way"],
+                }
+            }
+        },
+    }
+
+    expected_dict_succ4 = {
+        "image": {
+            "pretty boring": {
+                0: {
+                    "relation": "is",
+                    "confidence": 0.8132903905488816,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 0,
+                    "node2_args": [],
+                }
+            }
+        },
+        "pretty boring": {},
+        "child": {
+            "home": {
+                0: {
+                    "relation": "would stay",
+                    "confidence": 0.858772576540734,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 1,
+                    "node2_args": [],
+                }
+            },
+            "bread": {
+                0: {
+                    "relation": "is",
+                    "confidence": 0.9728040566432826,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 1,
+                    "node2_args": [],
+                }
+            },
+        },
+        "home": {},
+        "father": {
+            "bread": {
+                0: {
+                    "relation": "is",
+                    "confidence": 0.9251282565798027,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 1,
+                    "node2_args": [],
+                }
+            }
+        },
+        "bread": {},
+        "wife": {
+            "home": {
+                0: {
+                    "relation": "would stay",
+                    "confidence": 0.858772576540734,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 1,
+                    "node2_args": [],
+                }
+            },
+            "bread": {
+                0: {
+                    "relation": "is",
+                    "confidence": 0.9728040566432826,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 1,
+                    "node2_args": [],
+                }
+            },
+        },
+        "time": {
+            "obviously": {
+                0: {
+                    "relation": "is",
+                    "confidence": 0.7697412098918558,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 2,
+                    "node2_args": ["very good"],
+                }
+            }
+        },
+        "obviously": {},
+        "it": {
+            "development": {
+                0: {
+                    "relation": "to portray",
+                    "confidence": 0.41051436014453063,
+                    "context": None,
+                    "negated": False,
+                    "passive": False,
+                    "extractor": "ollie",
+                    "sentence": 2,
+                    "node2_args": ["through time"],
+                },
+                1: {
+                    "relation": "has been",
+                    "confidence": 0.45170382506656653,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 2,
+                    "node2_args": [],
+                },
+            },
+            "photo": {
+                0: {
+                    "relation": "is",
+                    "confidence": 0.5222094630377523,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 2,
+                    "node2_args": ["because of the way"],
+                }
+            },
+        },
+        "development": {
+            "women": {0: {"relation": "of", "extractor": "preposition", "sentence": 2}}
+        },
+        "women": {
+            "time": {
+                0: {
+                    "relation": "have grown",
+                    "confidence": 0.8942434158739456,
+                    "context": None,
+                    "negated": False,
+                    "passive": True,
+                    "extractor": "ollie",
+                    "sentence": 2,
+                    "node2_args": [],
+                }
+            }
+        },
+        "photo": {},
+    }
     assert list(graph4.nodes()) == expected_node_list4
     assert list(graph4.edges()) == expected_edges4
     assert list(graph4.degree) == expected_degree4
+
+    graph4_dict = graph4.__dict__
+
+    assert graph4_dict.get("graph") == expected_dict_graph4
+    assert graph4_dict.get("_node") == expected_dict_node4
+    assert graph4_dict.get("_adj") == expected_dict_adj4
+    assert graph4_dict.get("_pred") == expected_dict_pred4
+    assert graph4_dict.get("_succ") == expected_dict_succ4
