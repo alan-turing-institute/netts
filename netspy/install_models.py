@@ -47,7 +47,7 @@ def file_exists(path: Path, file_hash: Optional[str] = None) -> bool:
         # logger.warning("Hash of %s does not match `file_hash`", str(path))
         real_hash =  hash_file(path)
         if not real_hash == file_hash:
-            raise IncorrectHash(f"Hash of {path} does not match `file_hash`")
+            raise IncorrectHash(f"Hash of {path}: {real_hash},  does not match `file_hash`: {file_hash}")
         logger.info("md5 check matches: %s", real_hash)
     return True
 

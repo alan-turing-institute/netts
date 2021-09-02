@@ -20,11 +20,11 @@ def netspy_home_dir():
     "A home directory with cleanup"
     settings = get_settings()
     yield settings
-
     shutil.rmtree(settings.netspy_dir)
 
 
 def hash_text(text: str) -> str:
+
     md5 = hashlib.md5()
     md5.update(text.encode())
     return md5.hexdigest()
@@ -46,27 +46,25 @@ def mock_download_file(url: str, path: Path) -> requests.Response:
 
 class TestNLTK:
 
-    def _test_dowload_nltk(self, download_path: Path, expected_status: DownloadStatus = DownloadStatus.ALREADY_EXISTS):
+    def _test_dowload_nltk(self, download_path: Path, expected_status: DownloadStatus):
 
         settings = get_settings(download_path)
 
         assert install_nltk_punk(settings.netspy_dir) == expected_status
-
         assert settings.netspy_dir.exists()
         assert settings.nltk_dir.exists()
 
-        # Verify we downloaded folder
+        # Verify we downloaded folder if we're expecting it to be there
         if expected_status == DownloadStatus.SUCCESS:
             expected_directory_subdir = list(settings.nltk_dir.iterdir())[0]
             assert "tokenizers" in expected_directory_subdir.parts[-1]
 
-
     def test_download_tmp(self, tmp_path: Path) -> None:
 
         netspy_directory = tmp_path / "netspy"
-        self._test_dowload_nltk(netspy_directory)
+        self._test_dowload_nltk(netspy_directory, expected_status=DownloadStatus.SUCCESS)
 
-    def test_download_exists(self, tmp_path: Path) -> None:
+    def test_download_tmp_exists(self, tmp_path: Path) -> None:
 
         settings = get_settings( tmp_path / "netspy")
         # Create nltk folder
@@ -78,7 +76,7 @@ class TestNLTK:
         reason="netspy dir already exists. Remove to run this test",
     )
     def test_download_home(self, netspy_home_dir):
-        self._test_dowload_nltk(netspy_home_dir.netspy_dir)
+        self._test_dowload_nltk(netspy_home_dir.netspy_dir, expected_status=DownloadStatus.SUCCESS)
 
 # class TestCoreNLP:
 #     @pytest.mark.release
