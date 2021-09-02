@@ -2,7 +2,34 @@ import shutil
 from pathlib import Path
 import pytest
 from netspy.config import HOME_DIR, Settings, get_settings
-from netspy.install_models import install_nltk_punk, install_corenlp, install_openie5, install_language_model
+from netspy.install_models import install_nltk_punk, install_corenlp, install_language_model
+import hashlib
+import requests 
+
+from netspy.types import IncorrectHash, DownloadStatus
+
+def hash_text(text: str) -> str:
+    md5 = hashlib.md5()
+    md5.update(text.encode())
+    return md5.hexdigest()
+
+
+
+
+
+def mock_download_file(url: str, path: Path) -> requests.Response:
+    """Mock netspy.install_models.download_file
+
+    Write an empty file to `path` and return a `requests.Response` with
+    status code 200
+    """
+
+    with path.open("w") as f:
+        f.write("")
+    resp = requests.Response()
+    resp.status_code = 200
+    return resp
+
 
 
 class TestNLTK:
@@ -64,10 +91,30 @@ class TestNLTK:
 #         assert netspy_directory.exists()
 
 class TestOpenIE:
-    def test_download_openie5(self):
 
-        install_openie5()
+    
+    def test_download_openie5(self, mocker, tmp_path):
+
+        # Mock the download_file function to keep it fast
+        mock = mocker.patch('netspy.install_models.download_file', side_effect = mock_download_file)
+        from netspy.install_models import install_openie5
+
+        settings = get_settings(tmp_path / "netspy")
+
+        # Download and ensure file exists
+        assert install_openie5(settings.netspy_dir) == DownloadStatus.SUCCESS
+        assert settings.openie.exists()
+
+
+        assert install_openie5(settings.netspy_dir, md5 = hash_text("")) == DownloadStatus.ALREADY_EXISTS
+        
+        # Pass the wrong hash and raise IncorrectHash exception
+        with pytest.raises(IncorrectHash):
+            install_openie5(settings.netspy_dir, md5 = hash_text("adfasd"))
+
+
 
     def test_install_language_model(self):
 
         install_language_model()
+
