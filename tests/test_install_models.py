@@ -79,11 +79,11 @@ class TestNLTK:
             settings.netspy_dir, expected_status=DownloadStatus.ALREADY_EXISTS
         )
 
-    pytest.mark.skipif(
+    @pytest.mark.skipif(
         get_settings().netspy_dir.exists(),
         reason="netspy dir already exists. Remove to run this test",
     )
-
+    @pytest.mark.without_cache
     def test_download_home(self, netspy_home_dir: Settings) -> None:
         self._test_dowload_nltk(
             netspy_home_dir.netspy_dir, expected_status=DownloadStatus.SUCCESS
@@ -153,6 +153,7 @@ class TestOpenIE:
         get_settings().netspy_dir.exists(),
         reason="netspy dir already exists. Remove to run this test",
     )
+    @pytest.mark.without_cache
     def test_download_real(self, mocker: Any, netspy_home_dir: Settings) -> None:
         """Download without mocking"""
 

@@ -11,6 +11,7 @@ jobs:
     env:
       # Set the location of netspy dependencies
       NETSPY_DIR: '.dependencies'
+
     steps:
     - uses: actions/checkout@v2
       with:
@@ -41,13 +42,6 @@ jobs:
         path: .venv
         key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
 
-    - name: Set up netspy cache
-      uses: actions/cache@v2
-      id: netspy-dependencies
-      with:
-        path: .dependencies
-        key: netspy-dependencies
-
     - name: Install dependencies
       shell: bash
       run: |
@@ -58,9 +52,20 @@ jobs:
     - name: Display Python version
       run: poetry run python -c "import sys; print(sys.version)"
 
+    - name: Run tests which can't use netspy cache
+      run: |
+        python -m poetry run pytest --cov=netspy --cov-report=xml tests -m "not slow and without_cache"
+
+    - name: Set up netspy cache
+      uses: actions/cache@v2
+      id: netspy-dependencies
+      with:
+        path: .dependencies
+        key: netspy-dependencies
+
     - name: Generate Report
       run: |
-        python -m poetry run pytest --cov=netspy --cov-report=xml tests -m "not slow"
+        python -m poetry run pytest --cov=netspy --cov-report=xml tests -m "not slow and not without_cache"
 
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v2
