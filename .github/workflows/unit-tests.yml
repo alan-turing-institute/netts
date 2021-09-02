@@ -60,7 +60,7 @@ jobs:
 
     - name: Generate Report
       run: |
-        python -m poetry run pytest --cov=netspy --cov-report=xml tests -m "not long"
+        python -m poetry run pytest --cov=netspy --cov-report=xml tests -m "not slow"
 
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v2

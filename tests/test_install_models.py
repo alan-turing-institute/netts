@@ -2,7 +2,7 @@ import hashlib
 import logging
 import shutil
 from pathlib import Path
-from typing import Any, Generator
+from typing import Any, Generator, Optional
 
 import pytest
 import requests
@@ -31,7 +31,9 @@ def hash_text(text: str) -> str:
     return md5.hexdigest()
 
 
-def mock_download_file(_: str, path: Path) -> requests.Response:
+def mock_download_file(
+    _: str, path: Path, __: Optional[str] = None
+) -> requests.Response:
     """Mock netspy.install_models.download_file
 
     Write an empty file to `path` and return a `requests.Response` with

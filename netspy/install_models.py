@@ -54,14 +54,15 @@ def file_exists(path: Path, file_hash: Optional[str] = None) -> bool:
     return True
 
 
-def download_file(url: str, path: Path) -> requests.Response:
+def download_file(
+    url: str, path: Path, description: Optional[str] = None
+) -> requests.Response:
 
     logger.warning("Downloading from url: %s to %s", url, path)
 
     resp = requests.get(url=url, stream=True)
     file_size = int(resp.headers.get("content-length"))
     chunk_size = 131072
-    description = "Downloading OpenIE5"
     with path.open(mode="wb") as f:
         with tqdm.tqdm(
             total=file_size, unit="B", unit_scale=True, desc=description
@@ -122,7 +123,7 @@ def install_openie5(
         settings.openie_dir.mkdir(parents=True)
 
     logger.info("Downloading: OpenIE 5.1 binary to: %s", fname)
-    resp = download_file(str(settings.openie_url), fname)
+    resp = download_file(str(settings.openie_url), fname, "Installing Openie5")
 
     resp.raise_for_status()
 
@@ -148,7 +149,9 @@ def install_language_model(
         settings.openie_data.mkdir()
 
     logger.info("Downloading: Language model to: %s", fname)
-    resp = download_file(str(settings.openie_language_url), fname_zip)
+    resp = download_file(
+        str(settings.openie_language_url), fname_zip, "Installing language model"
+    )
     resp.raise_for_status()
 
     # unzip file
