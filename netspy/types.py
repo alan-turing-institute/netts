@@ -1,7 +1,9 @@
 from enum import Enum
 
+
 class IncorrectHash(Exception):
     pass
+
 
 class DownloadStatus(Enum):
 
