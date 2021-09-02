@@ -54,14 +54,15 @@ jobs:
     - name: Run tests which can't use netspy cache
       run: |
         python -m poetry run pytest tests -m "not slow and without_cache"
-      
+
     # Cache netspy dependencies except openie (cache too big)
     - name: Set up netspy cache
       uses: actions/cache@v2
       id: netspy-dependencies
       with:
         path: |
-          .dependencies
+          .dependencies/*
+          .dependencies/openie/*
           !.dependencies/openie/openie-assembly-5.0-SNAPSHOT.jar
         key: netspy-dependencies
 
