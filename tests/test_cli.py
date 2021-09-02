@@ -1,8 +1,8 @@
-from typer.testing import CliRunner
+# from typer.testing import CliRunner
 
-from netspy.cli import app
+# from netspy.cli import app
 
-runner = CliRunner()
+# runner = CliRunner()
 
 
 # def test_install() -> None:
