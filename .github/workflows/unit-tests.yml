@@ -63,6 +63,11 @@ jobs:
         path: .dependencies
         key: netspy-dependencies
 
+    - name: Install netspy dependencies
+      shell: bash
+      run: |
+        python -m poetry run netspy install
+
     - name: Generate Report
       run: |
         python -m poetry run pytest --cov=netspy --cov-report=xml tests -m "not slow and not without_cache"
