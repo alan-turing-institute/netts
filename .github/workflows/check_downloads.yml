@@ -53,5 +53,4 @@ jobs:
 
     - name: Generate Report
       run: |
-        python -m poetry run pytest tests -m "long"
-
+        python -m poetry run pytest tests -m "slow"
