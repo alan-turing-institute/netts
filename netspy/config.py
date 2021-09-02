@@ -1,8 +1,13 @@
 from functools import lru_cache
 from pathlib import Path
-from typing import Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
-from pydantic import BaseSettings, HttpUrl
+from pydantic import BaseSettings
+
+if TYPE_CHECKING:
+    HttpUrl = str
+else:
+    from pydantic import HttpUrl
 
 HOME_DIR = Path.home()
 NETSPY_DIR = HOME_DIR / "netspy"
@@ -45,7 +50,7 @@ class Settings(BaseSettings):
     def openie_language_model(self) -> Path:
         return self.openie_data / "languageModel"
 
-    def mk_netspy_dir(self, mode=0o777) -> None:
+    def mk_netspy_dir(self, mode: int = 0o777) -> None:
         """Create the netspy directory"""
         self.netspy_dir.mkdir(mode=mode, exist_ok=True)
 

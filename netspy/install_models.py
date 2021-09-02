@@ -45,9 +45,11 @@ def file_exists(path: Path, file_hash: Optional[str] = None) -> bool:
 
     if file_hash:
         # logger.warning("Hash of %s does not match `file_hash`", str(path))
-        real_hash =  hash_file(path)
+        real_hash = hash_file(path)
         if not real_hash == file_hash:
-            raise IncorrectHash(f"Hash of {path}: {real_hash},  does not match `file_hash`: {file_hash}")
+            raise IncorrectHash(
+                f"Hash of {path}: {real_hash},  does not match `file_hash`: {file_hash}"
+            )
         logger.info("md5 check matches: %s", real_hash)
     return True
 
@@ -72,7 +74,7 @@ def download_file(url: str, path: Path) -> requests.Response:
     return resp
 
 
-def install_nltk_punk(netspy_dir: Optional[Union[str, Path]] = None) -> None:
+def install_nltk_punk(netspy_dir: Optional[Union[str, Path]] = None) -> DownloadStatus:
 
     settings = get_settings(netspy_dir)
 
@@ -88,7 +90,7 @@ def install_nltk_punk(netspy_dir: Optional[Union[str, Path]] = None) -> None:
     return DownloadStatus.SUCCESS
 
 
-def install_corenlp(netspy_dir: Optional[Union[str, Path]] = None) -> None:
+def install_corenlp(netspy_dir: Optional[Union[str, Path]] = None) -> DownloadStatus:
 
     settings = get_settings(netspy_dir)
 
@@ -98,10 +100,11 @@ def install_corenlp(netspy_dir: Optional[Union[str, Path]] = None) -> None:
         logger.warning(
             "Stanza CoreNLP directory already exists: %s", settings.core_nlp_dir
         )
-        return
+        return DownloadStatus.ALREADY_EXISTS
 
-    settings.netspy_dir.mkdir()
+    settings.netspy_dir.mkdir(exist_ok=True)
     stanza.install_corenlp(dir=settings.core_nlp_dir)
+    return DownloadStatus.SUCCESS
 
 
 def install_openie5(
@@ -126,7 +129,9 @@ def install_openie5(
     return DownloadStatus.SUCCESS
 
 
-def install_language_model(netspy_dir: Optional[Union[str, Path]] = None) -> None:
+def install_language_model(
+    netspy_dir: Optional[Union[str, Path]] = None
+) -> DownloadStatus:
 
     settings = get_settings(netspy_dir)
     fname = settings.openie_language_model
