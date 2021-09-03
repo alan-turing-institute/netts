@@ -63,7 +63,7 @@ jobs:
         path: |
           .dependencies/nltk_data/*
           .dependencies/stanza_corenlp/*
-          .dependencies/openie/languageModel
+          .dependencies/openie/*
           !.dependencies/openie/openie-assembly-5.0-SNAPSHOT.jar
         key: netspy-dependencies
 
