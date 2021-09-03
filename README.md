@@ -45,7 +45,7 @@ poetry run pre-commit run --all-files
 ### Unit tests
 
 ```bash
-poetry run pytest --cov=netspy tests/
+poetry run pytest --cov=netspy tests -m "not slow"
 ```
 
 ### Preview docs
