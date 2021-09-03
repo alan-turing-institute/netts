@@ -23,7 +23,7 @@ pip install git+https://github.com/alan-turing-institute/netspy
 ```
 
 
-## Install language models
+## Install Dependencies
 
 Netspy requires additional dependencies to run. You can install them with:
 
