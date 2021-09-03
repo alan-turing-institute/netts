@@ -2,8 +2,8 @@
 speech transcripts.
 """
 
-from netspy.install_models import install_models
+from netspy.install_models import install_dependencies
 
 __version__ = "0.1.0"
 
-__all__ = ["install_models"]
+__all__ = ["install_dependencies"]

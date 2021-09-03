@@ -437,7 +437,9 @@ good-names=i,
            ax,
            e,
            df,
-           n
+           n,
+           f,
+           z
 
 # Good variable names regexes, separated by a comma. If names match any regex,
 # they will always be accepted
