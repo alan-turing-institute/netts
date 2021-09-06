@@ -116,7 +116,7 @@ def install_openie5(
     fname = settings.openie
 
     if file_exists(fname, file_hash=md5):
-        logger.info("OpenIE 5.1 binary already exits")
+        logger.info("OpenIE 5.1 binary already exits. Hash: %s", md5)
         return DownloadStatus.ALREADY_EXISTS
 
     if not settings.openie_dir.exists():
@@ -131,22 +131,20 @@ def install_openie5(
 
 
 def install_language_model(
-    netspy_dir: Optional[Union[str, Path]] = None
+    netspy_dir: Optional[Union[str, Path]] = None, md5: Optional[str] = None
 ) -> DownloadStatus:
 
     settings = get_settings(netspy_dir)
     fname = settings.openie_language_model
     fname_zip = Path(str(fname) + ".zip")
 
-    if file_exists(fname, file_hash=None):
-        logger.info("Language model already exists")
+    if file_exists(fname, file_hash=md5):
+        logger.info("Language model already exists. Hash: %s", md5)
         return DownloadStatus.ALREADY_EXISTS
 
-    if not settings.openie_dir.exists():
-        settings.openie_dir.mkdir()
-
     if not settings.openie_data.exists():
-        settings.openie_data.mkdir()
+        logger.info("Creating dir %s", settings.openie_data)
+        settings.openie_data.mkdir(parents=True)
 
     logger.info("Downloading: Language model to: %s", fname)
     resp = download_file(

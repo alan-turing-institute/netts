@@ -1,6 +1,8 @@
 import hashlib
 import logging
+import os
 import shutil
+import zipfile
 from pathlib import Path
 from typing import Any, Generator, Optional
 
@@ -42,6 +44,28 @@ def mock_download_file(
 
     with path.open("w") as f:
         f.write("")
+    resp = requests.Response()
+    resp.status_code = 200
+    return resp
+
+
+def mock_zip_file(_: str, path: Path, __: Optional[str] = None) -> requests.Response:
+    """Mock netspy.install_models.download_file and zip contents
+
+    Write an empty file to `path` and return a `requests.Response` with
+    status code 200
+    """
+
+    file_path = path.parent / path.stem
+
+    LOGGER.warning("Mock zip: Write to %s", path)
+    with file_path.open("w") as f:
+        f.write("")
+
+    with zipfile.ZipFile(path, "w") as z:
+        z.write(file_path, file_path.stem)
+
+    file_path.unlink()
     resp = requests.Response()
     resp.status_code = 200
     return resp
@@ -158,5 +182,76 @@ class TestOpenIE:
         """Download without mocking"""
 
         self._test_download_openie5(
+            netspy_home_dir.netspy_dir, mocker, False, hash_text("")
+        )
+
+
+class TestLanguageMode:
+    def _test_download_language_model(
+        self, download_path: Path, mocker: Any, mock: bool, expected_hash: str
+    ) -> None:
+
+        netspy_dir = download_path
+
+        # Mock the download_file function to keep it fast
+        if mock:
+            mocker.patch(
+                "netspy.install_models.download_file", side_effect=mock_zip_file
+            )
+        # pylint: disable=import-outside-toplevel
+        from netspy.install_models import install_language_model
+
+        settings = get_settings(netspy_dir)
+
+        # Download and ensure file exists
+        assert (
+            install_language_model(settings.netspy_dir, md5=expected_hash)
+            == DownloadStatus.SUCCESS
+        )
+        assert settings.openie_data.exists()
+        LOGGER.warning(
+            "Dir %s, contents: %s",
+            settings.openie_data,
+            os.listdir(settings.openie_data),
+        )
+
+        assert settings.openie_language_model.exists()
+
+        # Check we don't download when it already exists
+        assert (
+            install_language_model(settings.netspy_dir, md5=expected_hash)
+            == DownloadStatus.ALREADY_EXISTS
+        )
+
+        # Pass the wrong hash and raise IncorrectHash exception
+        with pytest.raises(IncorrectHash):
+            install_language_model(settings.netspy_dir, md5=hash_text("adfasd"))
+
+    def test_download_tmp(self, tmp_path: Path, mocker: Any) -> None:
+
+        self._test_download_language_model(
+            tmp_path / "netspy", mocker, True, hash_text("")
+        )
+
+    @pytest.mark.skipif(
+        get_settings().netspy_dir.exists(),
+        reason="netspy dir already exists. Remove to run this test",
+    )
+    def test_download_home(self, mocker: Any, netspy_home_dir: Settings) -> None:
+
+        self._test_download_language_model(
+            netspy_home_dir.netspy_dir, mocker, True, hash_text("")
+        )
+
+    @pytest.mark.skipif(
+        get_settings().netspy_dir.exists(),
+        reason="netspy dir already exists. Remove to run this test",
+    )
+    @pytest.mark.slow
+    @pytest.mark.without_cache
+    def test_download_real(self, mocker: Any, netspy_home_dir: Settings) -> None:
+        """Download without mocking"""
+
+        self._test_download_language_model(
             netspy_home_dir.netspy_dir, mocker, False, hash_text("")
         )
