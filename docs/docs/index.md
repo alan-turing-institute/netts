@@ -33,4 +33,11 @@ netspy install
 
 <details>
 By default these will install to a `netspy` directory in your home directory. If you would like to install in a different location set an environment variable called `NETSPY_DIR`.
+
+To check which directory netspy will use run:
+```bash
+netspy home
+```
+
+Be aware that netspy will create this directory if it does not exist.
 </details>
