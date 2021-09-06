@@ -25,7 +25,7 @@ def hash_file(file: Path) -> str:
         str: hash hexdigest
     """
     md5 = hashlib.md5()
-    block_size = 128 * md5.block_size
+    block_size = 128 * md5.block_size * 10
 
     with file.open("rb") as f:
 
@@ -43,14 +43,14 @@ def file_exists(path: Path, file_hash: Optional[str] = None) -> bool:
     if not path.exists():
         return False
 
+    real_hash = hash_file(path)
     if file_hash:
-        # logger.warning("Hash of %s does not match `file_hash`", str(path))
-        real_hash = hash_file(path)
         if not real_hash == file_hash:
             raise IncorrectHash(
                 f"Hash of {path}: {real_hash},  does not match `file_hash`: {file_hash}"
             )
-        logger.info("md5 check matches: %s", real_hash)
+    logger.info("File installed: %s , md5 hash: %s", path, real_hash)
+
     return True
 
 
@@ -116,7 +116,6 @@ def install_openie5(
     fname = settings.openie
 
     if file_exists(fname, file_hash=md5):
-        logger.info("OpenIE 5.1 binary already exits. Hash: %s", md5)
         return DownloadStatus.ALREADY_EXISTS
 
     if not settings.openie_dir.exists():
@@ -139,7 +138,6 @@ def install_language_model(
     fname_zip = Path(str(fname) + ".zip")
 
     if file_exists(fname, file_hash=md5):
-        logger.info("Language model already exists. Hash: %s", md5)
         return DownloadStatus.ALREADY_EXISTS
 
     if not settings.openie_data.exists():
@@ -168,5 +166,5 @@ def install_dependencies(
 
     install_nltk_punk(netspy_dir)
     install_corenlp(netspy_dir)
-    install_openie5(netspy_dir)
-    install_language_model(netspy_dir)
+    install_openie5(netspy_dir, md5="5ffa7a69fc7a04c07451582c40da80d6")
+    install_language_model(netspy_dir, md5="5f79c2b84ded0a0fcfffe6444bfb9561")
