@@ -5,13 +5,12 @@ import subprocess
 
 import pytest
 
-from netspy import __version__
 from netspy.config import get_settings
 
 LOGGER = logging.getLogger(__name__)
 
 
-@pytest.mark.slow
+@pytest.mark.ci_only
 def test_start_openie() -> None:
 
     settings = get_settings()
@@ -21,6 +20,7 @@ def test_start_openie() -> None:
     os.chdir(settings.openie_dir)
 
     # Start the server
+    # pylint: disable=consider-using-with
     process = subprocess.Popen(
         [
             "java",
@@ -43,7 +43,7 @@ def test_start_openie() -> None:
         output = process.stdout.readline()
         return_code = process.poll()
 
-        LOGGER.info("%s", output)
+        LOGGER.info("OpenIE stdout: %s", output)
         if return_code is not None:
             raise RuntimeError("OpenIE server start up failed")
 
@@ -52,7 +52,7 @@ def test_start_openie() -> None:
 
     assert "Server started at port 6000" in output
 
+    # Shut down server
     process.kill()
     os.chdir(curwd)
-
     assert os.getcwd() == curwd
