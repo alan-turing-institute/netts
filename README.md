@@ -44,8 +44,9 @@ poetry run pre-commit run --all-files
 
 ### Unit tests
 
+Run all unit tests excluding slow tests (require downloads) and those that write to `~/netspy` (these run on GitHub Actions).
 ```bash
-poetry run pytest --cov=netspy tests -m "not slow"
+poetry run pytest --cov=netspy --cov-report=xml tests -m "not slow and not without_cache"
 ```
 
 ### Preview docs
