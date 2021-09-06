@@ -115,6 +115,7 @@ class TestNLTK:
 
 
 class TestCoreNLP:
+    @pytest.mark.ci_only
     @pytest.mark.slow
     def test_download_corenlp(self, tmp_path: Path) -> None:
 
@@ -172,12 +173,13 @@ class TestOpenIE:
             netspy_home_dir.netspy_dir, mocker, True, hash_text("")
         )
 
+    @pytest.mark.ci_only
+    @pytest.mark.slow
+    @pytest.mark.without_cache
     @pytest.mark.skipif(
         get_settings().netspy_dir.exists(),
         reason="netspy dir already exists. Remove to run this test",
     )
-    @pytest.mark.slow
-    @pytest.mark.without_cache
     def test_download_real(self, mocker: Any, netspy_home_dir: Settings) -> None:
         """Download without mocking"""
 
@@ -243,12 +245,13 @@ class TestLanguageMode:
             netspy_home_dir.netspy_dir, mocker, True, hash_text("")
         )
 
+    @pytest.mark.ci_only
+    @pytest.mark.slow
+    @pytest.mark.without_cache
     @pytest.mark.skipif(
         get_settings().netspy_dir.exists(),
         reason="netspy dir already exists. Remove to run this test",
     )
-    @pytest.mark.slow
-    @pytest.mark.without_cache
     def test_download_real(self, mocker: Any, netspy_home_dir: Settings) -> None:
         """Download without mocking"""
 

@@ -47,7 +47,8 @@ log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(linen
 log_cli_date_format = "%Y-%m-%d %H:%M:%S"
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "without_cache: marks tests to run that require no netspy dependencies cached",
+    "without_cache: marks tests to run that require no netspy dependencies cached (deselect with '-m \"not without_cache\"')",
+    "ci_only: marks tests that should only run on ci (deselect with '-m \"not ci_only\"')",
 ]
 
 [build-system]
