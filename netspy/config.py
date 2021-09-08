@@ -64,7 +64,6 @@ class Settings(BaseSettings):
         env_file_encoding = "utf-8"
 
 
-@lru_cache()
 def get_settings(netspy_dir: Optional[Union[str, Path]] = None) -> Settings:
 
     if netspy_dir:
