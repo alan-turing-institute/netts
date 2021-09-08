@@ -5,6 +5,8 @@ Created on Wed Dec 18 15:07:59 2019
 @author: Dr Sarah E Morgan, with input from Dr Bo Wang
 modified by Dr. Caro Nettekoven, 2020
 """
+# flake8: noqa
+# pylint: skip-file
 
 # from __future__ import division
 import itertools
