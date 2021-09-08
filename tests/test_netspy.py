@@ -1,19 +1,20 @@
 # pylint: disable=C0114, C0116
-import netspy
+
 from netspy import __version__
 from netspy.speech_graph import plot_graph, speech_graph
-
+from typing import Dict, Any
 
 def test_version() -> None:
     assert __version__ == "0.1.0"
 
 
 def test_speech_graph() -> None:
-    text = open("demo_data/3138838-TAT10.txt", "r")
-    transcript = text.read()
-    text.close()
+    #text = open("demo_data/3138838-TAT10.txt", "r")
+    #transcript = text.read()
+    #text.close()
+    with open("demo_data/3138838-TAT10.txt", "r") as f:
+        transcript = f.read()
     graph1 = speech_graph(transcript)
-    # assert graph1.__dict__ == graph2.__dict__
     expected_node_list1 = [
         "girl",
         "maid",
@@ -75,10 +76,12 @@ def test_speech_graph() -> None:
     assert list(graph1.edges()) == expected_edges1
     assert list(graph1.degree()) == expected_degree1
 
-    text2 = open("demo_data/3138838-TAT13.txt", "r")
-    transcript2 = text2.read()
-    text2.close()
-    graph2 = speech_graph(transcript2)
+    #text2 = open("demo_data/3138838-TAT13.txt", "r")
+    #transcript2 = text2.read()
+    #text2.close()
+    with open("demo_data/3138838-TAT13.txt", "r") as f:
+        transcript = f.read()
+    graph2 = speech_graph(transcript)
     expected_node_list2 = [
         "it",
         "midday",
@@ -153,9 +156,11 @@ def test_speech_graph() -> None:
     assert list(graph2.edges()) == expected_edges2
     assert list(graph2.degree) == expected_degree2
 
-    text = open("demo_data/3138838-TAT30.txt", "r")
-    transcript = text.read()
-    text.close()
+    #text = open("demo_data/3138838-TAT30.txt", "r")
+    #transcript = text.read()
+    #text.close()
+    with open("demo_data/3138838-TAT30.txt", "r") as f:
+        transcript = f.read()
     graph3 = speech_graph(transcript)
     expected_node_list3 = [
         "i",
@@ -230,9 +235,11 @@ def test_speech_graph() -> None:
     assert list(graph3.edges()) == expected_edges3
     assert list(graph3.degree) == expected_degree3
 
-    text = open("demo_data/3138849-TAT10.txt", "r")
-    transcript = text.read()
-    text.close()
+    #text = open("demo_data/3138849-TAT10.txt", "r")
+    #transcript = text.read()
+    #text.close()
+    with open("demo_data/3138849-TAT10.txt", "r") as f:
+        transcript = f.read()
     graph4 = speech_graph(transcript)
 
     expected_node_list4 = [
@@ -287,7 +294,7 @@ def test_speech_graph() -> None:
         "unconnected_nodes": ["lighting", "way", "woman"],
     }
 
-    expected_dict_node4 = {
+    expected_dict_node4: Dict[str, Dict[Any, Any]] = {
         "image": {},
         "pretty boring": {},
         "child": {},

@@ -14,6 +14,8 @@
 #        tat=3; python -u ./speech_graph.py ${tat} > figures/SpeechGraph_log_${tat}_`date +%F` # (pipe output to text file)
 # ------------------------------------------------------------------------------
 
+# flake8: noqa
+# pylint: skip-file
 
 import datetime
 import os
@@ -54,7 +56,8 @@ from netspy.nlp_helper_functions import (
     remove_irrelevant_text,
     replace_problematic_symbols,
 )
-from netspy.types import MultiDiGraph
+#from netspy.types import MultiDiGraph
+from networkx.classes.multidigraph import MultiDiGraph
 from netspy.visualise_paragraph_functions import (
     add_adj_edges,
     add_obl_edges,
@@ -77,10 +80,6 @@ from netspy.config import get_settings
 
 settings = get_settings()
 nltk.data.path.append(settings.nltk_dir )
-# Install packages
-# nltk.download("punkt")
-# stanza.install_corenlp()
-
 
 def speech_graph(transcript: str) -> MultiDiGraph:
 
