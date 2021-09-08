@@ -1,6 +1,7 @@
 untracked/
 
 package_names
+.dependencies
 
 *.jar
 languageModel

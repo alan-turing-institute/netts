@@ -30,6 +30,12 @@ Then ensure all dependencies are installed:
 poetry install
 ```
 
+Install additional dependencies to `~/netspy`:
+
+```bash
+netspy install
+```
+
 ### Pre-commit
 
 ```bash
@@ -38,8 +44,9 @@ poetry run pre-commit run --all-files
 
 ### Unit tests
 
+Run all unit tests excluding slow tests (require downloads) and those that write to `~/netspy` (these run on GitHub Actions).
 ```bash
-poetry run pytest --cov=netspy tests/
+poetry run pytest --cov=netspy --cov-report=xml tests -m "not ci_only"
 ```
 
 ### Preview docs
