@@ -12,6 +12,9 @@
 # source /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/venv/bin/activate
 # TODO: Sanity check: Is each relation represented only once in the edge? (Also check parallel edges in multiedge graph)
 # TODO: Plot graphs coloured by confidence / extraction type
+# flake8: noqa
+# pylint: skip-file
+
 import os
 import os.path as op
 import sys
