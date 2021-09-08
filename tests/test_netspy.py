@@ -1,8 +1,8 @@
 # pylint: disable=C0114, C0116
-import netspy
+
 from netspy import __version__
 from netspy.speech_graph import plot_graph, speech_graph
-
+from typing import Dict, Any
 
 def test_version() -> None:
     assert __version__ == "0.1.0"
@@ -287,7 +287,7 @@ def test_speech_graph() -> None:
         "unconnected_nodes": ["lighting", "way", "woman"],
     }
 
-    expected_dict_node4 = {
+    expected_dict_node4: Dict[str, Dict[Any, Any]] = {
         "image": {},
         "pretty boring": {},
         "child": {},
