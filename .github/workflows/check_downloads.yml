@@ -1,0 +1,56 @@
+---
+name: check-downloads-on-cron
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: "3.7"
+
+    - name: Bootstrap poetry
+      shell: bash
+      run: |
+        python -m ensurepip
+        python -m pip install --upgrade pip
+        python -m pip install poetry
+
+    - name: Configure poetry
+      shell: bash
+      run: |
+        python -m poetry config virtualenvs.in-project true
+        python -m poetry config virtualenvs.create true
+
+    - name: Set up cache
+      uses: actions/cache@v2
+      id: cache
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
+
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        python -m poetry env use ${{ matrix.python-version }}
+        python -m poetry install
+        python -m poetry run netspy install
+
+    - name: Display Python version
+      run: poetry run python -c "import sys; print(sys.version)"
+
+    - name: Generate Report
+      run: |
+        python -m poetry run pytest tests -m "slow"
