@@ -56,7 +56,8 @@ from netspy.nlp_helper_functions import (
     remove_irrelevant_text,
     replace_problematic_symbols,
 )
-from netspy.types import MultiDiGraph
+#from netspy.types import MultiDiGraph
+from networkx.classes.multidigraph import MultiDiGraph
 from netspy.visualise_paragraph_functions import (
     add_adj_edges,
     add_obl_edges,
