@@ -14,6 +14,8 @@
 #        tat=3; python -u ./speech_graph.py ${tat} > figures/SpeechGraph_log_${tat}_`date +%F` # (pipe output to text file)
 # ------------------------------------------------------------------------------
 
+# flake8: noqa
+# pylint: skip-file
 
 import datetime
 import os
@@ -74,9 +76,9 @@ from netspy.visualise_paragraph_functions import (
     split_nodes,
 )
 
-# Install packages
-nltk.download("punkt")
-stanza.install_corenlp()
+# # Install packages
+# nltk.download("punkt")
+# stanza.install_corenlp()
 
 
 def speech_graph(transcript: str) -> MultiDiGraph:

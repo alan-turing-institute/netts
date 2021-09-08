@@ -1,4 +1,3 @@
-from networkx.classes.multidigraph import MultiDiGraph
 from enum import Enum
 
 
