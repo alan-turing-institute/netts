@@ -4,10 +4,18 @@ from typing import Any, Dict
 
 from netspy import __version__
 from netspy.speech_graph import plot_graph, speech_graph
+from netspy.config import get_settings
+import os
 
 
 def test_version() -> None:
     assert __version__ == "0.1.0"
+
+def test_stanza() -> None:
+
+    settings = get_settings()
+
+    assert os.getenv("CORENLP_HOME") is not None
 
 
 def test_speech_graph() -> None:
