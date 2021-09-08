@@ -1,17 +1,19 @@
 # pylint: disable=C0114, C0116
 
+from typing import Any, Dict
+
 from netspy import __version__
 from netspy.speech_graph import plot_graph, speech_graph
-from typing import Dict, Any
+
 
 def test_version() -> None:
     assert __version__ == "0.1.0"
 
 
 def test_speech_graph() -> None:
-    #text = open("demo_data/3138838-TAT10.txt", "r")
-    #transcript = text.read()
-    #text.close()
+    # text = open("demo_data/3138838-TAT10.txt", "r")
+    # transcript = text.read()
+    # text.close()
     with open("demo_data/3138838-TAT10.txt", "r") as f:
         transcript = f.read()
     graph1 = speech_graph(transcript)
@@ -76,9 +78,9 @@ def test_speech_graph() -> None:
     assert list(graph1.edges()) == expected_edges1
     assert list(graph1.degree()) == expected_degree1
 
-    #text2 = open("demo_data/3138838-TAT13.txt", "r")
-    #transcript2 = text2.read()
-    #text2.close()
+    # text2 = open("demo_data/3138838-TAT13.txt", "r")
+    # transcript2 = text2.read()
+    # text2.close()
     with open("demo_data/3138838-TAT13.txt", "r") as f:
         transcript = f.read()
     graph2 = speech_graph(transcript)
@@ -156,9 +158,9 @@ def test_speech_graph() -> None:
     assert list(graph2.edges()) == expected_edges2
     assert list(graph2.degree) == expected_degree2
 
-    #text = open("demo_data/3138838-TAT30.txt", "r")
-    #transcript = text.read()
-    #text.close()
+    # text = open("demo_data/3138838-TAT30.txt", "r")
+    # transcript = text.read()
+    # text.close()
     with open("demo_data/3138838-TAT30.txt", "r") as f:
         transcript = f.read()
     graph3 = speech_graph(transcript)
@@ -235,9 +237,9 @@ def test_speech_graph() -> None:
     assert list(graph3.edges()) == expected_edges3
     assert list(graph3.degree) == expected_degree3
 
-    #text = open("demo_data/3138849-TAT10.txt", "r")
-    #transcript = text.read()
-    #text.close()
+    # text = open("demo_data/3138849-TAT10.txt", "r")
+    # transcript = text.read()
+    # text.close()
     with open("demo_data/3138849-TAT10.txt", "r") as f:
         transcript = f.read()
     graph4 = speech_graph(transcript)

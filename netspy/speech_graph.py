@@ -34,10 +34,15 @@ import numpy as np
 import pandas as pd
 import stanza
 
+# from netspy.types import MultiDiGraph
+from networkx.classes.multidigraph import MultiDiGraph
+
 # sys.path.append(
 #    '/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/')
 from pyopenie import OpenIE5
 from stanza.server import CoreNLPClient
+
+from netspy.config import get_settings
 
 # from netspy.filelists import (
 #    all_tat_files,
@@ -56,8 +61,6 @@ from netspy.nlp_helper_functions import (
     remove_irrelevant_text,
     replace_problematic_symbols,
 )
-#from netspy.types import MultiDiGraph
-from networkx.classes.multidigraph import MultiDiGraph
 from netspy.visualise_paragraph_functions import (
     add_adj_edges,
     add_obl_edges,
@@ -77,9 +80,8 @@ from netspy.visualise_paragraph_functions import (
     split_nodes,
 )
 
-# # Install packages
-# nltk.download("punkt")
-# stanza.install_corenlp()
+settings = get_settings()
+nltk.data.path.append(settings.nltk_dir)
 
 
 def speech_graph(transcript: str) -> MultiDiGraph:
