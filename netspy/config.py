@@ -1,7 +1,7 @@
 from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Union
-
+import os
 from pydantic import BaseSettings
 
 if TYPE_CHECKING:
@@ -54,6 +54,9 @@ class Settings(BaseSettings):
         """Create the netspy directory"""
         self.netspy_dir.mkdir(mode=mode, exist_ok=True)
 
+    def set_corenlp_env(self):
+        os.environ["CORENLP_HOME"] = str(self.core_nlp_dir)
+
     class Config:
         # pylint: disable=R0903
         env_file = ".env"
@@ -67,4 +70,6 @@ def get_settings(netspy_dir: Optional[Union[str, Path]] = None) -> Settings:
         settings = Settings(netspy_dir=netspy_dir)
     else:
         settings = Settings()
+
+    settings.set_corenlp_env()
     return settings

@@ -73,10 +73,13 @@ from netspy.visualise_paragraph_functions import (
     split_node_synonyms,
     split_nodes,
 )
+from netspy.config import get_settings
 
+settings = get_settings()
+nltk.data.path.append(settings.nltk_dir )
 # Install packages
-nltk.download("punkt")
-stanza.install_corenlp()
+# nltk.download("punkt")
+# stanza.install_corenlp()
 
 
 def speech_graph(transcript: str) -> MultiDiGraph:
