@@ -34,14 +34,12 @@ import numpy as np
 import pandas as pd
 import stanza
 
-# from netspy.types import MultiDiGraph
-from networkx.classes.multidigraph import MultiDiGraph
-
 # sys.path.append(
 #    '/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/')
 from pyopenie import OpenIE5
 from stanza.server import CoreNLPClient
 
+from netspy import MultiDiGraph
 from netspy.config import get_settings
 
 # from netspy.filelists import (
