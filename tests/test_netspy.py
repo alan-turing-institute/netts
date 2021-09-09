@@ -2,41 +2,9 @@
 
 import os
 from typing import Any, Dict
-
-from variables_test import (
-    expected_degree1,
-    expected_degree2,
-    expected_degree3,
-    expected_degree4,
-    expected_dict_adj1,
-    expected_dict_adj2,
-    expected_dict_adj3,
-    expected_dict_adj4,
-    expected_dict_graph1,
-    expected_dict_graph2,
-    expected_dict_graph3,
-    expected_dict_graph4,
-    expected_dict_node1,
-    expected_dict_node2,
-    expected_dict_node3,
-    expected_dict_node4,
-    expected_dict_pred1,
-    expected_dict_pred2,
-    expected_dict_pred3,
-    expected_dict_pred4,
-    expected_dict_succ1,
-    expected_dict_succ2,
-    expected_dict_succ3,
-    expected_dict_succ4,
-    expected_edges1,
-    expected_edges2,
-    expected_edges3,
-    expected_edges4,
-    expected_node_list1,
-    expected_node_list2,
-    expected_node_list3,
-    expected_node_list4,
-)
+from pathlib import Path
+import pytest
+import variables_test as vt
 
 from netspy import __version__
 from netspy.config import get_settings
@@ -54,59 +22,33 @@ def test_stanza() -> None:
     assert os.getenv("CORENLP_HOME") is not None
 
 
-def test_speech_graph() -> None:
-    with open("demo_data/3138838-TAT10.txt", "r", encoding="utf-8") as f:
+@pytest.mark.parametrize(
+    "file_name, expected_node_list, expected_edge_list, expected_degree",
+    [
+        ("3138838-TAT10.txt", vt.expected_node_list1, vt.expected_edges1, vt.expected_degree1),
+        ("3138838-TAT13.txt", vt.expected_node_list2, vt.expected_edges2, vt.expected_degree2),
+        ("3138849-TAT10.txt", vt.expected_node_list3, vt.expected_edges3, vt.expected_degree3),
+    ],
+)
+def test_speech_graph(
+    file_name, expected_node_list, expected_edge_list, expected_degree
+) -> None:
+
+    file = Path("demo_data") / file_name
+    with file.open("r", encoding="utf-8") as f:
         transcript = f.read()
-    graph1 = speech_graph(transcript)
 
-    assert list(graph1.nodes()) == expected_node_list1
-    assert list(graph1.edges()) == expected_edges1
-    assert list(graph1.degree()) == expected_degree1
+    graph = speech_graph(transcript)
 
-    graph1_dict = graph1.__dict__
+    assert list(graph.nodes()) == expected_node_list
+    assert list(graph.edges()) == expected_edge_list
+    assert list(graph.degree()) == expected_degree
 
-    assert graph1_dict.get("graph") == expected_dict_graph1
-    assert graph1_dict.get("_node") == expected_dict_node1
-    assert graph1_dict.get("_adj") == expected_dict_adj1
-    assert graph1_dict.get("_pred") == expected_dict_pred1
-    assert graph1_dict.get("_succ") == expected_dict_succ1
+    # graph_dict = graph.__dict__
 
-    with open("demo_data/3138838-TAT13.txt", "r", encoding="utf-8") as f:
-        transcript = f.read()
-    graph2 = speech_graph(transcript)
+    # assert graph_dict.get("graph") == expected_dict_graph1
+    # assert graph_dict.get("_node") == expected_dict_node1
+    # assert graph_dict.get("_adj") == expected_dict_adj1
+    # assert graph_dict.get("_pred") == expected_dict_pred1
+    # assert graph_dict.get("_succ") == expected_dict_succ1
 
-    assert list(graph2.nodes()) == expected_node_list2
-    assert list(graph2.edges()) == expected_edges2
-    assert list(graph2.degree) == expected_degree2
-
-    with open("demo_data/3138838-TAT30.txt", "r", encoding="utf-8") as f:
-        transcript = f.read()
-    graph3 = speech_graph(transcript)
-
-    assert list(graph3.nodes()) == expected_node_list3
-    assert list(graph3.edges()) == expected_edges3
-    assert list(graph3.degree) == expected_degree3
-
-    graph3_dict = graph3.__dict__
-
-    assert graph3_dict.get("graph") == expected_dict_graph3
-    assert graph3_dict.get("_node") == expected_dict_node3
-    assert graph3_dict.get("_adj") == expected_dict_adj3
-    assert graph3_dict.get("_pred") == expected_dict_pred3
-    assert graph3_dict.get("_succ") == expected_dict_succ3
-
-    with open("demo_data/3138849-TAT10.txt", "r", encoding="utf-8") as f:
-        transcript = f.read()
-    graph4 = speech_graph(transcript)
-
-    assert list(graph4.nodes()) == expected_node_list4
-    assert list(graph4.edges()) == expected_edges4
-    assert list(graph4.degree) == expected_degree4
-
-    graph4_dict = graph4.__dict__
-
-    assert graph4_dict.get("graph") == expected_dict_graph4
-    assert graph4_dict.get("_node") == expected_dict_node4
-    assert graph4_dict.get("_adj") == expected_dict_adj4
-    assert graph4_dict.get("_pred") == expected_dict_pred4
-    assert graph4_dict.get("_succ") == expected_dict_succ4
