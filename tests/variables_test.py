@@ -1,3 +1,6 @@
+# pylint: disable=C0302
+from typing import Any, Dict
+
 expected_node_list1 = [
     "girl",
     "maid",
@@ -60,7 +63,7 @@ expected_dict_graph1 = {
     "tokens": 112,
     "unconnected_nodes": ["couch", "baby", "doll", "toy"],
 }
-expected_dict_node1 = {
+expected_dict_node1: Dict[Any, Any] = {
     "girl": {},
     "maid": {},
     "very dismissive": {},
@@ -739,7 +742,7 @@ expected_dict_graph2 = {
     "tokens": 129,
     "unconnected_nodes": [],
 }
-expected_dict_node2 = {
+expected_dict_node2: Dict[Any, Any] = {
     "it": {},
     "midday": {},
     "hats": {},
@@ -1521,7 +1524,7 @@ expected_dict_graph3 = {
     "tokens": 119,
     "unconnected_nodes": ["park", "tree"],
 }
-expected_dict_node3 = {
+expected_dict_node3: Dict[Any, Any] = {
     "i": {},
     "man": {},
     "lightbulb": {},
@@ -2121,7 +2124,7 @@ expected_dict_graph4 = {
     "tokens": 71,
     "unconnected_nodes": ["lighting", "way", "woman"],
 }
-expected_dict_node4 = {
+expected_dict_node4: Dict[Any, Any] = {
     "image": {},
     "pretty boring": {},
     "child": {},
