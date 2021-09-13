@@ -11,7 +11,7 @@ import variables_test as vt
 
 from netspy import __version__
 from netspy.config import get_settings
-from netspy.speech_graph import plot_graph, speech_graph
+from netspy.speech_graph import speech_graph
 
 
 def test_version() -> None:
@@ -20,7 +20,7 @@ def test_version() -> None:
 
 def test_stanza() -> None:
 
-    settings = get_settings()
+    # settings = get_settings()
 
     assert os.getenv("CORENLP_HOME") is not None
 
