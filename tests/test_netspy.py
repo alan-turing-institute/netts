@@ -5,7 +5,10 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 import pytest
+import signal
 import variables_test as vt
+import subprocess
+import logging
 
 from netspy import __version__
 from netspy.config import get_settings
@@ -21,6 +24,56 @@ def test_stanza() -> None:
     settings = get_settings()
 
     assert os.getenv("CORENLP_HOME") is not None
+
+def test_start_openie() -> None: 
+  
+    settings = get_settings() 
+  
+    # Set directory to openie_dir 
+    curwd = os.getcwd() 
+    os.chdir(settings.openie_dir) 
+
+    # Start the server 
+    # pylint: disable=consider-using-with 
+    process = subprocess.Popen( 
+        [ 
+            "java", 
+            "-Xmx20g", 
+            "-XX:+UseConcMarkSweepGC", 
+            "-jar", 
+            "openie-assembly-5.0-SNAPSHOT.jar", 
+            "--ignore-errors", 
+            "--httpPort", 
+            "6000", 
+        ], 
+        stdout=subprocess.PIPE, 
+        universal_newlines=True, 
+    ) 
+    while True: 
+        # This is required to keep mypy happy as can be None 
+        if not process.stdout: 
+            raise IOError("Process can't write to standard out") 
+  
+        output = process.stdout.readline() 
+        return_code = process.poll() 
+  
+        logging.info("OpenIE stdout: %s", output) 
+        if return_code is not None: 
+            raise RuntimeError("OpenIE server start up failed" ,return_code) 
+  
+        if "Server started at port 6000" in output: 
+            break 
+  
+    assert "Server started at port 6000" in output 
+  
+    # Shut down server 
+    pid = process.pid
+    ##os.kill(pid,signal.SIGTERM)
+    print(pid)
+    #process.kill() 
+    os.chdir(curwd) 
+    assert os.getcwd() == curwd 
+
 
 
 @pytest.mark.parametrize(
@@ -67,7 +120,6 @@ def test_speech_graph(
     assert list(graph.nodes()) == expected_node_list
     assert list(graph.edges()) == expected_edges_list
     assert list(graph.degree()) == expected_degree_list
-
 
 @pytest.mark.parametrize(
     "filename, expected_dict_graph, expected_dict_node, expected_dict_adj, expected_dict_pred, expected_dict_succ",
