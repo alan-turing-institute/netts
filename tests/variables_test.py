@@ -1,4 +1,4 @@
-# pylint: disable=C0302
+# pylint: disable=C0301, C0302
 from typing import Any, Dict
 
 expected_node_list1 = [
@@ -58,7 +58,7 @@ expected_degree1 = [
     ("young", 1),
 ]
 expected_dict_graph1 = {
-    "transcript": "There are two… There is a young girl and who and seems to be maid, sitting on a couch. The little girl seems to be upset, she’s looking away and she looks very dismissive. She has something on her hands which I’m not sure what it is exactly, seems like, like a baby doll or yes, something, something looks familiar, like a toy. And the maid seems to convince her of, of something, but her eyes are closed and her mouth is shut. Oh and it seems to… She seems to be holding the book, maybe so she’s reading, but and the girl is not interested at all.\n",
+    "transcript": "There are two… There is a young girl and who and seems to be maid, sitting on a couch. The little girl seems to be upset, she’s looking away and she looks very dismissive. She has something on her hands which I’m not sure what it is exactly, seems like, like a baby doll or yes, something, something looks familiar, like a toy. And the maid seems to convince her of, of something, but her eyes are closed and her mouth is shut. Oh and it seems to… She seems to be holding the book, maybe so she’s reading, but and the girl is not interested at all.\n",  # noqa: E501
     "sentences": 5,
     "tokens": 112,
     "unconnected_nodes": ["couch", "baby", "doll", "toy"],
@@ -737,7 +737,7 @@ expected_degree2 = [
     ("all", 1),
 ]
 expected_dict_graph2 = {
-    "transcript": "Well, on the picture I see four men lying on the field, they seem to be some sort of workers and they seem to be tired and presumably, maybe it’s during midday, because their hats are covering their heads. One of the men seems to be standing up, who doesn’t have a hat on and he’s leaning towards the other three men that are lying on the floor. They seem to be tired, one of the men has… Seems to be in pain.\nAnd the, the…I cannot see this, the face of the third person, but another man is lying next to him, resting, so probably he is asleep or very tired as well. And the fourth man is lying towards all of them.\n",
+    "transcript": "Well, on the picture I see four men lying on the field, they seem to be some sort of workers and they seem to be tired and presumably, maybe it’s during midday, because their hats are covering their heads. One of the men seems to be standing up, who doesn’t have a hat on and he’s leaning towards the other three men that are lying on the floor. They seem to be tired, one of the men has… Seems to be in pain.\nAnd the, the…I cannot see this, the face of the third person, but another man is lying next to him, resting, so probably he is asleep or very tired as well. And the fourth man is lying towards all of them.\n",  # noqa: E501
     "sentences": 5,
     "tokens": 129,
     "unconnected_nodes": [],
@@ -1519,7 +1519,7 @@ expected_degree4 = [
     ("photo", 1),
 ]
 expected_dict_graph3 = {
-    "transcript": "I see a man in the dark standing against a light post. It seems to be in the middle of the night; I think because the lightbulb is working. On the picture there seems to be like a park and... Or trees but in those trees there are little balls of light reflections as well. I cannot see the… Anything else because it’s very dark. But the man on the picture seems to wear a hat and, and has a jacket on and he seems to have a hoodie on as well. The picture is very, very mysterious, which I like about it, but for me I would like to understand more concept, context of the picture.\n",
+    "transcript": "I see a man in the dark standing against a light post. It seems to be in the middle of the night; I think because the lightbulb is working. On the picture there seems to be like a park and... Or trees but in those trees there are little balls of light reflections as well. I cannot see the… Anything else because it’s very dark. But the man on the picture seems to wear a hat and, and has a jacket on and he seems to have a hoodie on as well. The picture is very, very mysterious, which I like about it, but for me I would like to understand more concept, context of the picture.\n",  # noqa: E501
     "sentences": 6,
     "tokens": 119,
     "unconnected_nodes": ["park", "tree"],
@@ -2112,14 +2112,8 @@ expected_dict_succ3 = {
     },
     "light": {},
 }
-expected_dict_graph666 = {
-    "transcript": "Well, on the picture I see four men lying on the field, they seem to be some sort of workers and they seem to be tired and presumably, maybe it’s during midday, because their hats are covering their heads. One of the men seems to be standing up, who doesn’t have a hat on and he’s leaning towards the other three men that are lying on the floor. They seem to be tired, one of the men has… Seems to be in pain.\nAnd the, the…I cannot see this, the face of the third person, but another man is lying next to him, resting, so probably he is asleep or very tired as well. And the fourth man is lying towards all of them.\n",
-    "sentences": 5,
-    "tokens": 129,
-    "unconnected_nodes": [],
-}
 expected_dict_graph4 = {
-    "transcript": "This image is pretty boring. Kind of represents, um, olden times when wife and the child … When the wife and the child would just stay at home whilst the father is the bread earner. Um, it’s quite a sad photo but also in lighting because of the way that women have grown since this time and it has been able to portray development of women through time, which is obviously very good.\n",
+    "transcript": "This image is pretty boring. Kind of represents, um, olden times when wife and the child … When the wife and the child would just stay at home whilst the father is the bread earner. Um, it’s quite a sad photo but also in lighting because of the way that women have grown since this time and it has been able to portray development of women through time, which is obviously very good.\n",  # noqa: E501
     "sentences": 3,
     "tokens": 71,
     "unconnected_nodes": ["lighting", "way", "woman"],
