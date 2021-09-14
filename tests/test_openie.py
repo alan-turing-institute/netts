@@ -54,5 +54,6 @@ def test_start_openie() -> None:
 
     # Shut down server
     process.kill()
+    process.wait()
     os.chdir(curwd)
     assert os.getcwd() == curwd
