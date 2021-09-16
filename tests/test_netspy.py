@@ -24,6 +24,7 @@ def test_stanza() -> None:
 
     assert os.getenv("CORENLP_HOME") is not None
 
+
 @pytest.mark.parametrize(
     "filename, expected_node_list, expected_edges_list, expected_degree_list",
     [
