@@ -1,31 +1,33 @@
-from pathlib import Path
-import subprocess
 import logging
-import os 
-from typing_extensions import runtime
+import os
+import subprocess
+from pathlib import Path
+from types import TracebackType
+from typing import Optional, Type
+
 from netspy.config import get_settings
 from netspy.speech_graph import speech_graph
 
 
-class ManageOpenIE():
+class ManageOpenIE:
     settings = get_settings()
-    openiepth=settings.openie_dir
+    openiepth = settings.openie_dir
 
-    def __init__(self, datapath:Path) -> None:
+    def __init__(self, datapath: Path) -> None:
         self.datapath = datapath
-        
+
         # Get the openie path (again) - I think I should be able to make this a class variable/param?
         settings = get_settings()
-        self.openiepth=settings.openie_dir
+        self.openiepth = settings.openie_dir
 
         # Get the initial working directory
         self.iwd = os.getcwd()
 
         # Change directory to the openie directory
         os.chdir(self.openiepth)
-        
+
         # Start the server - here we could have more options for users to decide what they want?
-        self.process = subprocess.Popen(
+        self.process = subprocess.Popen(  # pylint: disable=consider-using-with
             [
                 "java",
                 "-Xmx20g",
@@ -39,7 +41,6 @@ class ManageOpenIE():
             stdout=subprocess.PIPE,
             universal_newlines=True,
         )
-
 
     def __enter__(self) -> None:
         while True:
@@ -62,7 +63,12 @@ class ManageOpenIE():
         # Change to the data directory for the work
         os.chdir(self.datapath)
 
-    def __exit__(self, exc_type, exc_value, traceback) -> None:
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[Type[BaseException]],
+        traceback: Optional[TracebackType],
+    ) -> None:
         # To close change back to the openie directory
         os.chdir(self.openiepth)
         # Close the server
@@ -73,20 +79,20 @@ class ManageOpenIE():
         assert os.getcwd() == self.iwd
 
 
-current=os.getcwd()
-upper=os.path.dirname(current)
-datapath=upper + "/demo_data"
-print(upper, datapath)
+current = os.getcwd()
+upper = os.path.dirname(current)
+demodatapath = upper + "/demo_data"
+dpath = Path(demodatapath)
+print(upper, dpath, type(dpath))
 
-# datapath=os.getcwd()+'/tmp'
-with ManageOpenIE(datapath):
-    with open("3138838-TAT10.txt" , "r" , encoding="utf-8") as f:
-        transcript=f.read()
+with ManageOpenIE(dpath):
+    with open("3138838-TAT10.txt", "r", encoding="utf-8") as f:
+        transcript = f.read()
     graph = speech_graph(transcript)
 print(graph.__dict__)
 
-with ManageOpenIE(datapath):
-    with open("3138849-TAT10.txt", "r",encoding="utf-8") as f:
-        transcript=f.read()
+with ManageOpenIE(dpath):
+    with open("3138849-TAT10.txt", "r", encoding="utf-8") as f:
+        transcript = f.read()
     graph2 = speech_graph(transcript)
 print(graph2.__dict__)
