@@ -72,11 +72,11 @@ jobs:
       run: |
         python -m poetry run netspy install
 
-    - name: Generate Report
-      run: |
-        python -m poetry run pytest --cov=netspy --cov-report=xml tests -m "not slow and not without_cache"
+    # - name: Generate Report
+    #   run: |
+    #     python -m poetry run pytest --cov=netspy --cov-report=xml tests -m "not slow and not without_cache"
 
-    - name: Upload Coverage to Codecov
-      uses: codecov/codecov-action@v2
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
+    # - name: Upload Coverage to Codecov
+    #   uses: codecov/codecov-action@v2
+    #   with:
+    #     token: ${{ secrets.CODECOV_TOKEN }}
