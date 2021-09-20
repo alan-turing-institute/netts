@@ -49,11 +49,11 @@ def test_start_openie() -> None:
 
         if "Server started at port 6000" in output:
             break
-
+    os.chdir(curwd)
     assert "Server started at port 6000" in output
 
     # Shut down server
     process.kill()
     process.wait()
-    os.chdir(curwd)
+
     assert os.getcwd() == curwd
