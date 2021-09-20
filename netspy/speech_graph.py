@@ -1,19 +1,3 @@
-#!/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/venv python
-# ------------------------------------------------------------------------------
-# Script name:  speech_graph.py
-#
-# Description:
-#               Script to visualise sentence using OpenIE5 and Stanford CoreNLP
-#
-# Author:       Caroline Nettekoven, 2020
-#
-# ------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------
-# source /Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/venv/bin/activate
-# Usage: python ./speech_graph.py 3
-#        tat=3; python -u ./speech_graph.py ${tat} > figures/SpeechGraph_log_${tat}_`date +%F` # (pipe output to text file)
-# ------------------------------------------------------------------------------
-
 # flake8: noqa
 # pylint: skip-file
 import subprocess
@@ -36,21 +20,12 @@ import numpy as np
 import pandas as pd
 import stanza
 
-# sys.path.append(
-#    '/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/')
 from pyopenie import OpenIE5
 from stanza.server import CoreNLPClient
 
 from netspy import MultiDiGraph
 from netspy.config import get_settings
 
-# from netspy.filelists import (
-#    all_tat_files,
-#    dct_story_files,
-#    genpub_files,
-#    hbn_movie_files,
-#    tat_pilot_files,
-# )
 from netspy.nlp_helper_functions import (
     expand_contractions,
     get_transcript_properties,
@@ -86,71 +61,8 @@ nltk.data.path.append(settings.nltk_dir)
 
 def speech_graph(transcript: str) -> MultiDiGraph:
 
-    # ------------------------------------------------------------------------------
-    # Time execution of script
     start_time = time.time()
-    # ------------------------------------------------------------------------------
-    # Get sentence
-    # selected_file = 2
-    # selected_file = Path(sys.argv[1])
-    # if not selected_file.exists():
-    #     raise IOError("Cannot find file")
-    # data_dir = '/Users/CN/Documents/Projects/Cambridge/data'
 
-    # ++++++++ HBN Data ++++++++
-    # hbn_data_dir = op.join(data_dir, 'HBN', 'movie_descriptions')
-    # filename = hbn_movie_files[selected_file]
-    # input_file = op.join(hbn_data_dir, filename)
-    # output_dir = '/Users/CN/Dropbox/speech_graphs/hbn'
-
-    # # ++++++++ DCT Data ++++++++
-    # dct_data_dir = op.join(data_dir, 'DCT', 'stories')
-    # filename = dct_story_files[selected_file]
-    # input_file = op.join(dct_data_dir, filename)
-    # output_dir = '/Users/CN/Dropbox/speech_graphs/dct'
-
-    # # ++++++++ All TAT files ++++++++
-    # input_file = selected_file
-    # output_dir = "/Users/hduncan/Work/NetSpy/netspy"
-
-    # filename = all_tat_files[selected_file]
-    # if selected_file < 119:
-    #    tat_data_dir = op.join(data_dir, 'Kings', 'Prolific_pilot_all_transcripts')
-    #    input_file = op.join(tat_data_dir, filename)
-    # else:
-    #    genpub_data_dir = op.join(data_dir, 'Kings', 'general_public_tat')
-    #    input_file = op.join(genpub_data_dir, filename)
-
-    # # ++++++++ TAT files ++++++++
-    # # Make list of all transcripts
-    # # Kings Pilot
-    # tats = sorted(
-    #     Path(op.join(data_dir, 'Kings/Prolific_pilot_all_transcripts')).rglob('*TAT*.txt'))
-    # # Kings Study
-    # tats.extend(
-    #     sorted(Path(op.join(data_dir, 'Kings/Manual_2021-04-18')).rglob('*.txt')))
-
-    # # ++++++++ Oasis files ++++++++
-    # # Make list of all transcripts
-    # # Oasis study
-    # tats = sorted(
-    #     Path(op.join(data_dir, 'oasis/TLI_1_min_disfluencies/')).rglob('*.txt'))
-
-    # ++++++++ Ground truth files ++++++++
-    # Make list of all transcripts
-    # Oasis study
-    # tats = sorted(
-    #     Path(op.join(data_dir, 'ground_truth_tat')).rglob('*.txt'))
-
-    # Import selected transcript
-    # input_file = tats[selected_file]
-    # filename = input_file.name
-    # filename = str(selected_file)
-    # with open(input_file, "r") as fh:
-    #     orig_text = fh.read()
-    #     print(orig_text)
-
-    # ------------------------------------------------------------------------------
     # ------- Clean text -------
     # Need to replace problematic symbols before ANYTHING ELSE, because other tools cannot work with problematic symbols
     text = replace_problematic_symbols(transcript)  # replace ’ with '
@@ -161,11 +73,6 @@ def speech_graph(transcript: str) -> MultiDiGraph:
     text = remove_interjections(text)  # remove Ums and Mmms
     text = remove_irrelevant_text(text)
     text = text.strip()  # remove trailing and leading whitespace
-
-    # ------------------------------------------------------------------------------
-    # ------- Print transcript name -------
-    # transcript = filename.strip(".txt")
-    # print("\n+++ Transcript +++ \n\n %s" % (transcript))
 
     # ------------------------------------------------------------------------------
     # ------- Print cleaned text -------
