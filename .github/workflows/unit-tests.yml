@@ -2,10 +2,10 @@ name: unit-tests
 on: [pull_request]
 jobs:
   run:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [macos-latest]
         python-version: [3.7]
       fail-fast: false
     env:
