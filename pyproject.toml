@@ -37,9 +37,6 @@ pytest-cov = "^2.12.1"
 mkdocs-material = "^7.2.4"
 pytest-mock = "^3.6.1"
 
-[tool.isort]
-profile = "black"
-
 [tool.pytest.ini_options]
 log_cli = true
 log_cli_level = "WARNING"
@@ -50,6 +47,9 @@ markers = [
     "without_cache: marks tests to run that require no netspy dependencies cached (deselect with '-m \"not without_cache\"')",
     "ci_only: marks tests that should only run on ci (deselect with '-m \"not ci_only\"')",
 ]
+
+[tool.isort]
+profile = "black"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
