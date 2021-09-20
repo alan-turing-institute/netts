@@ -5,7 +5,6 @@ import os
 import subprocess
 from pathlib import Path
 from typing import Any, Dict, Generator, List, Tuple
-
 import pytest
 import variables_test as vt
 
@@ -93,39 +92,39 @@ def openie_start() -> Generator[None, None, None]:
             vt.expected_dict_pred1,
             vt.expected_dict_succ1,
         ),
-        (
-            "3138838-TAT13.txt",
-            vt.expected_node_list2,
-            vt.expected_edges2,
-            vt.expected_degree2,
-            vt.expected_dict_graph2,
-            vt.expected_dict_node2,
-            vt.expected_dict_adj2,
-            vt.expected_dict_pred2,
-            vt.expected_dict_succ2,
-        ),
-        (
-            "3138838-TAT30.txt",
-            vt.expected_node_list3,
-            vt.expected_edges3,
-            vt.expected_degree3,
-            vt.expected_dict_graph3,
-            vt.expected_dict_node3,
-            vt.expected_dict_adj3,
-            vt.expected_dict_pred3,
-            vt.expected_dict_succ3,
-        ),
-        (
-            "3138849-TAT10.txt",
-            vt.expected_node_list4,
-            vt.expected_edges4,
-            vt.expected_degree4,
-            vt.expected_dict_graph4,
-            vt.expected_dict_node4,
-            vt.expected_dict_adj4,
-            vt.expected_dict_pred4,
-            vt.expected_dict_succ4,
-        ),
+        # (
+        #     "3138838-TAT13.txt",
+        #     vt.expected_node_list2,
+        #     vt.expected_edges2,
+        #     vt.expected_degree2,
+        #     vt.expected_dict_graph2,
+        #     vt.expected_dict_node2,
+        #     vt.expected_dict_adj2,
+        #     vt.expected_dict_pred2,
+        #     vt.expected_dict_succ2,
+        # ),
+        # (
+        #     "3138838-TAT30.txt",
+        #     vt.expected_node_list3,
+        #     vt.expected_edges3,
+        #     vt.expected_degree3,
+        #     vt.expected_dict_graph3,
+        #     vt.expected_dict_node3,
+        #     vt.expected_dict_adj3,
+        #     vt.expected_dict_pred3,
+        #     vt.expected_dict_succ3,
+        # ),
+        # (
+        #     "3138849-TAT10.txt",
+        #     vt.expected_node_list4,
+        #     vt.expected_edges4,
+        #     vt.expected_degree4,
+        #     vt.expected_dict_graph4,
+        #     vt.expected_dict_node4,
+        #     vt.expected_dict_adj4,
+        #     vt.expected_dict_pred4,
+        #     vt.expected_dict_succ4,
+        # ),
     ],
 )
 def test_speech_graph(
