@@ -16,7 +16,9 @@
 
 # flake8: noqa
 # pylint: skip-file
-
+import subprocess
+import logging
+import pickle
 import datetime
 import os
 import os.path as op
@@ -26,7 +28,7 @@ import typing
 from copy import deepcopy
 from itertools import chain
 from pathlib import Path
-
+from typing import Union
 import matplotlib.pyplot as plt
 import networkx as nx
 import nltk
@@ -185,6 +187,43 @@ def speech_graph(transcript: str) -> MultiDiGraph:
 
     # ------- Basic Transcript Descriptors -------
     n_tokens, n_sententences, _ = get_transcript_properties(text, ex_stanza)
+
+
+    settings = get_settings()
+    curwd = os.getcwd()
+    os.chdir(settings.openie_dir)
+    process = subprocess.Popen(
+        [
+            "java",
+            "-Xmx20g",
+            "-XX:+UseConcMarkSweepGC",
+            "-jar",
+            "openie-assembly-5.0-SNAPSHOT.jar",
+            "--ignore-errors",
+            "--httpPort",
+            "6000",
+        ],
+        stdout=subprocess.PIPE,
+        universal_newlines=True,
+    )
+    while True:
+        # This is required to keep mypy happy as can be None
+        if not process.stdout:
+            raise IOError("Process can't write to standard out")
+
+        output = process.stdout.readline()
+        return_code = process.poll()
+
+        logging.info("OpenIE stdout: %s", output)
+        if return_code is not None:
+            raise RuntimeError("OpenIE server start up failed", return_code)
+
+        if "Server started at port 6000" in output:
+            break
+
+    os.chdir(curwd)
+
+
     # ------------------------------------------------------------------------------
     # ------- Run OpenIE5 (Ollie) -------
     # Ollie can handle more than one sentence at a time, but need to loop through sentences to keep track of sentence index
@@ -221,6 +260,10 @@ def speech_graph(transcript: str) -> MultiDiGraph:
                     ),
                 )
             )
+
+    # Shut down server
+    process.kill()
+    process.wait()
 
     print("+++++++++++++++++++\n")
 
@@ -322,20 +365,21 @@ def speech_graph(transcript: str) -> MultiDiGraph:
     return G
 
 
-def plot_graph(graph: MultiDiGraph, ext: str = None) -> None:
+def pickle_graph(graph:  MultiDiGraph, file: Union[str, Path], protocol=pickle.HIGHEST_PROTOCOL) -> None:
+
+    pickle.dump(graph, file, protocol)
+
+
+def plot_graph(graph: MultiDiGraph, ax=None, **kwargs) -> None:
     # Plot Graph and add edge labels
     pos = nx.spring_layout(graph)
     nx.draw(
         graph,
         pos,
-        edge_color="black",
-        width=1,
-        linewidths=1,
-        node_size=500,
-        node_color="pink",
-        alpha=0.9,
-        labels={node: node for node in graph.nodes()},
+        ax=ax,
+        **kwargs,
     )
+
     edge_labels = dict(
         [
             (
@@ -350,16 +394,16 @@ def plot_graph(graph: MultiDiGraph, ext: str = None) -> None:
     )
     nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_labels, font_color="red")
 
-    # Get current working directory to output the png and gpickle files
-    output_dir = Path().resolve()
-    output = output_dir / "output_filename"
-    if ext == None or ext == "png":
-        # Save as png in folder script is run from
-        plt.savefig(output, transparent=True)
-    if ext == "gpickle":
-        # Ditto as gpickle
-        output = str(output) + ".gpickle"
-        nx.write_gpickle(graph, output)
+    # # Get current working directory to output the png and gpickle files
+    # output_dir = Path().resolve()
+    # output = output_dir / "output_filename"
+    # if ext == None or ext == "png":
+    #     # Save as png in folder script is run from
+    #     plt.savefig(output, transparent=True)
+    # if ext == "gpickle":
+    #     # Ditto as gpickle
+    #     output = str(output) + ".gpickle"
+    #     nx.write_gpickle(graph, output)
 
     # plt.axis("off")
     # # Print resulting edges
