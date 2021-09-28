@@ -11,7 +11,7 @@ echo "There are two… There is a young girl and who and seems to be maid, sitti
 ```
 </details>
 
-We can the process the file 
+We can the process the file
 
 === "CLI"
 
