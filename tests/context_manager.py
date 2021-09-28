@@ -1,27 +1,41 @@
 import logging
 import os
 import subprocess
-from pathlib import Path
+import contextlib
+import socket
+import atexit
 from types import TracebackType
 from typing import Optional, Type
 
 from netspy.config import get_settings
-from netspy.speech_graph import speech_graph
-
+import json
+import requests
 
 class ManageOpenIE:
     settings = get_settings()
     openiepth = settings.openie_dir
 
-    def __init__(self, datapath: Path) -> None:
-        self.datapath = datapath
-
-        # Get the openie path (again) - I think I should be able to make this a class variable/param?
+    def __init__(self) -> None:
         settings = get_settings()
         self.openiepth = settings.openie_dir
+        self.process=None
+        self.host='localhost'
+        self.port = 6000
+        # Check if the port is open
+        self.check_port()
+        atexit.register(self.atexit_kill)
 
+    def check_port(self):
+        with contextlib.closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+            try:
+                sock.bind((self.host, self.port))
+            except socket.error:
+                raise FailedException("Error: unable to start openIE server on port %d "
+                                 "(possibly something is already running there)" % self.port)
+
+    def connect(self):
         # Get the initial working directory
-        self.iwd = os.getcwd()
+        iwd = os.getcwd()
 
         # Change directory to the openie directory
         os.chdir(self.openiepth)
@@ -36,13 +50,11 @@ class ManageOpenIE:
                 "openie-assembly-5.0-SNAPSHOT.jar",
                 "--ignore-errors",
                 "--httpPort",
-                "6000",
+                str(self.port),
             ],
             stdout=subprocess.PIPE,
             universal_newlines=True,
         )
-
-    def __enter__(self) -> None:
         while True:
             # This is required to keep mypy happy as can be None
             if not self.process.stdout:
@@ -55,13 +67,39 @@ class ManageOpenIE:
             if return_code is not None:
                 raise RuntimeError("OpenIE server start up failed", return_code)
 
-            if "Server started at port 6000" in output:
+            if "Server started at port "+str(self.port) in output:
                 break
 
-        assert "Server started at port 6000" in output
+        assert "Server started at port "+str(self.port) in output
 
-        # Change to the data directory for the work
-        os.chdir(self.datapath)
+        # Change to the initial working directory
+        os.chdir(iwd)
+
+    def __enter__(self) -> None:
+        self.connect()
+        return self
+
+
+    def extract(self, sentence: str, properties: dict):
+        assert isinstance(sentence, str) # Ensure a string is passed
+        if properties is None:
+            properties = {}
+        else:
+            assert isinstance(properties, dict) # Ensure the properties is a dictionary
+
+        data_payload = sentence.encode('utf-8') # Set the encoding of the text being sent
+
+        # Post: Send instructions
+        instruction='http://localhost:'+str(self.port)+'/getExtraction'
+        payload={'properties': str(properties)}
+        header_payload={'Connection': 'close'}
+        extraction_request = requests.post(
+                instruction,
+                params=payload,
+                data=data_payload,
+                headers=header_payload)#{'Connection': 'close'})
+
+        return json.loads(extraction_request.text)
 
     def __exit__(
         self,
@@ -69,30 +107,34 @@ class ManageOpenIE:
         exc_value: Optional[Type[BaseException]],
         traceback: Optional[TracebackType],
     ) -> None:
-        # To close change back to the openie directory
-        os.chdir(self.openiepth)
-        # Close the server
-        self.process.kill()
-        self.process.wait()
-        # Change back to initial working directory
-        os.chdir(self.iwd)
-        assert os.getcwd() == self.iwd
+        self.close()
 
+    def close(self):
+        if self.process and not self.process.poll():
+            # Close the server
+            self.process.kill()
+            self.process.wait()
 
-current = os.getcwd()
-upper = os.path.dirname(current)
-demodatapath = upper + "/demo_data"
-dpath = Path(demodatapath)
-print(upper, dpath, type(dpath))
+    def atexit_kill(self):
+        """
+        If python is forced to close, the process will be terminated
+        """
+        if self.process and self.process.poll() is None:
+            self.process.terminate()
 
-with ManageOpenIE(dpath):
-    with open("3138838-TAT10.txt", "r", encoding="utf-8") as f:
-        transcript = f.read()
-    graph = speech_graph(transcript)
-print(graph.__dict__)
+class FailedException(Exception):
+    """
+    Don't try and force it to run on the speicfied port
+    """
 
-with ManageOpenIE(dpath):
-    with open("3138849-TAT10.txt", "r", encoding="utf-8") as f:
-        transcript = f.read()
-    graph2 = speech_graph(transcript)
-print(graph2.__dict__)
+sentence_one='There are two ... There is a young girl and who and seems to be maid , sitting on a couch .'
+sentence_two='The little girl seems to be upset , she is looking away and she looks very dismissive .'
+
+props={}
+openie=ManageOpenIE()
+openie.connect()
+op=openie.extract(sentence_one, props)
+print(op)
+op=openie.extract(sentence_two, props)
+print(op)
+openie.close()
