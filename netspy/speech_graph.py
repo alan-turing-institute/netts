@@ -1,31 +1,35 @@
 # flake8: noqa
 # pylint: skip-file
-import subprocess
-import logging
-import pickle
+import concurrent.futures
 import datetime
+import logging
+import multiprocessing
 import os
 import os.path as op
+import pickle
+import subprocess
 import sys
 import time
 import typing
 from copy import deepcopy
+from functools import partial
 from itertools import chain
 from pathlib import Path
-from typing import Union
+from typing import List, Optional, Union, overload
+
 import matplotlib.pyplot as plt
 import networkx as nx
 import nltk
 import numpy as np
 import pandas as pd
 import stanza
-
+from networkx.algorithms.triads import all_triads
 from pyopenie import OpenIE5
 from stanza.server import CoreNLPClient
+from tqdm import tqdm
 
 from netspy import MultiDiGraph
 from netspy.config import get_settings
-
 from netspy.nlp_helper_functions import (
     expand_contractions,
     get_transcript_properties,
@@ -59,247 +63,259 @@ settings = get_settings()
 nltk.data.path.append(settings.nltk_dir)
 
 
-def speech_graph(transcript: str) -> MultiDiGraph:
-
-    start_time = time.time()
-
-    # ------- Clean text -------
-    # Need to replace problematic symbols before ANYTHING ELSE, because other tools cannot work with problematic symbols
-    text = replace_problematic_symbols(transcript)  # replace ’ with '
-    print(text)
-    text = expand_contractions(text)  # expand it's to it is
-    print(text)
-
-    text = remove_interjections(text)  # remove Ums and Mmms
-    text = remove_irrelevant_text(text)
-    text = text.strip()  # remove trailing and leading whitespace
-
-    # ------------------------------------------------------------------------------
-    # ------- Print cleaned text -------
-    print("\n+++ Paragraph: +++ \n\n %s \n\n+++++++++++++++++++" % (text))
-
-    # ------------------------------------------------------------------------------
-    # ------------------------------------------------------------------------------
-    # ------- Run Stanford CoreNLP (Stanza) -------
-    # Annotate and extract with Stanford CoreNLP
-
-    with CoreNLPClient(
-        properties={
-            "annotators": "tokenize,ssplit,pos,lemma,parse,depparse,coref,openie"
-            # 'pos.model': '/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/OpenIE-standalone/target/streams/$global/assemblyOption/$global/streams/assembly/8a3bd51fe5c1bb09a51f326fa358947f6dc78463_8e7f18d9ae73e8daf5ee4d4e11167e10f8827888_da39a3ee5e6b4b0d3255bfef95601890afd80709/edu/stanford/nlp/models/pos-tagger/english-bidirectional/english-bidirectional-distsim.tagger'
-        },
-        be_quiet=True,
-    ) as client:
-        ex_stanza = client.annotate(text)
-
-    # ------- Basic Transcript Descriptors -------
-    n_tokens, n_sententences, _ = get_transcript_properties(text, ex_stanza)
+# @overload
+# def speech_graph(
+#     transcript: str, n_cores: int = multiprocessing.cpu_count()
+# ) -> MultiDiGraph:
+#     pass
 
 
-    settings = get_settings()
-    curwd = os.getcwd()
-    os.chdir(settings.openie_dir)
-    process = subprocess.Popen(
-        [
-            "java",
-            "-Xmx20g",
-            "-XX:+UseConcMarkSweepGC",
-            "-jar",
-            "openie-assembly-5.0-SNAPSHOT.jar",
-            "--ignore-errors",
-            "--httpPort",
-            "6000",
-        ],
-        stdout=subprocess.PIPE,
-        universal_newlines=True,
-    )
-    while True:
-        # This is required to keep mypy happy as can be None
-        if not process.stdout:
-            raise IOError("Process can't write to standard out")
-
-        output = process.stdout.readline()
-        return_code = process.poll()
-
-        logging.info("OpenIE stdout: %s", output)
-        if return_code is not None:
-            raise RuntimeError("OpenIE server start up failed", return_code)
-
-        if "Server started at port 6000" in output:
-            break
-
-    os.chdir(curwd)
+# @overload
+# def speech_graph(
+#     transcript: List[str], n_cores: int = multiprocessing.cpu_count()
+# ) -> List[MultiDiGraph]:
+#     pass
 
 
-    # ------------------------------------------------------------------------------
-    # ------- Run OpenIE5 (Ollie) -------
-    # Ollie can handle more than one sentence at a time, but need to loop through sentences to keep track of sentence index
-    extractorIE5 = OpenIE5("http://localhost:6000")  # Initialize Ollie
+class SpeechGraph:
+    def __init__(
+        self,
+        transcript: str,
+    ) -> None:
 
-    ex_ollie = {}
-    for i, sentence in enumerate(ex_stanza.sentence):
-        if len(sentence.token) > 1:
-            print(f"====== Submitting sentence {i+1} tokens =======")
-            sentence_text = (" ").join(
-                [token.originalText for token in sentence.token if token.originalText]
-            )
-            print("{}".format(sentence_text))
-            try:
-                extraction = extractorIE5.extract(sentence_text)
-            except:
+        self.transcript = transcript
+        self.graph: Optional[MultiDiGraph] = None
+
+    def process(
+        self,
+        corenlp_client: Optional[CoreNLPClient] = None,
+        openie_client: Optional[str] = None,
+    ) -> MultiDiGraph:
+
+        start_time = time.time()
+
+        print(self.transcript)
+
+        # ------- Clean text -------
+        # Need to replace problematic symbols before ANYTHING ELSE, because other tools cannot work with problematic symbols
+        text = replace_problematic_symbols(self.transcript)  # replace ’ with '
+        print(text)
+        text = expand_contractions(text)  # expand it's to it is
+        print(text)
+
+        text = remove_interjections(text)  # remove Ums and Mmms
+        text = remove_irrelevant_text(text)
+        text = text.strip()  # remove trailing and leading whitespace
+
+        # ------------------------------------------------------------------------------
+        # ------- Print cleaned text -------
+        print("\n+++ Paragraph: +++ \n\n %s \n\n+++++++++++++++++++" % (text))
+
+        # ------------------------------------------------------------------------------
+        # ------------------------------------------------------------------------------
+        # ------- Run Stanford CoreNLP (Stanza) -------
+        # Annotate and extract with Stanford CoreNLP
+
+        if corenlp_client:
+            ex_stanza = corenlp_client.annotate(text)
+        else:
+            with CoreNLPClient(
+                properties={
+                    "annotators": "tokenize,ssplit,pos,lemma,parse,depparse,coref,openie"
+                    # 'pos.model': '/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/OpenIE-standalone/target/streams/$global/assemblyOption/$global/streams/assembly/8a3bd51fe5c1bb09a51f326fa358947f6dc78463_8e7f18d9ae73e8daf5ee4d4e11167e10f8827888_da39a3ee5e6b4b0d3255bfef95601890afd80709/edu/stanford/nlp/models/pos-tagger/english-bidirectional/english-bidirectional-distsim.tagger'
+                },
+                be_quiet=True,
+            ) as corenlp_client:
+                ex_stanza = corenlp_client.annotate(text)
+
+        # ------- Basic Transcript Descriptors -------
+        n_tokens, n_sententences, _ = get_transcript_properties(text, ex_stanza)
+
+        # ------------------------------------------------------------------------------
+        # ------- Run OpenIE5 (Ollie) -------
+        # Ollie can handle more than one sentence at a time, but need to loop through sentences to keep track of sentence index
+        extractorIE5 = OpenIE5("http://localhost:6000")  # Initialize Ollie
+
+        ex_ollie = {}
+        for i, sentence in enumerate(ex_stanza.sentence):
+            if len(sentence.token) > 1:
+                print(f"====== Submitting sentence {i+1} tokens =======")
+                sentence_text = (" ").join(
+                    [
+                        token.originalText
+                        for token in sentence.token
+                        if token.originalText
+                    ]
+                )
+                print("{}".format(sentence_text))
+                try:
+                    extraction = extractorIE5.extract(sentence_text)
+                except:
+                    print(
+                        "\n- - - > Unexpected error in Ollie: {} \n\tOllie was unable to handle this sentence.\n\tSetting extraction to empty for this sentence.\n\tContinueing with next sentence.\n".format(
+                            sys.exc_info()[0]
+                        )
+                    )
+                    extraction = []
+                ex_ollie[i] = extraction
+            else:
                 print(
-                    "\n- - - > Unexpected error in Ollie: {} \n\tOllie was unable to handle this sentence.\n\tSetting extraction to empty for this sentence.\n\tContinueing with next sentence.\n".format(
-                        sys.exc_info()[0]
+                    '====== Skipping sentence {}: Sentence has too few tokens: "{}" ======='.format(
+                        i + 1,
+                        (" ").join(
+                            [
+                                token.originalText
+                                for token in sentence.token
+                                if token.originalText
+                            ]
+                        ),
                     )
                 )
-                extraction = []
-            ex_ollie[i] = extraction
+
+        print("+++++++++++++++++++\n")
+
+        # --------------------- Create ollie edges ---------------------------------------
+        (
+            ollie_edges,
+            ollie_edges_text_excerpts,
+            ollie_one_node_edges,
+            ollie_one_node_edges_text_excerpts,
+        ) = create_edges_ollie(ex_ollie)
+
+        edges = ollie_edges
+        # --------------------- Create stanza edges ---------------------------------------
+        stanza_edges, stanza_edges_text_excerpts = create_edges_stanza(
+            ex_stanza, be_quiet=False
+        )
+        # If Ollie was unable to detect any edges, use stanza edges
+
+        if len(ollie_edges) == 0 and len(stanza_edges) != 0:
+            edges = stanza_edges
+            print(
+                "++++ Ollie detected {} edges, but stanza detected {}. Therefore added edges detected by stanza.  ++++".format(
+                    len(ollie_edges), len(stanza_edges)
+                )
+            )
+        elif len(ollie_edges) == 0 and len(stanza_edges) == 0:
+            print(
+                "++++ Ollie detected {} edges and stanza also detected {}. No stanza edges were added. ++++".format(
+                    len(ollie_edges), len(stanza_edges)
+                )
+            )
         else:
             print(
-                '====== Skipping sentence {}: Sentence has too few tokens: "{}" ======='.format(
-                    i + 1,
-                    (" ").join(
-                        [
-                            token.originalText
-                            for token in sentence.token
-                            if token.originalText
-                        ]
-                    ),
+                "++++ Ollie detected {} edges, so no stanza edges were added.  ++++".format(
+                    len(ollie_edges)
                 )
             )
 
-    # Shut down server
-    process.kill()
-    process.wait()
-
-    print("+++++++++++++++++++\n")
-
-    # --------------------- Create ollie edges ---------------------------------------
-    (
-        ollie_edges,
-        ollie_edges_text_excerpts,
-        ollie_one_node_edges,
-        ollie_one_node_edges_text_excerpts,
-    ) = create_edges_ollie(ex_ollie)
-
-    edges = ollie_edges
-    # --------------------- Create stanza edges ---------------------------------------
-    stanza_edges, stanza_edges_text_excerpts = create_edges_stanza(
-        ex_stanza, be_quiet=False
-    )
-    # If Ollie was unable to detect any edges, use stanza edges
-
-    if len(ollie_edges) == 0 and len(stanza_edges) != 0:
-        edges = stanza_edges
-        print(
-            "++++ Ollie detected {} edges, but stanza detected {}. Therefore added edges detected by stanza.  ++++".format(
-                len(ollie_edges), len(stanza_edges)
-            )
-        )
-    elif len(ollie_edges) == 0 and len(stanza_edges) == 0:
-        print(
-            "++++ Ollie detected {} edges and stanza also detected {}. No stanza edges were added. ++++".format(
-                len(ollie_edges), len(stanza_edges)
-            )
-        )
-    else:
-        print(
-            "++++ Ollie detected {} edges, so no stanza edges were added.  ++++".format(
-                len(ollie_edges)
-            )
+        # --------------------- Get word types ---------------------------------------
+        no_noun, poss_pronouns, dts, nouns, nouns_origtext, adjectives = get_word_types(
+            ex_stanza
         )
 
-    # --------------------- Get word types ---------------------------------------
-    no_noun, poss_pronouns, dts, nouns, nouns_origtext, adjectives = get_word_types(
-        ex_stanza
-    )
+        adjectives, adjective_edges = get_adj_edges(ex_stanza)
 
-    adjectives, adjective_edges = get_adj_edges(ex_stanza)
+        prepositions, preposition_edges = get_prep_edges(ex_stanza)
 
-    prepositions, preposition_edges = get_prep_edges(ex_stanza)
+        obliques, oblique_edges = get_obl_edges(ex_stanza)
 
-    obliques, oblique_edges = get_obl_edges(ex_stanza)
+        # --------------------- Add oblique edges ---------------------------------------
+        edges = add_obl_edges(edges, oblique_edges)
+        # --------------------- Get node name synonyms ---------------------------------------
+        node_name_synonyms = get_node_synonyms(ex_stanza, no_noun)
+        # --------------------- Split nodes connected by preposition ---------------------------------------
+        edges, node_name_synonyms = split_node_synonyms(
+            node_name_synonyms, preposition_edges, edges
+        )
 
-    # --------------------- Add oblique edges ---------------------------------------
-    edges = add_obl_edges(edges, oblique_edges)
-    # --------------------- Get node name synonyms ---------------------------------------
-    node_name_synonyms = get_node_synonyms(ex_stanza, no_noun)
-    # --------------------- Split nodes connected by preposition ---------------------------------------
-    edges, node_name_synonyms = split_node_synonyms(
-        node_name_synonyms, preposition_edges, edges
-    )
+        edges = split_nodes(edges, preposition_edges, no_noun)
+        # --------------------- Merge coreferenced nodes ---------------------------------------
+        edges, orig_edges = merge_corefs(
+            edges, node_name_synonyms, no_noun, poss_pronouns
+        )
 
-    edges = split_nodes(edges, preposition_edges, no_noun)
-    # --------------------- Merge coreferenced nodes ---------------------------------------
-    edges, orig_edges = merge_corefs(edges, node_name_synonyms, no_noun, poss_pronouns)
+        preposition_edges, orig_preposition_edges = merge_corefs(
+            preposition_edges, node_name_synonyms, no_noun, poss_pronouns
+        )
 
-    preposition_edges, orig_preposition_edges = merge_corefs(
-        preposition_edges, node_name_synonyms, no_noun, poss_pronouns
-    )
+        adjective_edges, orig_adjective_edges = merge_corefs(
+            adjective_edges, node_name_synonyms, no_noun, poss_pronouns
+        )
 
-    adjective_edges, orig_adjective_edges = merge_corefs(
-        adjective_edges, node_name_synonyms, no_noun, poss_pronouns
-    )
+        oblique_edges, orig_oblique_edges = merge_corefs(
+            oblique_edges, node_name_synonyms, no_noun, poss_pronouns
+        )
 
-    oblique_edges, orig_oblique_edges = merge_corefs(
-        oblique_edges, node_name_synonyms, no_noun, poss_pronouns
-    )
+        # --------------------- Add adjective edges / preposition edges / unconnected nodes ---------------------------------------
+        edges = add_adj_edges(edges, adjective_edges, add_adjective_edges=True)
 
-    # --------------------- Add adjective edges / preposition edges / unconnected nodes ---------------------------------------
-    edges = add_adj_edges(edges, adjective_edges, add_adjective_edges=True)
+        edges = add_prep_edges(edges, preposition_edges, add_all_preposition_edges=True)
 
-    edges = add_prep_edges(edges, preposition_edges, add_all_preposition_edges=True)
+        unconnected_nodes = get_unconnected_nodes(edges, orig_edges, nouns)
 
-    unconnected_nodes = get_unconnected_nodes(edges, orig_edges, nouns)
+        # --------------------- Clean nodes & edges ---------------------------------------
+        edges = clean_nodes(edges, nouns, adjectives)
 
-    # --------------------- Clean nodes & edges ---------------------------------------
-    edges = clean_nodes(edges, nouns, adjectives)
+        edges = clean_parallel_edges(edges)
 
-    edges = clean_parallel_edges(edges)
+        # --------------------- Speech Graph ---------------------------------------
+        # fig = plt.figure(figsize=(25.6, 9.6))
 
-    # --------------------- Speech Graph ---------------------------------------
-    fig = plt.figure(figsize=(25.6, 9.6))
+        # Construct Speech Graph with properties: number of tokens, number of sentences, unconnected nodes as graph property
+        G = nx.MultiDiGraph(
+            transcript=self.transcript,
+            sentences=n_sententences,
+            tokens=n_tokens,
+            unconnected_nodes=unconnected_nodes,
+        )
+        # Add Edges
+        G.add_edges_from(edges)
 
-    # Construct Speech Graph with properties: number of tokens, number of sentences, unconnected nodes as graph property
-    G = nx.MultiDiGraph(
-        transcript=transcript,
-        sentences=n_sententences,
-        tokens=n_tokens,
-        unconnected_nodes=unconnected_nodes,
-    )
-    # Add Edges
-    G.add_edges_from(edges)
-    return G
+        self.graph = G
+        return G
 
+    def plot_graph(self, ax=None, **kwargs) -> None:
 
-def pickle_graph(graph:  MultiDiGraph, file: Union[str, Path], protocol=pickle.HIGHEST_PROTOCOL) -> None:
+        if not self.graph:
+            raise RuntimeError("self.graph does not exist")
 
-    pickle.dump(graph, file, protocol)
+        if not ax:
+            _, ax = plt.subplots()
 
+        # Plot Graph and add edge labels
+        pos = nx.spring_layout(self.graph)
+        nx.draw(
+            self.graph,
+            pos,
+            ax=ax,
+            edge_color="black",
+            width=1,
+            linewidths=1,
+            node_size=500,
+            node_color="pink",
+            alpha=0.9,
+            labels={node: node for node in self.graph.nodes()},
+            **kwargs,
+        )
 
-def plot_graph(graph: MultiDiGraph, ax=None, **kwargs) -> None:
-    # Plot Graph and add edge labels
-    pos = nx.spring_layout(graph)
-    nx.draw(
-        graph,
-        pos,
-        ax=ax,
-        **kwargs,
-    )
-
-    edge_labels = dict(
-        [
-            (
+        edge_labels = dict(
+            [
                 (
-                    u,
-                    v,
-                ),
-                d["relation"],
-            )
-            for u, v, d in graph.edges(data=True)
-        ]
-    )
-    nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_labels, font_color="red")
+                    (
+                        u,
+                        v,
+                    ),
+                    d["relation"],
+                )
+                for u, v, d in self.graph.edges(data=True)
+            ]
+        )
+        nx.draw_networkx_edge_labels(
+            self.graph, pos, edge_labels=edge_labels, font_color="red"
+        )
+
+        return ax
 
     # # Get current working directory to output the png and gpickle files
     # output_dir = Path().resolve()
@@ -341,3 +357,61 @@ def plot_graph(graph: MultiDiGraph, ax=None, **kwargs) -> None:
     # nx.write_gpickle(graph, output + ".gpickle")
     # # --- Show graph ---
     # # plt.show(block=False)
+
+
+class SpeechGraphFile(SpeechGraph):
+    def __init__(
+        self,
+        file: Path,
+        output_dir: Path,
+        load_if_exists: bool = True,
+    ) -> None:
+
+        self.file = file
+        self.output_dir = output_dir
+
+        if not self.check_input_file_exists():
+            raise IOError(f"File {self.file} does not exist")
+
+        super().__init__(
+            transcript=self.file.read_text(encoding="utf-8"),
+        )
+
+        if load_if_exists:
+            self.load_graph()
+
+    def check_input_file_exists(self) -> bool:
+
+        return self.file.exists() and self.file.is_file()
+
+    @property
+    def output_file(self) -> Path:
+        return self.output_dir / self.file.stem
+
+    def output_graph_file(self, output_format: str = "png") -> Path:
+        return self.output_file.parent / (self.output_file.name + "." + output_format)
+
+    @property
+    def missing(self) -> bool:
+        return not self.output_file.exists()
+
+    def load_graph(self) -> None:
+
+        if not self.missing:
+            self.graph = pickle.loads(self.output_file.read_bytes())
+
+    def dump(self) -> None:
+
+        if not self.graph:
+            raise RuntimeError("Graph does not exist")
+
+        # Ensure directory exists
+        self.output_dir.mkdir(exist_ok=True)
+
+        with self.output_file.open(mode="wb") as output_f:
+            pickle_graph(self.graph, output_f)
+
+
+def pickle_graph(graph: MultiDiGraph, file, protocol=pickle.HIGHEST_PROTOCOL) -> None:
+
+    pickle.dump(graph, file, protocol)
