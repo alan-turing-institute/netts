@@ -190,6 +190,16 @@ def run(
                 transcript_file.plot_graph()
                 plt.savefig(transcript_file.output_graph_file(fig_format))
 
+@app.command()
+def config():
+    """Create a defauly configuration file"""
+
+    typer.echo(netspy.config_file.create())
+
+@app.command()
+def config_verify(config: Path):
+    """Verify a configuration file"""
+    print(netspy.config_file.load(config))
 
 if __name__ == "__main__":
     app()

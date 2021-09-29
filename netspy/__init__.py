@@ -7,8 +7,9 @@ from networkx.classes.multidigraph import MultiDiGraph
 from netspy.config import get_settings
 from netspy.install_models import install_dependencies
 from netspy.speech_graph import SpeechGraph, SpeechGraphFile
+from netspy import config_file
+from netspy.version import __version__
 
-__version__ = "0.1.0"
 
 __all__ = [
     "install_dependencies",
@@ -16,4 +17,5 @@ __all__ = [
     "SpeechGraphFile",
     "get_settings",
     "MultiDiGraph",
+    "config_file",
 ]
