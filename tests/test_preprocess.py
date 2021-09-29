@@ -1,6 +1,5 @@
 import pytest
-from netspy.preprocess import replace_problematic_characters, expand_contractions
-from netspy.nlp_helper_functions import expand_contractions as nlp_expand_contractions
+from netspy.preprocess import replace_problematic_characters, expand_contractions, remove_interjections
 
 EXAMPLE_MAP = {
     "’": "'",
@@ -138,6 +137,38 @@ CONTRACTION_MAP = {
     "you've": "you have",
 }
 
+ENGLISH_INTERJECTIONS = [
+        "Um",
+        "um",
+        "Uh",
+        "uh",
+        "Eh",
+        "eh",
+        "Ehm",
+        "Em",
+        "em",
+        "Erm",
+        "erm",
+        "Ehhm",
+        "ehhm",
+        "Ehm",
+        "ehm",
+        "Mmm",
+        "mmm",
+        "Yeah",
+        "yeah",
+        "ah",
+        "Ah",
+        "Aah",
+        "aah",
+        "hmm",
+        "hmmm",
+        "Hmm",
+        "Hmmm",
+        "inaudible",
+        "Inaudible",
+    ]
+
 
 @pytest.mark.parametrize(
     "character_map, text, expected",
@@ -176,7 +207,7 @@ def test_expand_contractions(character_map, text, expected):
 
     ret = expand_contractions(text, contraction_map=character_map)
 
-    ret2 = nlp_expand_contractions(text)
+    ret2 = expand_contractions()(text)
 
     assert ret == expected
     assert ret == expected
@@ -185,4 +216,22 @@ def test_expand_contractions(character_map, text, expected):
 @pytest.mark.parametrize("original, expected", CONTRACTION_MAP.items())
 def test_expand_contractions(original, expected):
 
-    assert expand_contractions(original, CONTRACTION_MAP) == expected
+    ret = expand_contractions(original, CONTRACTION_MAP)
+
+    assert ret == expected
+
+    # Test result is the same if we run on result of first run
+    assert ret == expand_contractions(ret, CONTRACTION_MAP)
+
+@pytest.mark.parametrize(
+    "interjections, text, expected",
+    [
+        (ENGLISH_INTERJECTIONS, "I'm not sure um, let me see, ah", "I am not sure , let me see ,"),
+        (ENGLISH_INTERJECTIONS, "Ah Are you sure eh", "Are you sure"),
+        (ENGLISH_INTERJECTIONS, "Ah Are you sure, or not eh", "Are you sure , or not"),
+
+    ],
+)
+def test_remove_interjections(interjections, text, expected):
+
+    assert remove_interjections(text, interjections, CONTRACTION_MAP) == expected
