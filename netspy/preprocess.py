@@ -2,8 +2,8 @@
 
 import re
 from typing import Dict
-from typing import Pattern
-
+from typing import List
+import nltk
 
 def replace_problematic_characters(text: str, character_map: Dict[str, str]) -> str:
     """Replace characters in a string
@@ -22,7 +22,7 @@ def replace_problematic_characters(text: str, character_map: Dict[str, str]) -> 
     return text
 
 
-def expand_contractions(text: str, contraction_map: Dict[str, str]):
+def expand_contractions(text: str, contraction_map: Dict[str, str]) -> str:
 
     map_keys = list(contraction_map.keys())
 
@@ -34,49 +34,24 @@ def expand_contractions(text: str, contraction_map: Dict[str, str]):
     )
 
 
-# def remove_interjections(text):
-#     """
-#     @author: by Dr. Caro Nettekoven, 2020
-#     Note: The interjections removed by this funciton are specific for English. Applying this to other languages may cause problems (For example in German "um" is a presposition)
-#     """
-#     english_interjections = [
-#         "Um",
-#         "um",
-#         "Uh",
-#         "uh",
-#         "Eh",
-#         "eh",
-#         "Ehm",
-#         "Em",
-#         "em",
-#         "Erm",
-#         "erm",
-#         "Ehhm",
-#         "ehhm",
-#         "Ehm",
-#         "ehm",
-#         "Mmm",
-#         "mmm",
-#         "Yeah",
-#         "yeah",
-#         "ah",
-#         "Ah",
-#         "Aah",
-#         "aah",
-#         "hmm",
-#         "hmmm",
-#         "Hmm",
-#         "Hmmm",
-#         "inaudible",
-#         "Inaudible",
-#     ]
-#     #
-#     sent2 = expand_contractions(text)  # expand contractions
-#     tokens = nltk.word_tokenize(sent2)
-#     # remove interjections
-#     tokens = [w for w in tokens if not w in english_interjections]
-#     sent3 = " ".join(tokens)
-#     return sent3
+def remove_interjections(text: str, interjections: List[str], contraction_map: Dict[str, str]) -> str:
+    """Remove interjections and contractions
+
+    Args:
+        text: Text to remove interjections from
+        interjections: List of interjections to remove
+
+    Returns:
+        text with intejections removed
+    """
+    
+    text_no_contractions = expand_contractions(text, contraction_map) 
+    tokens = nltk.word_tokenize(text_no_contractions)
+    tokens_no_interjections = [w for w in tokens if not w in interjections]
+    
+    # ToDo: This places spaces between tokens, which may have not existed before
+    return " ".join(tokens_no_interjections)
+
 
 # def remove_irrelevant_text(text, be_quiet=True):
 #     """
