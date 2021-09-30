@@ -207,7 +207,7 @@ def test_problematic_characters(
     [
         (CONTRACTION_MAP, "ain't", "is not"),
         (CONTRACTION_MAP, "I can't wait", "I cannot wait"),
-        (CONTRACTION_MAP, "y'all look funny", "you call look funny"),
+        (CONTRACTION_MAP, "y'all look funny", "you all look funny"),
     ],
 )
 def test_expand_contractions(
