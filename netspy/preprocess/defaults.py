@@ -1,17 +1,13 @@
-import pytest
-from netspy.preprocess import (
-    replace_problematic_characters,
-    expand_contractions,
-    remove_interjections,
-)
-
-EXAMPLE_MAP = {
+PROBLEMATIC_CHARACTER_MAP = {
     "’": "'",
     "“": "",
     "”": "",
+    # '..': " ",
+    # '...': " ",
+    # '....': " ",
     "…": "...",
     "‘": "'",
-    "–": "--",
+    "–": "-",
     "\n": " ",
 }
 
@@ -34,7 +30,7 @@ CONTRACTION_MAP = {
     "he'd": "he would",
     "he'd've": "he would have",
     "he'll": "he will",
-    "he'll've": "he will have",
+    "he'll've": "he he will have",
     "he's": "he is",
     "how'd": "how did",
     "how'd'y": "how do you",
@@ -141,7 +137,7 @@ CONTRACTION_MAP = {
     "you've": "you have",
 }
 
-ENGLISH_INTERJECTIONS = [
+INTERJECTIONS = [
     "Um",
     "um",
     "Uh",
@@ -172,74 +168,3 @@ ENGLISH_INTERJECTIONS = [
     "inaudible",
     "Inaudible",
 ]
-
-
-@pytest.mark.parametrize(
-    "character_map, text, expected",
-    [
-        ({"e": "p"}, "hello", "hpllo"),
-        (
-            EXAMPLE_MAP,
-            "a man’s farther–wood ",
-            "a man's farther--wood ",
-        ),
-        (
-            {"a": "", "e": "", "i": "", "o": "", "u": ""},
-            "this has no vowels",
-            "ths hs n vwls",
-        ),
-        ({"a": "rrr"}, "hello", "hello"),
-    ],
-)
-def test_problematic_characters(character_map, text, expected):
-
-    ret = replace_problematic_characters(text, character_map)
-    assert ret == expected
-
-
-@pytest.mark.parametrize(
-    "character_map, text, expected",
-    [
-        (CONTRACTION_MAP, "ain't", "is not"),
-        (CONTRACTION_MAP, "I can't wait", "I cannot wait"),
-        CONTRACTION_MAP,
-        "y'all look funny",
-        "you call look funny",
-    ],
-)
-def test_expand_contractions(character_map, text, expected):
-
-    ret = expand_contractions(text, contraction_map=character_map)
-
-    ret2 = expand_contractions()(text)
-
-    assert ret == expected
-    assert ret == expected
-
-
-@pytest.mark.parametrize("original, expected", CONTRACTION_MAP.items())
-def test_expand_contractions(original, expected):
-
-    ret = expand_contractions(original, CONTRACTION_MAP)
-
-    assert ret == expected
-
-    # Test result is the same if we run on result of first run
-    assert ret == expand_contractions(ret, CONTRACTION_MAP)
-
-
-@pytest.mark.parametrize(
-    "interjections, text, expected",
-    [
-        (
-            ENGLISH_INTERJECTIONS,
-            "I'm not sure um, let me see, ah",
-            "I am not sure , let me see ,",
-        ),
-        (ENGLISH_INTERJECTIONS, "Ah Are you sure eh", "Are you sure"),
-        (ENGLISH_INTERJECTIONS, "Ah Are you sure, or not eh", "Are you sure , or not"),
-    ],
-)
-def test_remove_interjections(interjections, text, expected):
-
-    assert remove_interjections(text, interjections, CONTRACTION_MAP) == expected
