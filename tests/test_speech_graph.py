@@ -2,18 +2,17 @@
 
 import logging
 import os
+import pickle
 import subprocess
 from pathlib import Path
-from typing import Any, Dict, Generator, List, Tuple
+from typing import Any, Generator
 
 import pytest
-import netspy
-import variables_test as vt
 
+import netspy
 from netspy import __version__
 from netspy.config import get_settings
-from netspy.speech_graph import SpeechGraphFile, SpeechGraph
-import pickle
+from netspy.speech_graph import SpeechGraph
 
 
 def test_version() -> None:
@@ -69,6 +68,7 @@ def openie_start() -> Generator[None, None, None]:
     process.kill()
     process.wait()
 
+
 @pytest.mark.parametrize(
     "filename,output_pickle",
     [
@@ -84,8 +84,7 @@ def openie_start() -> Generator[None, None, None]:
         ),
     ],
 )
-def test_speech_pickle(openie_start: Any, filename, output_pickle):
-
+def test_speech_pickle(openie_start: Any, filename: str, output_pickle: str) -> None:
     def _load_graph(path: str) -> netspy.MultiDiGraph:
         return pickle.loads(Path(path).read_bytes())
 
@@ -94,5 +93,5 @@ def test_speech_pickle(openie_start: Any, filename, output_pickle):
         transcript = f.read()
 
     graph = SpeechGraph(transcript).process()
-    
+
     assert vars(_load_graph(output_pickle)) == vars(graph)

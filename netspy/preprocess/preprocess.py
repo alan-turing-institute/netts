@@ -1,8 +1,8 @@
 """Preprocess transcripts"""
 
 import re
-from typing import Dict
-from typing import List
+from typing import Dict, List
+
 import nltk
 
 
@@ -28,10 +28,10 @@ def expand_contractions(text: str, contraction_map: Dict[str, str]) -> str:
     map_keys = list(contraction_map.keys())
 
     # Sort keys by length in descending order
-    map_keys.sort(key=lambda x: len(x), reverse=True)
+    map_keys.sort(key=len, reverse=True)
 
     return re.sub(
-        "({})".format("|".join(map_keys)), lambda x: contraction_map[x.group(0)], text
+        f"({'|'.join(map_keys)})", lambda x: contraction_map[x.group(0)], text
     )
 
 
@@ -50,28 +50,19 @@ def remove_interjections(
 
     text_no_contractions = expand_contractions(text, contraction_map)
     tokens = nltk.word_tokenize(text_no_contractions)
-    tokens_no_interjections = [w for w in tokens if not w in interjections]
+    tokens_no_interjections = [w for w in tokens if w not in interjections]
 
     # ToDo: This places spaces between tokens, which may have not existed before
     return " ".join(tokens_no_interjections)
 
 
 # ToDO: Refactor this and figure out exactly what functionality is required
-def remove_irrelevant_text(text: str, be_quiet=True):
-    """
-    @author: by Dr. Caro Nettekoven, 2021
-
-    Removes irrelevant text from the transcript.
-    Irrelevant text was either added by the transcription program (example: 'Transcribed by https://otter.ai')
-    or by the transcriber (examples: '[ ]', '[ ? ]', '( unclear )')
-    or was genuine speech but recording of the participants reading out instructions (example:  'Please describe a scene that is pleased to be recording', 'we are recording').
-    Since the last class of irrelevant speech can vary, I made a list of frequent read out instructions occurring in the dataset. These will have to be ammended for other task instructions.
-
-    """
+def remove_irrelevant_text(text: str, be_quiet: bool = True) -> str:
     #
     # ---- Remove double-bracketed speech ----
     # Some transcribers marked irrelevant speech by putting it between double brackets.
-    # Remove Anything between two (()), specifically between "( (" and ") )", since initial cleaning steps put a single whitespace between punctuation symbols
+    # Remove Anything between two (()), specifically between "( (" and ") )",
+    #  since initial cleaning steps put a single whitespace between punctuation symbols
     match = re.match(r"^.*\(\s\((.*)\)\s\).*$", text)
     if match:
         if not be_quiet:
@@ -98,7 +89,8 @@ def remove_irrelevant_text(text: str, be_quiet=True):
     #
     #
     # ---- Remove other irrelevant text ----
-    # For all other irrelevant text, I searched for specific words in the transcriptions ("recording", "prolific", "describe") and copied the irrelevant speech excerpts manually.
+    # For all other irrelevant text, I searched for specific words in the transcriptions ("recording", "prolific", "describe")
+    # and copied the irrelevant speech excerpts manually.
     irrelevant_text = [
         "Please describe what you see in the image . Please speak for a full minute . We are recording .",
         "Okay, this is where we see this bits please speak to the for full minute that we are recording .",
@@ -119,6 +111,6 @@ def remove_irrelevant_text(text: str, be_quiet=True):
     for irr in irrelevant_text:
         if irr in text and not be_quiet:
             # print('Removing "{0}" from \n"{1}"'.format(irr, text))
-            print('Removing "{0}" "'.format(irr))
+            print(f'Removing "{irr}"')
         text = text.replace(irr, "")
     return text

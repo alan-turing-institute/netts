@@ -13,18 +13,10 @@ import nltk
 from pyopenie import OpenIE5
 from stanza.server import CoreNLPClient
 
-from netspy import MultiDiGraph
+from netspy import MultiDiGraph, preprocess
 from netspy.config import get_settings
-from netspy import preprocess
-
-from netspy.nlp_helper_functions import (
+from netspy.nlp_helper_functions import (  # process_sent,; remove_bad_transcripts,; remove_duplicates,; remove_interjections,; remove_irrelevant_text,; replace_problematic_symbols,
     get_transcript_properties,
-    # process_sent,
-    # remove_bad_transcripts,
-    # remove_duplicates,
-    # remove_interjections,
-    # remove_irrelevant_text,
-    # replace_problematic_symbols,
 )
 from netspy.visualise_paragraph_functions import (
     add_adj_edges,
