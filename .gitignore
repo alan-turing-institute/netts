@@ -3,6 +3,8 @@ untracked/
 package_names
 .dependencies
 
+outputs
+
 *.jar
 languageModel
 .DS_Store

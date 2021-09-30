@@ -1,44 +1,22 @@
 # flake8: noqa
 # pylint: skip-file
-import concurrent.futures
-import datetime
-import logging
-import multiprocessing
-import os
-import os.path as op
+
 import pickle
-import subprocess
 import sys
 import time
-import typing
-from copy import deepcopy
-from functools import partial
-from itertools import chain
 from pathlib import Path
-from typing import List, Optional, Union, overload
+from typing import Optional, Union
 
 import matplotlib.pyplot as plt
 import networkx as nx
 import nltk
-import numpy as np
-import pandas as pd
-import stanza
-from networkx.algorithms.triads import all_triads
 from pyopenie import OpenIE5
 from stanza.server import CoreNLPClient
-from tqdm import tqdm
 
-from netspy import MultiDiGraph
+from netspy import MultiDiGraph, preprocess
 from netspy.config import get_settings
-from netspy.nlp_helper_functions import (
-    expand_contractions,
+from netspy.nlp_helper_functions import (  # process_sent,; remove_bad_transcripts,; remove_duplicates,; remove_interjections,; remove_irrelevant_text,; replace_problematic_symbols,
     get_transcript_properties,
-    process_sent,
-    remove_bad_transcripts,
-    remove_duplicates,
-    remove_interjections,
-    remove_irrelevant_text,
-    replace_problematic_symbols,
 )
 from netspy.visualise_paragraph_functions import (
     add_adj_edges,
@@ -59,22 +37,9 @@ from netspy.visualise_paragraph_functions import (
     split_nodes,
 )
 
+# Set the NLTK data dir
 settings = get_settings()
 nltk.data.path.append(settings.nltk_dir)
-
-
-# @overload
-# def speech_graph(
-#     transcript: str, n_cores: int = multiprocessing.cpu_count()
-# ) -> MultiDiGraph:
-#     pass
-
-
-# @overload
-# def speech_graph(
-#     transcript: List[str], n_cores: int = multiprocessing.cpu_count()
-# ) -> List[MultiDiGraph]:
-#     pass
 
 
 class SpeechGraph:
@@ -93,18 +58,23 @@ class SpeechGraph:
     ) -> MultiDiGraph:
 
         start_time = time.time()
-
         print(self.transcript)
 
         # ------- Clean text -------
         # Need to replace problematic symbols before ANYTHING ELSE, because other tools cannot work with problematic symbols
-        text = replace_problematic_symbols(self.transcript)  # replace ’ with '
+        text = preprocess.replace_problematic_characters(
+            self.transcript, preprocess.PROBLEMATIC_CHARACTER_MAP
+        )  # replace ’ with '
         print(text)
-        text = expand_contractions(text)  # expand it's to it is
+        text = preprocess.expand_contractions(
+            text, preprocess.CONTRACTION_MAP
+        )  # expand it's to it is
         print(text)
 
-        text = remove_interjections(text)  # remove Ums and Mmms
-        text = remove_irrelevant_text(text)
+        text = preprocess.remove_interjections(
+            text, preprocess.INTERJECTIONS, preprocess.CONTRACTION_MAP
+        )  # remove Ums and Mmms
+        text = preprocess.remove_irrelevant_text(text)
         text = text.strip()  # remove trailing and leading whitespace
 
         # ------------------------------------------------------------------------------
@@ -317,53 +287,12 @@ class SpeechGraph:
 
         return ax
 
-    # # Get current working directory to output the png and gpickle files
-    # output_dir = Path().resolve()
-    # output = output_dir / "output_filename"
-    # if ext == None or ext == "png":
-    #     # Save as png in folder script is run from
-    #     plt.savefig(output, transparent=True)
-    # if ext == "gpickle":
-    #     # Ditto as gpickle
-    #     output = str(output) + ".gpickle"
-    #     nx.write_gpickle(graph, output)
-
-    # plt.axis("off")
-    # # Print resulting edges
-    # print("\n+++ Edges: +++ \n\n %s \n\n+++++++++++++++++++" % (edge_labels))
-    # # Print execution time
-    # print(
-    #     "Processing transcript %s finished in --- %s seconds ---"
-    #     % (filename, time.time() - start_time)
-    # )
-
-    # # Dont have this output dir so just exiting here for now
-    # quit()
-
-    # # --- Save graph image ---
-    # # Initialize output
-    # output_dir = "/Users/CN/Dropbox/speech_graphs/tool_demo/"
-    # # # output_dir = '/Users/CN/Dropbox/speech_graphs/all_tats/'
-    # # stripping '.txt' is not sufficient since some files have a dot in their filename (i.e. '22895-20-task-7g47-6377612-TAT10-9-1_otter.ai (1).txt') which throws an error when trying to save
-    # valid_filename = filename.split(".")[0]
-    # output = op.join(
-    #     output_dir,
-    #     "SpeechGraph_{0:04d}_{1}_{2}".format(
-    #         selected_file, valid_filename, str(datetime.date.today())
-    #     ),
-    # )
-    # plt.savefig(output, transparent=True)
-    # # --- Save graph object ---
-    # nx.write_gpickle(graph, output + ".gpickle")
-    # # --- Show graph ---
-    # # plt.show(block=False)
-
 
 class SpeechGraphFile(SpeechGraph):
     def __init__(
         self,
         file: Path,
-        output_dir: Path,
+        output_dir: Optional[Path] = None,
         load_if_exists: bool = True,
     ) -> None:
 
@@ -385,8 +314,10 @@ class SpeechGraphFile(SpeechGraph):
         return self.file.exists() and self.file.is_file()
 
     @property
-    def output_file(self) -> Path:
-        return self.output_dir / self.file.stem
+    def output_file(self) -> Optional[Path]:
+        if self.output_dir:
+            return self.output_dir / (self.file.stem + ".pickle")
+        return None
 
     def output_graph_file(self, output_format: str = "png") -> Path:
         return self.output_file.parent / (self.output_file.name + "." + output_format)
@@ -400,7 +331,14 @@ class SpeechGraphFile(SpeechGraph):
         if not self.missing:
             self.graph = pickle.loads(self.output_file.read_bytes())
 
-    def dump(self) -> None:
+    def dump(self, output_dir: Optional[Union[Path, str]] = None) -> None:
+
+        if not output_dir:
+
+            if not self.output_dir:
+                raise IOError(
+                    "Either initialise SpeechGraphFile with output_dir or pass output_dir argument to dump"
+                )
 
         if not self.graph:
             raise RuntimeError("Graph does not exist")
