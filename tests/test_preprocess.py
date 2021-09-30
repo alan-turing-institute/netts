@@ -1,8 +1,11 @@
+from typing import Dict, List
+
 import pytest
+
 from netspy.preprocess import (
-    replace_problematic_characters,
     expand_contractions,
     remove_interjections,
+    replace_problematic_characters,
 )
 
 EXAMPLE_MAP = {
@@ -191,7 +194,9 @@ ENGLISH_INTERJECTIONS = [
         ({"a": "rrr"}, "hello", "hello"),
     ],
 )
-def test_problematic_characters(character_map, text, expected):
+def test_problematic_characters(
+    character_map: Dict[str, str], text: str, expected: str
+) -> None:
 
     ret = replace_problematic_characters(text, character_map)
     assert ret == expected
@@ -207,23 +212,23 @@ def test_problematic_characters(character_map, text, expected):
         "you call look funny",
     ],
 )
-def test_expand_contractions(character_map, text, expected):
+def test_expand_contractions(
+    character_map: Dict[str, str], text: str, expected: str
+) -> None:
 
     ret = expand_contractions(text, contraction_map=character_map)
-
-    ret2 = expand_contractions()(text)
+    # Test result is the same if we run on result of first run
+    ret2 = expand_contractions(ret, contraction_map=character_map)
 
     assert ret == expected
-    assert ret == expected
+    assert ret2 == expected
 
 
 @pytest.mark.parametrize("original, expected", CONTRACTION_MAP.items())
-def test_expand_contractions(original, expected):
+def test_expand_contractions_maps(original: str, expected: str) -> None:
 
     ret = expand_contractions(original, CONTRACTION_MAP)
-
     assert ret == expected
-
     # Test result is the same if we run on result of first run
     assert ret == expand_contractions(ret, CONTRACTION_MAP)
 
@@ -240,6 +245,8 @@ def test_expand_contractions(original, expected):
         (ENGLISH_INTERJECTIONS, "Ah Are you sure, or not eh", "Are you sure , or not"),
     ],
 )
-def test_remove_interjections(interjections, text, expected):
+def test_remove_interjections(
+    interjections: List[str], text: str, expected: str
+) -> None:
 
     assert remove_interjections(text, interjections, CONTRACTION_MAP) == expected
