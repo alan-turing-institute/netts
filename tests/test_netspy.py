@@ -11,7 +11,7 @@ import variables_test as vt
 
 from netspy import __version__
 from netspy.config import get_settings
-from netspy.speech_graph import speech_graph
+from netspy.speech_graph import SpeechGraph
 
 
 def test_version() -> None:
@@ -129,7 +129,7 @@ def openie_start() -> Generator[None, None, None]:
     ],
 )
 def test_speech_graph(
-    openie_start: Generator[None, None, None],
+    openie_start: Any,
     filename: str,
     expected_node_list: List[str],
     expected_edges_list: List[Tuple[str, str]],
@@ -145,7 +145,9 @@ def test_speech_graph(
     with file.open("r", encoding="utf-8") as f:
         transcript = f.read()
 
-    graph = speech_graph(transcript)
+    graph_transcript = SpeechGraph(transcript)
+
+    graph = graph_transcript.process()
     assert list(graph.nodes()) == expected_node_list
     assert list(graph.edges()) == expected_edges_list
     assert list(graph.degree()) == expected_degree_list
