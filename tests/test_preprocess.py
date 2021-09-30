@@ -203,22 +203,20 @@ def test_problematic_characters(
 
 
 @pytest.mark.parametrize(
-    "character_map, text, expected",
+    "contraction_map, text, expected",
     [
         (CONTRACTION_MAP, "ain't", "is not"),
         (CONTRACTION_MAP, "I can't wait", "I cannot wait"),
-        CONTRACTION_MAP,
-        "y'all look funny",
-        "you call look funny",
+        (CONTRACTION_MAP, "y'all look funny", "you call look funny"),
     ],
 )
 def test_expand_contractions(
-    character_map: Dict[str, str], text: str, expected: str
+    contraction_map: Dict[str, str], text: str, expected: str
 ) -> None:
 
-    ret = expand_contractions(text, contraction_map=character_map)
+    ret = expand_contractions(text, contraction_map=contraction_map)
     # Test result is the same if we run on result of first run
-    ret2 = expand_contractions(ret, contraction_map=character_map)
+    ret2 = expand_contractions(ret, contraction_map=contraction_map)
 
     assert ret == expected
     assert ret2 == expected
