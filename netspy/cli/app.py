@@ -127,7 +127,7 @@ def run(
         )
         corenlp_client.start()
 
-        openie_client = OpenIEClient()
+        openie_client = OpenIEClient(quiet=True)
         openie_client.connect()
 
         for transcript_file in all_transcript_files:
