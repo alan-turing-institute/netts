@@ -15,6 +15,7 @@ from stanza.server import CoreNLPClient
 
 from netspy import MultiDiGraph, preprocess
 from netspy.config import get_settings
+from netspy.context_manager import OpenIEClient
 from netspy.nlp_helper_functions import (  # process_sent,; remove_bad_transcripts,; remove_duplicates,; remove_interjections,; remove_irrelevant_text,; replace_problematic_symbols,
     get_transcript_properties,
 )
@@ -37,10 +38,6 @@ from netspy.visualise_paragraph_functions import (
     split_nodes,
 )
 
-# Set the NLTK data dir
-settings = get_settings()
-nltk.data.path.append(settings.nltk_dir)
-
 
 class SpeechGraph:
     def __init__(
@@ -56,6 +53,8 @@ class SpeechGraph:
         corenlp_client: Optional[CoreNLPClient] = None,
         openie_client: Optional[str] = None,
     ) -> MultiDiGraph:
+
+        _ = get_settings()
 
         start_time = time.time()
         print(self.transcript)
@@ -104,43 +103,84 @@ class SpeechGraph:
         # ------------------------------------------------------------------------------
         # ------- Run OpenIE5 (Ollie) -------
         # Ollie can handle more than one sentence at a time, but need to loop through sentences to keep track of sentence index
-        extractorIE5 = OpenIE5("http://localhost:6000")  # Initialize Ollie
 
-        ex_ollie = {}
-        for i, sentence in enumerate(ex_stanza.sentence):
-            if len(sentence.token) > 1:
-                print(f"====== Submitting sentence {i+1} tokens =======")
-                sentence_text = (" ").join(
-                    [
-                        token.originalText
-                        for token in sentence.token
-                        if token.originalText
-                    ]
-                )
-                print("{}".format(sentence_text))
-                try:
-                    extraction = extractorIE5.extract(sentence_text)
-                except:
+        if openie_client:
+
+            ex_ollie = {}
+            for i, sentence in enumerate(ex_stanza.sentence):
+                if len(sentence.token) > 1:
+                    print(f"====== Submitting sentence {i+1} tokens =======")
+                    sentence_text = (" ").join(
+                        [
+                            token.originalText
+                            for token in sentence.token
+                            if token.originalText
+                        ]
+                    )
+                    print("{}".format(sentence_text))
+                    try:
+                        extraction = client.extract(sentence_text)
+                    except:
+                        print(
+                            "\n- - - > Unexpected error in Ollie: {} \n\tOllie was unable to handle this sentence.\n\tSetting extraction to empty for this sentence.\n\tContinueing with next sentence.\n".format(
+                                sys.exc_info()[0]
+                            )
+                        )
+                        extraction = []
+                    ex_ollie[i] = extraction
+                else:
                     print(
-                        "\n- - - > Unexpected error in Ollie: {} \n\tOllie was unable to handle this sentence.\n\tSetting extraction to empty for this sentence.\n\tContinueing with next sentence.\n".format(
-                            sys.exc_info()[0]
+                        '====== Skipping sentence {}: Sentence has too few tokens: "{}" ======='.format(
+                            i + 1,
+                            (" ").join(
+                                [
+                                    token.originalText
+                                    for token in sentence.token
+                                    if token.originalText
+                                ]
+                            ),
                         )
                     )
-                    extraction = []
-                ex_ollie[i] = extraction
-            else:
-                print(
-                    '====== Skipping sentence {}: Sentence has too few tokens: "{}" ======='.format(
-                        i + 1,
-                        (" ").join(
+
+        else:
+
+            with OpenIEClient(quiet=True) as client:
+
+                ex_ollie = {}
+                for i, sentence in enumerate(ex_stanza.sentence):
+                    if len(sentence.token) > 1:
+                        print(f"====== Submitting sentence {i+1} tokens =======")
+                        sentence_text = (" ").join(
                             [
                                 token.originalText
                                 for token in sentence.token
                                 if token.originalText
                             ]
-                        ),
-                    )
-                )
+                        )
+                        print("{}".format(sentence_text))
+                        try:
+                            extraction = client.extract(sentence_text)
+                        except:
+                            print(
+                                "\n- - - > Unexpected error in Ollie: {} \n\tOllie was unable to handle this sentence.\n\tSetting extraction to empty for this sentence.\n\tContinueing with next sentence.\n".format(
+                                    sys.exc_info()[0]
+                                )
+                            )
+                            extraction = []
+                        ex_ollie[i] = extraction
+                    else:
+                        print(
+                            '====== Skipping sentence {}: Sentence has too few tokens: "{}" ======='.format(
+                                i + 1,
+                                (" ").join(
+                                    [
+                                        token.originalText
+                                        for token in sentence.token
+                                        if token.originalText
+                                    ]
+                                ),
+                            )
+                        )
 
         print("+++++++++++++++++++\n")
 
