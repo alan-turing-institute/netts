@@ -51,7 +51,7 @@ class SpeechGraph:
     def process(
         self,
         corenlp_client: Optional[CoreNLPClient] = None,
-        openie_client: Optional[str] = None,
+        openie_client: Optional[OpenIEClient] = None,
     ) -> MultiDiGraph:
 
         _ = get_settings()
@@ -119,7 +119,7 @@ class SpeechGraph:
                     )
                     print("{}".format(sentence_text))
                     try:
-                        extraction = client.extract(sentence_text)
+                        extraction = openie_client.extract(sentence_text)
                     except:
                         print(
                             "\n- - - > Unexpected error in Ollie: {} \n\tOllie was unable to handle this sentence.\n\tSetting extraction to empty for this sentence.\n\tContinueing with next sentence.\n".format(
