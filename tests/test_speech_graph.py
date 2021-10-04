@@ -1,16 +1,22 @@
 # pylint: disable=C0114, C0116, R0913, redefined-outer-name, W0613
-
-
 import os
 import pickle
 import time
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Any, Generator
 
 import pytest
 
 import netspy
 from netspy import __version__
 from netspy.speech_graph import SpeechGraph
+
+
+@dataclass
+class Clients:
+    openie_client: netspy.OpenIEClient
+    corenlp_client: netspy.CoreNLPClient
 
 
 def test_version() -> None:
@@ -23,18 +29,24 @@ def test_stanza() -> None:
     settings.clear_corenlp_env()
 
 
-# @pytest.fixture(scope = "module")
-# def clients():
+@pytest.fixture(scope="module")
+def module_clients() -> Generator[Any, Any, Any]:
 
-#     openie_client = netspy.OpenIEClient()
-#     openie_client.connect()
-#     corenlp_client = netspy.CoreNLPClient()
-#     corenlp_client.start()
+    netspy.get_settings.cache_clear()
+    _ = netspy.get_settings()
 
-#     yield (openie_client, corenlp_client)
+    clients = Clients(
+        openie_client=netspy.OpenIEClient(),
+        corenlp_client=netspy.CoreNLPClient(be_quite=True),
+    )
 
-#     openie_client.close()
-#     corenlp_client.stop()
+    clients.openie_client.connect()
+    clients.corenlp_client.start()
+
+    yield clients
+
+    clients.openie_client.close()
+    clients.corenlp_client.stop()
 
 
 @pytest.mark.parametrize(
@@ -52,7 +64,9 @@ def test_stanza() -> None:
         ),
     ],
 )
-def test_speech_pickle(filename: str, output_pickle: str) -> None:
+def test_speech_pickle(
+    module_clients: Clients, filename: str, output_pickle: str
+) -> None:
     def _load_graph(path: str) -> netspy.MultiDiGraph:
         return pickle.loads(Path(path).read_bytes())
 
@@ -60,7 +74,10 @@ def test_speech_pickle(filename: str, output_pickle: str) -> None:
     with file.open("r", encoding="utf-8") as f:
         transcript = f.read()
 
-    graph = SpeechGraph(transcript).process()
+    graph = SpeechGraph(transcript).process(
+        corenlp_client=module_clients.corenlp_client,
+        openie_client=module_clients.openie_client,
+    )
 
     assert vars(_load_graph(output_pickle)) == vars(graph)
 
