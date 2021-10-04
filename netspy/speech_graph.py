@@ -118,15 +118,9 @@ class SpeechGraph:
                         ]
                     )
                     print("{}".format(sentence_text))
-                    try:
-                        extraction = openie_client.extract(sentence_text)
-                    except:
-                        print(
-                            "\n- - - > Unexpected error in Ollie: {} \n\tOllie was unable to handle this sentence.\n\tSetting extraction to empty for this sentence.\n\tContinueing with next sentence.\n".format(
-                                sys.exc_info()[0]
-                            )
-                        )
-                        extraction = []
+
+                    extraction = openie_client.extract(sentence_text)
+
                     ex_ollie[i] = extraction
                 else:
                     print(
@@ -158,15 +152,8 @@ class SpeechGraph:
                             ]
                         )
                         print("{}".format(sentence_text))
-                        try:
-                            extraction = client.extract(sentence_text)
-                        except:
-                            print(
-                                "\n- - - > Unexpected error in Ollie: {} \n\tOllie was unable to handle this sentence.\n\tSetting extraction to empty for this sentence.\n\tContinueing with next sentence.\n".format(
-                                    sys.exc_info()[0]
-                                )
-                            )
-                            extraction = []
+
+                        extraction = client.extract(sentence_text)
                         ex_ollie[i] = extraction
                     else:
                         print(
