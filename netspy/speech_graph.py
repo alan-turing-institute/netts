@@ -360,7 +360,7 @@ class SpeechGraphFile(SpeechGraph):
         return None
 
     def output_graph_file(self, output_format: str = "png") -> Path:
-        return self.output_file.parent / (self.output_file.name + "." + output_format)
+        return self.output_file.parent / (self.output_file.stem + "." + output_format)
 
     @property
     def missing(self) -> bool:
