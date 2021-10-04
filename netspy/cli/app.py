@@ -11,6 +11,7 @@ from typer import colors
 import netspy
 from netspy import SpeechGraphFile
 from netspy.config import get_settings
+from netspy.context_manager import OpenIEClient
 
 app = typer.Typer()
 setting = get_settings()
@@ -126,12 +127,16 @@ def run(
         )
         corenlp_client.start()
 
+        openie_client = OpenIEClient()
+        openie_client.connect()
+
         for transcript_file in all_transcript_files:
             if transcript_file.missing or force:
-                transcript_file.process(corenlp_client)
+                transcript_file.process(corenlp_client, openie_client)
             transcript_file.dump()
 
         corenlp_client.stop()
+        openie_client.close()
 
     # Save figures
     if figure:
