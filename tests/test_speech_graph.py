@@ -29,7 +29,7 @@ def test_stanza() -> None:
     settings.clear_corenlp_env()
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def module_clients() -> Generator[Any, Any, Any]:
 
     netspy.get_settings.cache_clear()
