@@ -29,7 +29,7 @@ def test_stanza() -> None:
     settings.clear_corenlp_env()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="module")
 def module_clients() -> Generator[Any, Any, Any]:
 
     netspy.get_settings.cache_clear()
@@ -65,7 +65,7 @@ def module_clients() -> Generator[Any, Any, Any]:
     ],
 )
 def test_speech_pickle(
-    module_clients: Clients, filename: str, output_pickle: str
+     filename: str, output_pickle: str
 ) -> None:
     def _load_graph(path: str) -> netspy.MultiDiGraph:
         return pickle.loads(Path(path).read_bytes())
@@ -75,8 +75,8 @@ def test_speech_pickle(
         transcript = f.read()
 
     graph = SpeechGraph(transcript).process(
-        corenlp_client=module_clients.corenlp_client,
-        openie_client=module_clients.openie_client,
+        
+        
     )
 
     assert vars(_load_graph(output_pickle)) == vars(graph)
