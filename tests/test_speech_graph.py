@@ -64,9 +64,7 @@ def module_clients() -> Generator[Any, Any, Any]:
         ),
     ],
 )
-def test_speech_pickle(
-     filename: str, output_pickle: str
-) -> None:
+def test_speech_pickle(filename: str, output_pickle: str) -> None:
     def _load_graph(path: str) -> netspy.MultiDiGraph:
         return pickle.loads(Path(path).read_bytes())
 
@@ -74,10 +72,7 @@ def test_speech_pickle(
     with file.open("r", encoding="utf-8") as f:
         transcript = f.read()
 
-    graph = SpeechGraph(transcript).process(
-        
-        
-    )
+    graph = SpeechGraph(transcript).process()
 
     assert vars(_load_graph(output_pickle)) == vars(graph)
 
