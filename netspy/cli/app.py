@@ -1,7 +1,4 @@
 import datetime
-import logging
-import os
-import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
@@ -14,6 +11,7 @@ from typer import colors
 import netspy
 from netspy import SpeechGraphFile
 from netspy.config import get_settings
+from netspy.context_manager import OpenIEClient
 
 app = typer.Typer()
 setting = get_settings()
@@ -31,45 +29,6 @@ class Color:
 
     def dict(self) -> Dict[Any, Any]:
         return self.__dict__
-
-
-# pylint: disable=R1732
-def start_openie() -> Any:
-    settings = get_settings()
-    curwd = os.getcwd()
-    os.chdir(settings.openie_dir)
-    process = subprocess.Popen(
-        [
-            "java",
-            "-Xmx20g",
-            "-XX:+UseConcMarkSweepGC",
-            "-jar",
-            "openie-assembly-5.0-SNAPSHOT.jar",
-            "--ignore-errors",
-            "--httpPort",
-            "6000",
-        ],
-        stdout=subprocess.PIPE,
-        universal_newlines=True,
-    )
-    while True:
-        # This is required to keep mypy happy as can be None
-        if not process.stdout:
-            raise IOError("Process can't write to standard out")
-
-        output = process.stdout.readline()
-        return_code = process.poll()
-
-        logging.info("OpenIE stdout: %s", output)
-        if return_code is not None:
-            raise RuntimeError("OpenIE server start up failed", return_code)
-
-        if "Server started at port 6000" in output:
-            break
-
-    os.chdir(curwd)
-
-    return process
 
 
 @app.command()
@@ -160,7 +119,6 @@ def run(
     # Only start the servers if there are files to process
     if force or n_missing > 0:
 
-        openie = start_openie()
         corenlp_client = CoreNLPClient(
             properties={
                 "annotators": "tokenize,ssplit,pos,lemma,parse,depparse,coref,openie"
@@ -169,14 +127,16 @@ def run(
         )
         corenlp_client.start()
 
+        openie_client = OpenIEClient(quiet=True)
+        openie_client.connect()
+
         for transcript_file in all_transcript_files:
             if transcript_file.missing or force:
-                transcript_file.process(corenlp_client)
+                transcript_file.process(corenlp_client, openie_client)
             transcript_file.dump()
 
-        openie.kill()
-        openie.wait()
         corenlp_client.stop()
+        openie_client.close()
 
     # Save figures
     if figure:
