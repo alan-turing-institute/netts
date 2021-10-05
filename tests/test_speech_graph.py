@@ -1,9 +1,8 @@
 # pylint: disable=C0114, C0116, R0913, redefined-outer-name, W0613
-
-import logging
 import os
 import pickle
-import subprocess
+import time
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Generator
 
@@ -11,8 +10,13 @@ import pytest
 
 import netspy
 from netspy import __version__
-from netspy.config import get_settings
 from netspy.speech_graph import SpeechGraph
+
+
+@dataclass
+class Clients:
+    openie_client: netspy.OpenIEClient
+    corenlp_client: netspy.CoreNLPClient
 
 
 def test_version() -> None:
@@ -20,53 +24,29 @@ def test_version() -> None:
 
 
 def test_stanza() -> None:
+    settings = netspy.get_settings()
     assert os.getenv("CORENLP_HOME") is not None
+    settings.clear_corenlp_env()
 
 
-@pytest.fixture(scope="session")
-def openie_start() -> Generator[None, None, None]:
+@pytest.fixture(scope="module")
+def module_clients() -> Generator[Any, Any, Any]:
 
-    settings = get_settings()
-    curwd = os.getcwd()
-    os.chdir(settings.openie_dir)
+    netspy.get_settings.cache_clear()
+    _ = netspy.get_settings()
 
-    # Start the server
-    # pylint: disable=consider-using-with
-    process = subprocess.Popen(
-        [
-            "java",
-            "-Xmx20g",
-            "-XX:+UseConcMarkSweepGC",
-            "-jar",
-            "openie-assembly-5.0-SNAPSHOT.jar",
-            "--ignore-errors",
-            "--httpPort",
-            "6000",
-        ],
-        stdout=subprocess.PIPE,
-        universal_newlines=True,
+    clients = Clients(
+        openie_client=netspy.OpenIEClient(quiet=True),
+        corenlp_client=netspy.CoreNLPClient(be_quite=True),
     )
-    while True:
-        # This is required to keep mypy happy as can be None
-        if not process.stdout:
-            raise IOError("Process can't write to standard out")
 
-        output = process.stdout.readline()
-        return_code = process.poll()
+    clients.openie_client.connect()
+    clients.corenlp_client.start()
 
-        logging.info("OpenIE stdout: %s", output)
-        if return_code is not None:
-            raise RuntimeError("OpenIE server start up failed", return_code)
+    yield clients
 
-        if "Server started at port 6000" in output:
-            break
-
-    os.chdir(curwd)
-    yield
-
-    # Shut down server
-    process.kill()
-    process.wait()
+    clients.openie_client.close()
+    clients.corenlp_client.stop()
 
 
 @pytest.mark.parametrize(
@@ -84,7 +64,7 @@ def openie_start() -> Generator[None, None, None]:
         ),
     ],
 )
-def test_speech_pickle(openie_start: Any, filename: str, output_pickle: str) -> None:
+def test_speech_pickle(filename: str, output_pickle: str) -> None:
     def _load_graph(path: str) -> netspy.MultiDiGraph:
         return pickle.loads(Path(path).read_bytes())
 
@@ -95,3 +75,6 @@ def test_speech_pickle(openie_start: Any, filename: str, output_pickle: str) -> 
     graph = SpeechGraph(transcript).process()
 
     assert vars(_load_graph(output_pickle)) == vars(graph)
+
+    # Let the openie server shut down
+    time.sleep(1)

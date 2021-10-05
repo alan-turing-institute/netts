@@ -9,6 +9,8 @@ outputs
 languageModel
 .DS_Store
 
+coverage.xml
+
 # orca files
 cache/
 test.edgelist

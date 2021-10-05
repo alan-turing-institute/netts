@@ -21,9 +21,12 @@ LOGGER = logging.getLogger(__name__)
 @pytest.fixture()
 def netspy_home_dir() -> Generator[Settings, None, None]:
     "A home directory with cleanup"
+
     settings = get_settings()
     yield settings
     shutil.rmtree(settings.netspy_dir)
+    # Clear the settings cache
+    get_settings.cache_clear()
 
 
 def hash_text(text: str) -> str:
@@ -86,6 +89,9 @@ class TestNLTK:
         if expected_status == DownloadStatus.SUCCESS:
             expected_directory_subdir = list(settings.nltk_dir.iterdir())[0]
             assert "tokenizers" in expected_directory_subdir.parts[-1]
+
+        # Ensure the environment variable is reset
+        settings.clear_corenlp_env()
 
     def test_download_tmp(self, tmp_path: Path) -> None:
 
@@ -159,6 +165,9 @@ class TestOpenIE:
         with pytest.raises(IncorrectHash):
             install_openie5(settings.netspy_dir, md5=hash_text("adfasd"))
 
+        # Ensure the environment variable is reset
+        settings.clear_corenlp_env()
+
     def test_download_tmp(self, tmp_path: Path, mocker: Any) -> None:
 
         self._test_download_openie5(tmp_path / "netspy", mocker, True, hash_text(""))
@@ -228,6 +237,9 @@ class TestLanguageMode:
         # Pass the wrong hash and raise IncorrectHash exception
         with pytest.raises(IncorrectHash):
             install_language_model(settings.netspy_dir, md5=hash_text("adfasd"))
+
+        # Ensure the environment variable is reset
+        settings.clear_corenlp_env()
 
     def test_download_tmp(self, tmp_path: Path, mocker: Any) -> None:
 
