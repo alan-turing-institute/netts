@@ -27,13 +27,6 @@ class Settings(BaseSettings):
     )
     config_file: Optional[Path] = None
 
-    # nltk_dir: Path = netspy_dir / "nltk_dir"
-    # core_nlp_dir: Path = netspy_dir / "stanza_corenlp"
-    # openie_dir: Path = netspy_dir / "openie"
-    # openie: Path = openie_dir / "openie-assembly-5.0-SNAPSHOT.jar"
-    # openie_data: Path = openie_dir / "data"
-    # openie_language_model: Path = openie_data / "languageModel"
-
     @property
     def nltk_dir(self) -> Path:
         return self.netspy_dir / "nltk_data"
@@ -71,19 +64,6 @@ class Settings(BaseSettings):
         nltk_dir = Path(v) / "nltk_data"
         nltk.data.path.append(str(nltk_dir))
         return v
-
-    # @validator("core_nlp_dir")
-    # def set_env_vars(cls, _, values) -> None:
-
-    #     dir = values["netspy_dir"] / "stanza_corenlp"
-    #     os.environ["CORENLP_HOME"] = str(dir)
-    #     return dir
-
-    # @validator("nltk_dir",)
-    # def set_nltk_dir(cls, v, values):
-    #     nltk_dir = values["netspy_dir"] / "nltk_data"
-    #     nltk.data.path.append(str(nltk_dir))
-    #     return nltk_dir
 
     def clear_corenlp_env(self) -> None:
 
