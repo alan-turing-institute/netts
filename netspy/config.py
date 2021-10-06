@@ -1,9 +1,11 @@
 import os
+from functools import lru_cache
 
 # from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Union
 
+import nltk
 from pydantic import BaseSettings
 
 if TYPE_CHECKING:
@@ -59,12 +61,22 @@ class Settings(BaseSettings):
     def set_corenlp_env(self) -> None:
         os.environ["CORENLP_HOME"] = str(self.core_nlp_dir)
 
+    def clear_corenlp_env(self) -> None:
+
+        del os.environ["CORENLP_HOME"]
+        get_settings.cache_clear()
+
+    def set_nltk_data_dir(self) -> None:
+
+        nltk.data.path.append(self.nltk_dir)
+
     class Config:
         # pylint: disable=R0903
         env_file = ".env"
         env_file_encoding = "utf-8"
 
 
+@lru_cache()
 def get_settings(netspy_dir: Optional[Union[str, Path]] = None) -> Settings:
 
     if netspy_dir:
@@ -73,4 +85,5 @@ def get_settings(netspy_dir: Optional[Union[str, Path]] = None) -> Settings:
         settings = Settings()
 
     settings.set_corenlp_env()
+    settings.set_nltk_data_dir()
     return settings
