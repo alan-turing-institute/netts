@@ -10,7 +10,6 @@ import pytest
 
 import netspy
 from netspy import __version__
-from netspy.config import get_settings
 from netspy.install_models import set_netspy_home
 from netspy.speech_graph import SpeechGraph
 
