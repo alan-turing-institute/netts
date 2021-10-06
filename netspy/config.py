@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Union
 
 import nltk
-from pydantic import BaseSettings
+from pydantic import BaseSettings, validator
 
 if TYPE_CHECKING:
     HttpUrl = str
@@ -28,47 +28,57 @@ class Settings(BaseSettings):
         "https://netspy.blob.core.windows.net/netspy/languageModel.zip"
         + "?sv=2020-04-08&st=2021-09-01T14%3A49%3A27Z&se=2022-08-31T14%3A49%3A00Z&sr=c&sp=rl&sig=eODqh0aLqLO5gVrgehkRRa498JytTT9qFh6ptOwbzBc%3D"
     )
+    config_file: Optional[Path] = None
 
-    @property
-    def nltk_dir(self) -> Path:
-        return self.netspy_dir / "nltk_data"
+    nltk_dir: Path = netspy_dir / "nltk_data"
+    core_nlp_dir: Path = netspy_dir / "stanza_corenlp"
+    openie_dir: Path = netspy_dir / "openie"
+    openie: Path = openie_dir / "openie-assembly-5.0-SNAPSHOT.jar"
+    openie_data: Path = openie_dir / "data"
+    openie_language_model: Path = openie_data / "languageModel"
 
-    @property
-    def core_nlp_dir(self) -> Path:
-        return self.netspy_dir / "stanza_corenlp"
+    # @property
+    # def nltk_dir(cls) -> Path:
+    #     return cls.netspy_dir / "nltk_data"
 
-    @property
-    def openie_dir(self) -> Path:
-        return self.netspy_dir / "openie"
+    # @property
+    # def core_nlp_dir(cls) -> Path:
+    #     return cls.netspy_dir / "stanza_corenlp"
 
-    @property
-    def openie(self) -> Path:
-        return self.openie_dir / "openie-assembly-5.0-SNAPSHOT.jar"
+    # @property
+    # def openie_dir(cls) -> Path:
+    #     return cls.netspy_dir / "openie"
 
-    @property
-    def openie_data(self) -> Path:
+    # @property
+    # def openie(cls) -> Path:
+    #     return cls.openie_dir / "openie-assembly-5.0-SNAPSHOT.jar"
 
-        return self.openie_dir / "data"
+    # @property
+    # def openie_data(cls) -> Path:
 
-    @property
-    def openie_language_model(self) -> Path:
-        return self.openie_data / "languageModel"
+    #     return cls.openie_dir / "data"
+
+    # @property
+    # def openie_language_model(cls) -> Path:
+    #     return cls.openie_data / "languageModel"
 
     def mk_netspy_dir(self, mode: int = 0o777) -> None:
         """Create the netspy directory"""
         self.netspy_dir.mkdir(mode=mode, exist_ok=True)
 
-    def set_corenlp_env(self) -> None:
-        os.environ["CORENLP_HOME"] = str(self.core_nlp_dir)
+    @validator("core_nlp_dir")
+    def set_env_vars(cls, v) -> None:
+
+        os.environ["CORENLP_HOME"] = str(v)
+
+    @validator("nltk_dir")
+    def set_nltk_dir(cls, v):
+        nltk.data.path.append(str(v))
+        return v
 
     def clear_corenlp_env(self) -> None:
 
         del os.environ["CORENLP_HOME"]
-        get_settings.cache_clear()
-
-    def set_nltk_data_dir(self) -> None:
-
-        nltk.data.path.append(self.nltk_dir)
 
     class Config:
         # pylint: disable=R0903
@@ -76,14 +86,7 @@ class Settings(BaseSettings):
         env_file_encoding = "utf-8"
 
 
-@lru_cache()
-def get_settings(netspy_dir: Optional[Union[str, Path]] = None) -> Settings:
+def get_settings() -> Settings:
 
-    if netspy_dir:
-        settings = Settings(netspy_dir=netspy_dir)
-    else:
-        settings = Settings()
-
-    settings.set_corenlp_env()
-    settings.set_nltk_data_dir()
+    settings = Settings()
     return settings
