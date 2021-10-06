@@ -10,6 +10,8 @@ import pytest
 
 import netspy
 from netspy import __version__
+from netspy.config import get_settings
+from netspy.install_models import set_netspy_home
 from netspy.speech_graph import SpeechGraph
 
 
@@ -32,7 +34,6 @@ def test_stanza() -> None:
 @pytest.fixture(scope="module")
 def module_clients() -> Generator[Any, Any, Any]:
 
-    netspy.get_settings.cache_clear()
     _ = netspy.get_settings()
 
     clients = Clients(
@@ -68,6 +69,11 @@ def test_speech_pickle(filename: str, output_pickle: str) -> None:
     def _load_graph(path: str) -> netspy.MultiDiGraph:
         return pickle.loads(Path(path).read_bytes())
 
+    set_netspy_home()
+    # settings = get_settings()
+    # settings.
+    # netspy.set_netspy_home(Path(settings.netspy_dir))
+
     file = Path("demo_data") / filename
     with file.open("r", encoding="utf-8") as f:
         transcript = f.read()
@@ -77,4 +83,4 @@ def test_speech_pickle(filename: str, output_pickle: str) -> None:
     assert vars(_load_graph(output_pickle)) == vars(graph)
 
     # Let the openie server shut down
-    time.sleep(1)
+    time.sleep(5)
