@@ -16,3 +16,4 @@ markdown_extensions:
 nav:
   - Netspy: index.md
   - Usage: cli.md
+  - Configuration: configuration.md
