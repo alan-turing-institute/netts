@@ -30,51 +30,63 @@ class Settings(BaseSettings):
     )
     config_file: Optional[Path] = None
 
-    nltk_dir: Path = netspy_dir / "nltk_data"
-    core_nlp_dir: Path = netspy_dir / "stanza_corenlp"
-    openie_dir: Path = netspy_dir / "openie"
-    openie: Path = openie_dir / "openie-assembly-5.0-SNAPSHOT.jar"
-    openie_data: Path = openie_dir / "data"
-    openie_language_model: Path = openie_data / "languageModel"
+    # nltk_dir: Path = netspy_dir / "nltk_dir"
+    # core_nlp_dir: Path = netspy_dir / "stanza_corenlp"
+    # openie_dir: Path = netspy_dir / "openie"
+    # openie: Path = openie_dir / "openie-assembly-5.0-SNAPSHOT.jar"
+    # openie_data: Path = openie_dir / "data"
+    # openie_language_model: Path = openie_data / "languageModel"
 
-    # @property
-    # def nltk_dir(cls) -> Path:
-    #     return cls.netspy_dir / "nltk_data"
+    @property
+    def nltk_dir(self) -> Path:
+        return self.netspy_dir / "nltk_data"
 
-    # @property
-    # def core_nlp_dir(cls) -> Path:
-    #     return cls.netspy_dir / "stanza_corenlp"
+    @property
+    def core_nlp_dir(self) -> Path:
+        return self.netspy_dir / "stanza_corenlp"
 
-    # @property
-    # def openie_dir(cls) -> Path:
-    #     return cls.netspy_dir / "openie"
+    @property
+    def openie_dir(self) -> Path:
+        return self.netspy_dir / "openie"
 
-    # @property
-    # def openie(cls) -> Path:
-    #     return cls.openie_dir / "openie-assembly-5.0-SNAPSHOT.jar"
+    @property
+    def openie(self) -> Path:
+        return self.openie_dir / "openie-assembly-5.0-SNAPSHOT.jar"
 
-    # @property
-    # def openie_data(cls) -> Path:
+    @property
+    def openie_data(self) -> Path:
 
-    #     return cls.openie_dir / "data"
+        return self.openie_dir / "data"
 
-    # @property
-    # def openie_language_model(cls) -> Path:
-    #     return cls.openie_data / "languageModel"
+    @property
+    def openie_language_model(self) -> Path:
+        return self.openie_data / "languageModel"
 
     def mk_netspy_dir(self, mode: int = 0o777) -> None:
         """Create the netspy directory"""
         self.netspy_dir.mkdir(mode=mode, exist_ok=True)
 
-    @validator("core_nlp_dir")
-    def set_env_vars(cls, v) -> None:
+    @validator("netspy_dir", pre=True)
+    def validate_netspy_dir(cls, v):
+        direc = Path(v) / "stanza_corenlp"
+        os.environ["CORENLP_HOME"] = str(direc)
 
-        os.environ["CORENLP_HOME"] = str(v)
-
-    @validator("nltk_dir")
-    def set_nltk_dir(cls, v):
-        nltk.data.path.append(str(v))
+        nltk_dir = Path(v) / "nltk_data"
+        nltk.data.path.append(str(nltk_dir))
         return v
+
+    # @validator("core_nlp_dir")
+    # def set_env_vars(cls, _, values) -> None:
+
+    #     dir = values["netspy_dir"] / "stanza_corenlp"
+    #     os.environ["CORENLP_HOME"] = str(dir)
+    #     return dir
+
+    # @validator("nltk_dir",)
+    # def set_nltk_dir(cls, v, values):
+    #     nltk_dir = values["netspy_dir"] / "nltk_data"
+    #     nltk.data.path.append(str(nltk_dir))
+    #     return nltk_dir
 
     def clear_corenlp_env(self) -> None:
 

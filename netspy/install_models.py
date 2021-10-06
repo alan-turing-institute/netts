@@ -1,6 +1,7 @@
 """Install NTLK Punkt tokenizer and Standford CoreNLP language models"""
 
 import hashlib
+import os
 import zipfile
 from pathlib import Path
 from typing import Optional, Union
@@ -10,9 +11,14 @@ import requests
 import stanza
 import tqdm
 
-from netspy.config import get_settings
+from netspy.config import NETSPY_DIR, get_settings
 from netspy.logger import logger
 from netspy.types import DownloadStatus, IncorrectHash
+
+
+def set_netspy_home(path: Path = NETSPY_DIR) -> None:
+
+    os.environ["netspy_dir"] = str(path)
 
 
 def hash_file(file: Path) -> str:
@@ -75,9 +81,9 @@ def download_file(
     return resp
 
 
-def install_nltk_punk(netspy_dir: Optional[Union[str, Path]] = None) -> DownloadStatus:
+def install_nltk_punk() -> DownloadStatus:
 
-    settings = get_settings(netspy_dir)
+    settings = get_settings()
 
     logger.info("Downloading: NLTK punkt library to: %s", settings.nltk_dir)
 
@@ -91,9 +97,9 @@ def install_nltk_punk(netspy_dir: Optional[Union[str, Path]] = None) -> Download
     return DownloadStatus.SUCCESS
 
 
-def install_corenlp(netspy_dir: Optional[Union[str, Path]] = None) -> DownloadStatus:
+def install_corenlp() -> DownloadStatus:
 
-    settings = get_settings(netspy_dir)
+    settings = get_settings()
 
     logger.info("Downloading: Stanza CoreNLP library to: %s", settings.core_nlp_dir)
 
@@ -108,11 +114,9 @@ def install_corenlp(netspy_dir: Optional[Union[str, Path]] = None) -> DownloadSt
     return DownloadStatus.SUCCESS
 
 
-def install_openie5(
-    netspy_dir: Optional[Union[str, Path]] = None, md5: Optional[str] = None
-) -> DownloadStatus:
+def install_openie5(md5: Optional[str] = None) -> DownloadStatus:
 
-    settings = get_settings(netspy_dir)
+    settings = get_settings()
     fname = settings.openie
 
     if file_exists(fname, file_hash=md5):
@@ -129,11 +133,9 @@ def install_openie5(
     return DownloadStatus.SUCCESS
 
 
-def install_language_model(
-    netspy_dir: Optional[Union[str, Path]] = None, md5: Optional[str] = None
-) -> DownloadStatus:
+def install_language_model(md5: Optional[str] = None) -> DownloadStatus:
 
-    settings = get_settings(netspy_dir)
+    settings = get_settings()
     fname = settings.openie_language_model
     fname_zip = Path(str(fname) + ".zip")
 
@@ -160,11 +162,9 @@ def install_language_model(
     return DownloadStatus.SUCCESS
 
 
-def install_dependencies(
-    netspy_dir: Optional[Union[str, Path]] = None,
-) -> None:
+def install_dependencies() -> None:
 
-    install_nltk_punk(netspy_dir)
-    install_corenlp(netspy_dir)
-    install_openie5(netspy_dir, md5="5ffa7a69fc7a04c07451582c40da80d6")
-    install_language_model(netspy_dir, md5="5f79c2b84ded0a0fcfffe6444bfb9561")
+    install_nltk_punk()
+    install_corenlp()
+    install_openie5(md5="5ffa7a69fc7a04c07451582c40da80d6")
+    install_language_model(md5="5f79c2b84ded0a0fcfffe6444bfb9561")

@@ -10,7 +10,7 @@ import pytest
 import requests
 
 from netspy.config import Settings, get_settings
-from netspy.install_models import install_corenlp, install_nltk_punk
+from netspy.install_models import install_corenlp, install_nltk_punk, set_netspy_home
 from netspy.types import DownloadStatus, IncorrectHash
 
 LOGGER = logging.getLogger(__name__)
@@ -25,8 +25,6 @@ def netspy_home_dir() -> Generator[Settings, None, None]:
     settings = get_settings()
     yield settings
     shutil.rmtree(settings.netspy_dir)
-    # Clear the settings cache
-    get_settings.cache_clear()
 
 
 def hash_text(text: str) -> str:
@@ -79,9 +77,10 @@ class TestNLTK:
         self, download_path: Path, expected_status: DownloadStatus
     ) -> None:
 
-        settings = get_settings(download_path)
+        set_netspy_home(download_path)
+        settings = get_settings()
 
-        assert install_nltk_punk(settings.netspy_dir) == expected_status
+        assert install_nltk_punk() == expected_status
         assert settings.netspy_dir.exists()
         assert settings.nltk_dir.exists()
 
@@ -102,7 +101,8 @@ class TestNLTK:
 
     def test_download_tmp_exists(self, tmp_path: Path) -> None:
 
-        settings = get_settings(tmp_path / "netspy")
+        set_netspy_home(tmp_path / "netspy")
+        settings = get_settings()
         # Create nltk folder
         settings.nltk_dir.mkdir(parents=True)
         self._test_dowload_nltk(
@@ -124,8 +124,8 @@ class TestCoreNLP:
     @pytest.mark.ci_only
     @pytest.mark.slow
     def test_download_corenlp(self, tmp_path: Path) -> None:
-
-        settings = get_settings(tmp_path / "netspy")
+        set_netspy_home(tmp_path / "netspy")
+        settings = get_settings()
         install_corenlp(settings.netspy_dir)
 
         assert settings.core_nlp_dir.exists()
@@ -146,24 +146,19 @@ class TestOpenIE:
         # pylint: disable=import-outside-toplevel
         from netspy.install_models import install_openie5
 
-        settings = get_settings(netspy_dir)
+        set_netspy_home(netspy_dir)
+        settings = get_settings()
 
         # Download and ensure file exists
-        assert (
-            install_openie5(settings.netspy_dir, md5=expected_hash)
-            == DownloadStatus.SUCCESS
-        )
+        assert install_openie5(md5=expected_hash) == DownloadStatus.SUCCESS
         assert settings.openie.exists()
 
         # Check we don't download when it already exists
-        assert (
-            install_openie5(settings.netspy_dir, md5=expected_hash)
-            == DownloadStatus.ALREADY_EXISTS
-        )
+        assert install_openie5(md5=expected_hash) == DownloadStatus.ALREADY_EXISTS
 
         # Pass the wrong hash and raise IncorrectHash exception
         with pytest.raises(IncorrectHash):
-            install_openie5(settings.netspy_dir, md5=hash_text("adfasd"))
+            install_openie5(md5=hash_text("adfasd"))
 
         # Ensure the environment variable is reset
         settings.clear_corenlp_env()
@@ -212,13 +207,11 @@ class TestLanguageMode:
         # pylint: disable=import-outside-toplevel
         from netspy.install_models import install_language_model
 
-        settings = get_settings(netspy_dir)
+        set_netspy_home(netspy_dir)
+        settings = get_settings()
 
         # Download and ensure file exists
-        assert (
-            install_language_model(settings.netspy_dir, md5=expected_hash)
-            == DownloadStatus.SUCCESS
-        )
+        assert install_language_model(md5=expected_hash) == DownloadStatus.SUCCESS
         assert settings.openie_data.exists()
         LOGGER.warning(
             "Dir %s, contents: %s",
@@ -230,13 +223,12 @@ class TestLanguageMode:
 
         # Check we don't download when it already exists
         assert (
-            install_language_model(settings.netspy_dir, md5=expected_hash)
-            == DownloadStatus.ALREADY_EXISTS
+            install_language_model(md5=expected_hash) == DownloadStatus.ALREADY_EXISTS
         )
 
         # Pass the wrong hash and raise IncorrectHash exception
         with pytest.raises(IncorrectHash):
-            install_language_model(settings.netspy_dir, md5=hash_text("adfasd"))
+            install_language_model(md5=hash_text("adfasd"))
 
         # Ensure the environment variable is reset
         settings.clear_corenlp_env()
