@@ -1,9 +1,6 @@
 import os
-from functools import lru_cache
-
-# from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Optional
 
 import nltk
 from pydantic import BaseSettings, validator
@@ -67,7 +64,7 @@ class Settings(BaseSettings):
         self.netspy_dir.mkdir(mode=mode, exist_ok=True)
 
     @validator("netspy_dir", pre=True)
-    def validate_netspy_dir(cls, v):
+    def validate_netspy_dir(cls, v: str) -> Path:
         direc = Path(v) / "stanza_corenlp"
         os.environ["CORENLP_HOME"] = str(direc)
 

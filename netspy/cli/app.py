@@ -31,11 +31,7 @@ class Color:
 
 
 @app.command()
-def install(
-    directory: Optional[Path] = typer.Option(
-        None, help="Directory to install netspy dependencies to"
-    )
-) -> None:
+def install() -> None:
     """Install all tool dependencies and langauge models"""
 
     netspy.install_dependencies()
@@ -72,7 +68,7 @@ def run(
     pattern: str = typer.Option(
         "*.txt", "--pattern", help="glob pattern to select files in PATH"
     ),
-    config: Optional[Path] = typer.Option(
+    config_file: Optional[Path] = typer.Option(
         None, "--config", help="a netspy configuration file"
     ),
     force: bool = typer.Option(
@@ -153,18 +149,20 @@ def run(
 
 
 @app.command()
-def config():
+def config() -> None:
     """Create a defauly configuration file"""
 
     typer.echo(netspy.config_file.create())
 
 
 @app.command()
-def config_verify(config: Path):
+def config_verify(config_file: Path) -> None:
     """Verify a configuration file"""
 
     # This will raise an exception if config is invalid (i.e missing values or incorrect syntax)
-    netspy.config_file.load(config)
+    netspy.config_file.load(config_file)
+
+    typer.echo("Configuration is valid")
 
 
 if __name__ == "__main__":

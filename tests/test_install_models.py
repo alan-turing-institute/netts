@@ -126,7 +126,7 @@ class TestCoreNLP:
     def test_download_corenlp(self, tmp_path: Path) -> None:
         set_netspy_home(tmp_path / "netspy")
         settings = get_settings()
-        install_corenlp(settings.netspy_dir)
+        install_corenlp()
 
         assert settings.core_nlp_dir.exists()
 
