@@ -14,7 +14,6 @@ from netspy.config import get_settings
 from netspy.context_manager import OpenIEClient
 
 app = typer.Typer()
-setting = get_settings()
 
 
 # pylint: disable=C0103
@@ -45,7 +44,7 @@ def install(
 @app.command()
 def home() -> None:
     """Show netspy's dependency directory"""
-    typer.echo(f"Netspy directory: {setting.netspy_dir}")
+    typer.echo(f"Netspy directory: {get_settings().netspy_dir}")
 
 
 def cprint(*args: Union[Color, str, List[Union[Color, str]]]) -> None:
@@ -79,12 +78,14 @@ def run(
     force: bool = typer.Option(
         False, "--force", help="process even if output already exists"
     ),
-    figure: bool = typer.Option(True, "--figure", help="create figure of network"),
+    figure: bool = typer.Option(True, help="create figure of network"),
     fig_format: str = "png",
 ) -> None:
     """Process transcript(s) in INPUT_DIR
     and pickle graph objects to OUTPUT_DIR.
     Optionally save a figure of the graph network"""
+
+    get_settings()
 
     if not input_path.exists():
         cprint(
@@ -150,16 +151,21 @@ def run(
                 transcript_file.plot_graph()
                 plt.savefig(transcript_file.output_graph_file(fig_format))
 
+
 @app.command()
 def config():
     """Create a defauly configuration file"""
 
     typer.echo(netspy.config_file.create())
 
+
 @app.command()
 def config_verify(config: Path):
     """Verify a configuration file"""
-    print(netspy.config_file.load(config))
+
+    # This will raise an exception if config is invalid (i.e missing values or incorrect syntax)
+    netspy.config_file.load(config)
+
 
 if __name__ == "__main__":
     app()
