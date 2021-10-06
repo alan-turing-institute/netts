@@ -10,6 +10,7 @@ import pytest
 
 import netspy
 from netspy import __version__
+from netspy.config import get_settings
 from netspy.install_models import set_netspy_home
 from netspy.speech_graph import SpeechGraph
 
@@ -69,6 +70,8 @@ def test_speech_pickle(filename: str, output_pickle: str) -> None:
         return pickle.loads(Path(path).read_bytes())
 
     set_netspy_home()
+
+    assert os.environ["CORENLP_HOME"] == str(netspy.config.NETSPY_DIR / "stanza_corenlp")
     # settings = get_settings()
     # settings.
     # netspy.set_netspy_home(Path(settings.netspy_dir))
