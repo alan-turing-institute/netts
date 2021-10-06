@@ -38,7 +38,7 @@ def install(
 ) -> None:
     """Install all tool dependencies and langauge models"""
 
-    netspy.install_dependencies(directory)
+    netspy.install_dependencies()
 
 
 @app.command()
