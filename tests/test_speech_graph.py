@@ -27,11 +27,10 @@ def test_version() -> None:
 def test_stanza() -> None:
 
     local_version = str(netspy.config.NETSPY_DIR / "stanza_corenlp")
-    github_actions_version = str(Path(".dependencies" )/ "stanza_corenlp")
+    github_actions_version = str(Path(".dependencies") / "stanza_corenlp")
 
     settings = netspy.get_settings()
     assert os.getenv("CORENLP_HOME") in [local_version, github_actions_version]
-    
 
 
 @pytest.fixture(scope="module")
@@ -68,7 +67,7 @@ def module_clients() -> Generator[Any, Any, Any]:
         ),
     ],
 )
-def test_speech_pickle(filename: str, output_pickle: str) -> None:
+def test_speech_pickle(module_clients: Clients, filename: str, output_pickle: str) -> None:
     def _load_graph(path: str) -> netspy.MultiDiGraph:
         return pickle.loads(Path(path).read_bytes())
 
@@ -76,7 +75,7 @@ def test_speech_pickle(filename: str, output_pickle: str) -> None:
     with file.open("r", encoding="utf-8") as f:
         transcript = f.read()
 
-    graph = SpeechGraph(transcript).process()
+    graph = SpeechGraph(transcript).process(module_clients.corenlp_client, module_clients.openie_client)
 
     assert vars(_load_graph(output_pickle)) == vars(graph)
 

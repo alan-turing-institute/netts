@@ -12,6 +12,8 @@ else:
 
 HOME_DIR = Path.home()
 NETSPY_DIR = HOME_DIR / "netspy"
+
+
 class Settings(BaseSettings):
 
     netspy_dir: Path = NETSPY_DIR

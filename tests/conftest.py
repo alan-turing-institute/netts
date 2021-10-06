@@ -1,7 +1,9 @@
-import pytest
 import os
 
-@pytest.fixture(scope = "function")
+import pytest
+
+
+@pytest.fixture(scope="function")
 def tmp_path_netspy(tmp_path) -> None:
 
     expected_dir = tmp_path / "netspy"

@@ -88,12 +88,9 @@ class TestNLTK:
             expected_directory_subdir = list(settings.nltk_dir.iterdir())[0]
             assert "tokenizers" in expected_directory_subdir.parts[-1]
 
-
     def test_download_tmp(self, tmp_path_netspy: Path) -> None:
 
-        self._test_dowload_nltk(
-            tmp_path_netspy, expected_status=DownloadStatus.SUCCESS
-        )
+        self._test_dowload_nltk(tmp_path_netspy, expected_status=DownloadStatus.SUCCESS)
 
     def test_download_tmp_exists(self, tmp_path_netspy: Path) -> None:
 
@@ -220,12 +217,9 @@ class TestLanguageMode:
         with pytest.raises(IncorrectHash):
             install_language_model(md5=hash_text("adfasd"))
 
-
     def test_download_tmp(self, tmp_path_netspy: Path, mocker: Any) -> None:
 
-        self._test_download_language_model(
-            tmp_path_netspy, mocker, True, hash_text("")
-        )
+        self._test_download_language_model(tmp_path_netspy, mocker, True, hash_text(""))
 
     @pytest.mark.skipif(
         get_settings().netspy_dir.exists(),
