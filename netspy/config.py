@@ -12,8 +12,6 @@ else:
 
 HOME_DIR = Path.home()
 NETSPY_DIR = HOME_DIR / "netspy"
-
-
 class Settings(BaseSettings):
 
     netspy_dir: Path = NETSPY_DIR
@@ -64,10 +62,6 @@ class Settings(BaseSettings):
         nltk_dir = Path(v) / "nltk_data"
         nltk.data.path.append(str(nltk_dir))
         return v
-
-    def clear_corenlp_env(self) -> None:
-
-        del os.environ["CORENLP_HOME"]
 
     class Config:
         # pylint: disable=R0903

@@ -16,11 +16,6 @@ from netspy.logger import logger
 from netspy.types import DownloadStatus, IncorrectHash
 
 
-def set_netspy_home(path: Path = NETSPY_DIR) -> None:
-
-    os.environ["netspy_dir"] = str(path)
-    get_settings()
-
 def hash_file(file: Path) -> str:
     """Return the hash of a file
 

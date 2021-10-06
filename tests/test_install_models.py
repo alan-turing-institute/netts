@@ -10,7 +10,7 @@ import pytest
 import requests
 
 from netspy.config import Settings, get_settings
-from netspy.install_models import install_corenlp, install_nltk_punk, set_netspy_home
+from netspy.install_models import install_corenlp, install_nltk_punk
 from netspy.types import DownloadStatus, IncorrectHash
 
 LOGGER = logging.getLogger(__name__)
@@ -77,7 +77,6 @@ class TestNLTK:
         self, download_path: Path, expected_status: DownloadStatus
     ) -> None:
 
-        set_netspy_home(download_path)
         settings = get_settings()
 
         assert install_nltk_punk() == expected_status
@@ -89,19 +88,15 @@ class TestNLTK:
             expected_directory_subdir = list(settings.nltk_dir.iterdir())[0]
             assert "tokenizers" in expected_directory_subdir.parts[-1]
 
-        # Ensure the environment variable is reset
-        settings.clear_corenlp_env()
 
-    def test_download_tmp(self, tmp_path: Path) -> None:
+    def test_download_tmp(self, tmp_path_netspy: Path) -> None:
 
-        netspy_directory = tmp_path / "netspy"
         self._test_dowload_nltk(
-            netspy_directory, expected_status=DownloadStatus.SUCCESS
+            tmp_path_netspy, expected_status=DownloadStatus.SUCCESS
         )
 
-    def test_download_tmp_exists(self, tmp_path: Path) -> None:
+    def test_download_tmp_exists(self, tmp_path_netspy: Path) -> None:
 
-        set_netspy_home(tmp_path / "netspy")
         settings = get_settings()
         # Create nltk folder
         settings.nltk_dir.mkdir(parents=True)
@@ -123,8 +118,8 @@ class TestNLTK:
 class TestCoreNLP:
     @pytest.mark.ci_only
     @pytest.mark.slow
-    def test_download_corenlp(self, tmp_path: Path) -> None:
-        set_netspy_home(tmp_path / "netspy")
+    def test_download_corenlp(self, tmp_path_netspy: Path) -> None:
+
         settings = get_settings()
         install_corenlp()
 
@@ -146,7 +141,6 @@ class TestOpenIE:
         # pylint: disable=import-outside-toplevel
         from netspy.install_models import install_openie5
 
-        set_netspy_home(netspy_dir)
         settings = get_settings()
 
         # Download and ensure file exists
@@ -160,12 +154,9 @@ class TestOpenIE:
         with pytest.raises(IncorrectHash):
             install_openie5(md5=hash_text("adfasd"))
 
-        # Ensure the environment variable is reset
-        settings.clear_corenlp_env()
+    def test_download_tmp(self, tmp_path_netspy: Path, mocker: Any) -> None:
 
-    def test_download_tmp(self, tmp_path: Path, mocker: Any) -> None:
-
-        self._test_download_openie5(tmp_path / "netspy", mocker, True, hash_text(""))
+        self._test_download_openie5(tmp_path_netspy, mocker, True, hash_text(""))
 
     @pytest.mark.skipif(
         get_settings().netspy_dir.exists(),
@@ -207,7 +198,6 @@ class TestLanguageMode:
         # pylint: disable=import-outside-toplevel
         from netspy.install_models import install_language_model
 
-        set_netspy_home(netspy_dir)
         settings = get_settings()
 
         # Download and ensure file exists
@@ -230,13 +220,11 @@ class TestLanguageMode:
         with pytest.raises(IncorrectHash):
             install_language_model(md5=hash_text("adfasd"))
 
-        # Ensure the environment variable is reset
-        settings.clear_corenlp_env()
 
-    def test_download_tmp(self, tmp_path: Path, mocker: Any) -> None:
+    def test_download_tmp(self, tmp_path_netspy: Path, mocker: Any) -> None:
 
         self._test_download_language_model(
-            tmp_path / "netspy", mocker, True, hash_text("")
+            tmp_path_netspy, mocker, True, hash_text("")
         )
 
     @pytest.mark.skipif(

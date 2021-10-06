@@ -1,7 +1,6 @@
 from pathlib import Path
 import pytest
 from netspy.config import Settings, get_settings
-from netspy.install_models import set_netspy_home
 import os
 
 def test_config_dir(tmp_path: Path) -> None:
@@ -22,10 +21,10 @@ def test_config_dir(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize("x", range(10))
-def test_set_netspy_home(tmp_path: Path, x):
+def test_set_netspy_home(tmp_path_netspy: Path, x):
 
-    expected_dir = tmp_path / "netspy"
-    set_netspy_home(expected_dir)
+    expected_dir = tmp_path_netspy 
+    os.environ["netspy_dir"] = str(expected_dir)
 
     settings = get_settings()
     assert settings.netspy_dir == expected_dir
@@ -35,11 +34,5 @@ def test_set_netspy_home(tmp_path: Path, x):
     assert settings.openie == expected_dir / "openie" / "openie-assembly-5.0-SNAPSHOT.jar"
     assert settings.openie_data == expected_dir / "openie" / "data"
     assert settings.openie_language_model == expected_dir / "openie" / "data" / "languageModel"
-
     assert os.environ["CORENLP_HOME"] == str(expected_dir / "stanza_corenlp")
 
-    settings.clear_corenlp_env()
-
-
-    get_settings().netspy_dir
-    print(get_settings().core_nlp_dir)
