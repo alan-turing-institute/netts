@@ -32,7 +32,7 @@ class OpenIEClient:
         self.memory = memory
 
         # Check if the port is open
-        self.check_port()
+        # self.check_port()
         atexit.register(self.atexit_kill)
 
     def check_port(self) -> None:
