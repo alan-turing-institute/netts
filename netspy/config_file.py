@@ -1,10 +1,9 @@
+from __future__ import annotations
 import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
-
 import rtoml
 from pydantic import BaseModel
-
 from .version import __version__
 
 
@@ -211,12 +210,12 @@ class Config(BaseModel):
         },
     )
 
+    @staticmethod
+    def default() -> str:
 
-def create() -> str:
+        return rtoml.dumps(Config().dict(), pretty=True)
 
-    return rtoml.dumps(Config().dict(), pretty=True)
+    @classmethod
+    def load(cls, config_path: Path) -> 'Config':
+        return Config(**rtoml.loads(config_path.read_text()))
 
-
-def load(config_path: Path) -> Config:
-
-    return Config(**rtoml.loads(config_path.read_text()))
