@@ -152,7 +152,8 @@ def run(
 def config() -> None:
     """Create a defauly configuration file"""
 
-    typer.echo(netspy.config_file.create())
+    
+    typer.echo(netspy.Config.default())
 
 
 @app.command()
@@ -160,7 +161,7 @@ def config_verify(config_file: Path) -> None:
     """Verify a configuration file"""
 
     # This will raise an exception if config is invalid (i.e missing values or incorrect syntax)
-    netspy.config_file.load(config_file)
+    netspy.Config.load(config_file)
 
     typer.echo("Configuration is valid")
 
