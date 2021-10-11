@@ -1,9 +1,9 @@
 import os
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional
-
+import netspy.config_file as config_file
 import nltk
-from pydantic import BaseSettings, validator
+from pydantic import BaseSettings, validator, ValidationError
 
 if TYPE_CHECKING:
     HttpUrl = str
@@ -25,7 +25,8 @@ class Settings(BaseSettings):
         "https://netspy.blob.core.windows.net/netspy/languageModel.zip"
         + "?sv=2020-04-08&st=2021-09-01T14%3A49%3A27Z&se=2022-08-31T14%3A49%3A00Z&sr=c&sp=rl&sig=eODqh0aLqLO5gVrgehkRRa498JytTT9qFh6ptOwbzBc%3D"
     )
-    config_file: Optional[Path] = None
+    # You can pass a Path or str to the config file and the validator will load it as config_file.Config
+    netspy_config: Optional[config_file.Config]
 
     @property
     def nltk_dir(self) -> Path:
@@ -64,6 +65,20 @@ class Settings(BaseSettings):
         nltk_dir = Path(v) / "nltk_data"
         nltk.data.path.append(str(nltk_dir))
         return v
+
+    @validator("netspy_config", pre=True)
+    def load_config_from_file(cls, v):
+   
+        if not v:
+            return config_file.Config()
+        
+        config_file_path = Path(v)
+        default_file_path = Path("netspy.toml")
+
+        if not config_file_path.exists() or not default_file_path.exists():
+            raise ValidationError("Could not fine config_file")
+
+        return config_file.Config.load(config_file_path) if config_file_path.exists() else config_file.Config.load(default_file_path)
 
     class Config:
         # pylint: disable=R0903

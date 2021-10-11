@@ -38,6 +38,7 @@ pytest-cov = "^2.12.1"
 mkdocs-material = "^7.2.4"
 pytest-mock = "^3.6.1"
 mkdocs-click = "^0.4.0"
+devtools = {extras = ["pygments"], version = "^0.8.0"}
 
 [tool.pytest.ini_options]
 log_cli = true
