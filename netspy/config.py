@@ -1,9 +1,11 @@
 import os
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional
-import netspy.config_file as config_file
+
 import nltk
-from pydantic import BaseSettings, validator, ValidationError
+from pydantic import BaseSettings, ValidationError, validator
+
+import netspy.config_file as config_file
 
 if TYPE_CHECKING:
     HttpUrl = str
@@ -68,17 +70,21 @@ class Settings(BaseSettings):
 
     @validator("netspy_config", pre=True)
     def load_config_from_file(cls, v):
-   
+
         if not v:
             return config_file.Config()
-        
+
         config_file_path = Path(v)
         default_file_path = Path("netspy.toml")
 
         if not config_file_path.exists() or not default_file_path.exists():
             raise ValidationError("Could not fine config_file")
 
-        return config_file.Config.load(config_file_path) if config_file_path.exists() else config_file.Config.load(default_file_path)
+        return (
+            config_file.Config.load(config_file_path)
+            if config_file_path.exists()
+            else config_file.Config.load(default_file_path)
+        )
 
     class Config:
         # pylint: disable=R0903

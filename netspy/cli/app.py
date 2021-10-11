@@ -152,7 +152,6 @@ def run(
 def config() -> None:
     """Create a defauly configuration file"""
 
-    
     typer.echo(netspy.Config.default())
 
 
