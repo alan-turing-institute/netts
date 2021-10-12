@@ -55,6 +55,8 @@ class SpeechGraph:
         if not settings:
             settings = Settings()
 
+        preprocess_config = settings.netspy_config.preprocess
+
         start_time = time.time()
 
         logger.debug("%s", self.transcript)
@@ -62,16 +64,18 @@ class SpeechGraph:
         # ------- Clean text -------
         # Need to replace problematic symbols before ANYTHING ELSE, because other tools cannot work with problematic symbols
         text = preprocess.replace_problematic_characters(
-            self.transcript, preprocess.PROBLEMATIC_CHARACTER_MAP
+            self.transcript, preprocess_config.problematic_symbols
         )  # replace ’ with '
         logger.debug("%s", text)
         text = preprocess.expand_contractions(
-            text, preprocess.CONTRACTION_MAP
+            text, preprocess_config.contractions
         )  # expand it's to it is
         logger.debug("%s", text)
 
         text = preprocess.remove_interjections(
-            text, preprocess.INTERJECTIONS, preprocess.CONTRACTION_MAP
+            text,
+            preprocess_config.interjections,
+            preprocess_config.contractions,
         )  # remove Ums and Mmms
         text = preprocess.remove_irrelevant_text(text)
         text = text.strip()  # remove trailing and leading whitespace
