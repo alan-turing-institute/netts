@@ -7,7 +7,7 @@ from stanza.server import CoreNLPClient
 from netspy import preprocess  # noqa: F401 # pylint: disable=E0012,F401
 from netspy.config import get_settings
 from netspy.config_file import Config
-from netspy.context_manager import OpenIEClient
+from netspy.clients import OpenIEClient
 from netspy.install_models import install_dependencies
 from netspy.speech_graph import SpeechGraph, SpeechGraphFile
 from netspy.version import __version__

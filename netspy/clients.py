@@ -8,17 +8,27 @@ import socket
 import subprocess
 from types import TracebackType
 from typing import Any, Dict, Optional, Type
-
+import stanza.server
 import requests
 
 from netspy.config import get_settings
+
+class CoreNLPClient(stanza.server.CoreNLPClient):
+
+    def __init__(self, *args, **kwargs):
+        
+        host = "http://localhost"
+        port = get_settings().netspy_config.server.corenlp.port
+        endpoint = f"{host}:{port}"
+        print(endpoint)
+        super().__init__(url = endpoint, *args, **kwargs)
 
 
 class OpenIEClient:
     def __init__(
         self,
         host: str = "http://localhost",
-        port: Optional[int] = 6000,
+        port: int = 6000,
         quiet: bool = False,
         memory: int = 20,
     ) -> None:
@@ -31,8 +41,9 @@ class OpenIEClient:
         self.quiet = quiet
         self.memory = memory
 
+
         # Check if the port is open
-        # self.check_port()
+        self.check_port()
         atexit.register(self.atexit_kill)
 
     def check_port(self) -> None:
@@ -68,10 +79,9 @@ class OpenIEClient:
             universal_newlines=True,
         )
         while True:
-
             if not self.process.stdout:
                 raise IOError("Process can't write to standard out")
-
+            self.process.stdout.flush()
             output = self.process.stdout.readline()
             return_code = self.process.poll()
 
