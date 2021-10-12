@@ -9,8 +9,6 @@ from typing import Any, Generator
 import pytest
 
 import netspy
-from netspy import __version__
-from netspy.config import get_settings
 from netspy.speech_graph import SpeechGraph
 
 
@@ -20,16 +18,12 @@ class Clients:
     corenlp_client: netspy.CoreNLPClient
 
 
-def test_version() -> None:
-    assert __version__ == "0.1.0"
-
-
 def test_stanza() -> None:
 
     local_version = str(netspy.config.NETSPY_DIR / "stanza_corenlp")
     github_actions_version = str(Path(".dependencies") / "stanza_corenlp")
 
-    settings = netspy.get_settings()
+    _ = netspy.get_settings()
     assert os.getenv("CORENLP_HOME") in [local_version, github_actions_version]
 
 

@@ -6,41 +6,42 @@ import logging
 import os
 import socket
 import subprocess
+from pathlib import Path
 from types import TracebackType
 from typing import Any, Dict, Optional, Type
-import stanza.server
+
 import requests
+import stanza.server
 
-from netspy.config import get_settings
+from netspy.config import Settings
 
-class CoreNLPClient(stanza.server.CoreNLPClient):
 
-    def __init__(self, *args, **kwargs):
-        
+class CoreNLPClient(stanza.server.CoreNLPClient):  # type: ignore
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         host = "http://localhost"
-        port = get_settings().netspy_config.server.corenlp.port
+        port = Settings().netspy_config.server.corenlp.port
         endpoint = f"{host}:{port}"
-        print(endpoint)
-        super().__init__(url = endpoint, *args, **kwargs)
+        super().__init__(url=endpoint, *args, **kwargs)
 
 
 class OpenIEClient:
     def __init__(
         self,
         host: str = "http://localhost",
-        port: int = 6000,
+        port: int = Settings().netspy_config.server.openie.port,
+        openie_dir: Path = Settings().openie_dir,
         quiet: bool = False,
         memory: int = 20,
     ) -> None:
 
         self.host = host
         self.port = port
+        self.openie_dir = openie_dir
 
         # Can't type: https://github.com/python/typeshed/issues/4948
         self.process: Any = None
         self.quiet = quiet
         self.memory = memory
-
 
         # Check if the port is open
         self.check_port()
@@ -62,7 +63,7 @@ class OpenIEClient:
     def connect(self) -> None:
 
         iwd = os.getcwd()
-        os.chdir(get_settings().openie_dir)
+        os.chdir(self.openie_dir)
 
         self.process = subprocess.Popen(  # pylint: disable=consider-using-with
             [

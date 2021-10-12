@@ -9,8 +9,8 @@ from typer import colors
 
 import netspy
 from netspy import SpeechGraphFile
-from netspy.config import get_settings, Settings
-from netspy.clients import OpenIEClient, CoreNLPClient
+from netspy.clients import CoreNLPClient, OpenIEClient
+from netspy.config import Settings, get_settings
 
 app = typer.Typer()
 
@@ -123,15 +123,18 @@ def run(
                 "annotators": "tokenize,ssplit,pos,lemma,parse,depparse,coref,openie"
             },
             be_quiet=True,
+            port=settings.netspy_config.server.corenlp.port,
         )
 
         # Doesn't block
         corenlp_client.start()
 
-        openie_client = OpenIEClient(quiet=True)
+        openie_client = OpenIEClient(
+            quiet=True, port=settings.netspy_config.server.openie.port
+        )
         # Blocks
         openie_client.connect()
-    
+
         for transcript_file in all_transcript_files:
             if transcript_file.missing or force:
                 transcript_file.process(corenlp_client, openie_client)

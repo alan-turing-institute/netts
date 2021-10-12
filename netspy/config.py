@@ -1,11 +1,11 @@
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Union
 
 import nltk
-from pydantic import BaseSettings, ValidationError, validator
+from pydantic import BaseSettings, validator
 
-import netspy.config_file as config_file
+from netspy import config_file
 
 if TYPE_CHECKING:
     HttpUrl = str
@@ -28,7 +28,7 @@ class Settings(BaseSettings):
         + "?sv=2020-04-08&st=2021-09-01T14%3A49%3A27Z&se=2022-08-31T14%3A49%3A00Z&sr=c&sp=rl&sig=eODqh0aLqLO5gVrgehkRRa498JytTT9qFh6ptOwbzBc%3D"
     )
     # You can pass a Path or str to the config file and the validator will load it as config_file.Config
-    netspy_config: Optional[config_file.Config]
+    netspy_config: config_file.Config = config_file.Config()
 
     @property
     def nltk_dir(self) -> Path:
@@ -66,16 +66,18 @@ class Settings(BaseSettings):
 
         nltk_dir = Path(v) / "nltk_data"
         nltk.data.path.append(str(nltk_dir))
-        return v
+        return Path(v)
 
     @validator("netspy_config", pre=True)
-    def load_config_from_file(cls, v) -> config_file.Config:
-        if not v:
-            return config_file.Config()
+    def load_config_from_file(
+        cls, v: Union[str, Path, config_file.Config]
+    ) -> config_file.Config:
+
+        if isinstance(v, config_file.Config):
+            return v
 
         config_file_path = Path(v)
         default_file_path = Path("netspy.toml")
-
 
         if not (config_file_path.exists() or default_file_path.exists()):
             raise IOError("Could not find config_file")
