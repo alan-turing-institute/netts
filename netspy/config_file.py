@@ -39,7 +39,7 @@ class Config(BaseModel):
     creation_time: Optional[str] = datetime.datetime.now().isoformat()
 
     server: Servers = Servers(
-        openie=ServerInfo(port=5000), corenlp=ServerInfo(port=5500)
+        openie=ServerInfo(port=9080), corenlp=ServerInfo(port=9090)
     )
 
     preprocess: PreProcessing = PreProcessing(
