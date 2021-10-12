@@ -1,3 +1,5 @@
+# pylint: disable=redefined-outer-name, unused-argument
+
 import hashlib
 import logging
 import os
@@ -14,8 +16,6 @@ from netspy.install_models import install_corenlp, install_nltk_punk
 from netspy.types import DownloadStatus, IncorrectHash
 
 LOGGER = logging.getLogger(__name__)
-
-# pylint: disable=redefined-outer-name
 
 
 @pytest.fixture()
@@ -128,8 +128,6 @@ class TestOpenIE:
         self, download_path: Path, mocker: Any, mock: bool, expected_hash: str
     ) -> None:
 
-        netspy_dir = download_path
-
         # Mock the download_file function to keep it fast
         if mock:
             mocker.patch(
@@ -184,8 +182,6 @@ class TestLanguageMode:
     def _test_download_language_model(
         self, download_path: Path, mocker: Any, mock: bool, expected_hash: str
     ) -> None:
-
-        netspy_dir = download_path
 
         # Mock the download_file function to keep it fast
         if mock:

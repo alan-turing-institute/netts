@@ -1,3 +1,4 @@
+# pylint: disable=redefined-outer-name
 import os
 from pathlib import Path
 
@@ -30,6 +31,7 @@ def test_config_dir(tmp_path: Path) -> None:
         assert not settings.netspy_dir.exists()
 
 
+# pylint: disable=unused-argument
 @pytest.mark.parametrize("x", range(10))
 def test_set_netspy_home(tmp_path_netspy: Path, x: int) -> None:
 

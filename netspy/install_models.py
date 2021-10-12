@@ -1,7 +1,6 @@
 """Install NTLK Punkt tokenizer and Standford CoreNLP language models"""
 
 import hashlib
-import os
 import zipfile
 from pathlib import Path
 from typing import Optional
@@ -11,7 +10,7 @@ import requests
 import stanza
 import tqdm
 
-from netspy.config import NETSPY_DIR, get_settings
+from netspy.config import get_settings
 from netspy.logger import logger
 from netspy.types import DownloadStatus, IncorrectHash
 

@@ -440,7 +440,8 @@ good-names=i,
            df,
            n,
            f,
-           z
+           z,
+           x,
 
 # Good variable names regexes, separated by a comma. If names match any regex,
 # they will always be accepted
