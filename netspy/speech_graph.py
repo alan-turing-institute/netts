@@ -9,13 +9,12 @@ from typing import Optional, Union
 
 import matplotlib.pyplot as plt
 import networkx as nx
-import nltk
-from pyopenie import OpenIE5
-from stanza.server import CoreNLPClient
+
 
 from netspy import MultiDiGraph, preprocess
 from netspy.config import get_settings
-from netspy.context_manager import OpenIEClient
+from netspy.clients import OpenIEClient, CoreNLPClient
+from netspy.logger import logger
 from netspy.nlp_helper_functions import (  # process_sent,; remove_bad_transcripts,; remove_duplicates,; remove_interjections,; remove_irrelevant_text,; replace_problematic_symbols,
     get_transcript_properties,
 )
@@ -88,12 +87,14 @@ class SpeechGraph:
         if corenlp_client:
             ex_stanza = corenlp_client.annotate(text)
         else:
+            logger.debug("Starting CoreNLP server at %s", f"http://localhost:{settings.netspy_config.server.corenlp.port}")
             with CoreNLPClient(
                 properties={
                     "annotators": "tokenize,ssplit,pos,lemma,parse,depparse,coref,openie"
                     # 'pos.model': '/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/OpenIE-standalone/target/streams/$global/assemblyOption/$global/streams/assembly/8a3bd51fe5c1bb09a51f326fa358947f6dc78463_8e7f18d9ae73e8daf5ee4d4e11167e10f8827888_da39a3ee5e6b4b0d3255bfef95601890afd80709/edu/stanford/nlp/models/pos-tagger/english-bidirectional/english-bidirectional-distsim.tagger'
                 },
                 be_quiet=True,
+                endpoint = f"http://localhost:{settings.netspy_config.server.corenlp.port}"
             ) as corenlp_client:
                 ex_stanza = corenlp_client.annotate(text)
 

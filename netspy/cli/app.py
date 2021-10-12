@@ -5,13 +5,12 @@ from typing import Any, Dict, List, Optional, Union
 
 import typer
 from matplotlib import pyplot as plt
-from stanza.server import CoreNLPClient
 from typer import colors
 
 import netspy
 from netspy import SpeechGraphFile
-from netspy.config import get_settings
-from netspy.context_manager import OpenIEClient
+from netspy.config import get_settings, Settings
+from netspy.clients import OpenIEClient, CoreNLPClient
 
 app = typer.Typer()
 
@@ -81,7 +80,10 @@ def run(
     and pickle graph objects to OUTPUT_DIR.
     Optionally save a figure of the graph network"""
 
-    get_settings()
+    if config_file:
+        settings = Settings(config_file=config_file)
+    else:
+        settings = Settings()
 
     if not input_path.exists():
         cprint(
@@ -122,11 +124,14 @@ def run(
             },
             be_quiet=True,
         )
+
+        # Doesn't block
         corenlp_client.start()
 
         openie_client = OpenIEClient(quiet=True)
+        # Blocks
         openie_client.connect()
-
+    
         for transcript_file in all_transcript_files:
             if transcript_file.missing or force:
                 transcript_file.process(corenlp_client, openie_client)
