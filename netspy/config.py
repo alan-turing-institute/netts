@@ -69,16 +69,16 @@ class Settings(BaseSettings):
         return v
 
     @validator("netspy_config", pre=True)
-    def load_config_from_file(cls, v):
-
+    def load_config_from_file(cls, v) -> config_file.Config:
         if not v:
             return config_file.Config()
 
         config_file_path = Path(v)
         default_file_path = Path("netspy.toml")
 
-        if not config_file_path.exists() or not default_file_path.exists():
-            raise ValidationError("Could not fine config_file")
+
+        if not (config_file_path.exists() or default_file_path.exists()):
+            raise IOError("Could not find config_file")
 
         return (
             config_file.Config.load(config_file_path)
