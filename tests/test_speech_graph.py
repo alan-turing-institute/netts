@@ -9,7 +9,6 @@ from typing import Any, Generator
 import pytest
 
 import netspy
-from netspy import __version__
 from netspy.speech_graph import SpeechGraph
 
 
@@ -19,20 +18,18 @@ class Clients:
     corenlp_client: netspy.CoreNLPClient
 
 
-def test_version() -> None:
-    assert __version__ == "0.1.0"
-
-
 def test_stanza() -> None:
-    settings = netspy.get_settings()
-    assert os.getenv("CORENLP_HOME") is not None
-    settings.clear_corenlp_env()
+
+    local_version = str(netspy.config.NETSPY_DIR / "stanza_corenlp")
+    github_actions_version = str(Path(".dependencies") / "stanza_corenlp")
+
+    _ = netspy.get_settings()
+    assert os.getenv("CORENLP_HOME") in [local_version, github_actions_version]
 
 
 @pytest.fixture(scope="module")
 def module_clients() -> Generator[Any, Any, Any]:
 
-    netspy.get_settings.cache_clear()
     _ = netspy.get_settings()
 
     clients = Clients(
@@ -77,4 +74,4 @@ def test_speech_pickle(filename: str, output_pickle: str) -> None:
     assert vars(_load_graph(output_pickle)) == vars(graph)
 
     # Let the openie server shut down
-    time.sleep(1)
+    time.sleep(5)

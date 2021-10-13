@@ -1,12 +1,11 @@
 import os
-from functools import lru_cache
-
-# from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Union
 
 import nltk
-from pydantic import BaseSettings
+from pydantic import BaseSettings, validator
+
+from netspy import config_file
 
 if TYPE_CHECKING:
     HttpUrl = str
@@ -28,6 +27,8 @@ class Settings(BaseSettings):
         "https://netspy.blob.core.windows.net/netspy/languageModel.zip"
         + "?sv=2020-04-08&st=2021-09-01T14%3A49%3A27Z&se=2022-08-31T14%3A49%3A00Z&sr=c&sp=rl&sig=eODqh0aLqLO5gVrgehkRRa498JytTT9qFh6ptOwbzBc%3D"
     )
+    # You can pass a Path or str to the config file and the validator will load it as config_file.Config
+    netspy_config: config_file.Config = config_file.Config()
 
     @property
     def nltk_dir(self) -> Path:
@@ -58,17 +59,35 @@ class Settings(BaseSettings):
         """Create the netspy directory"""
         self.netspy_dir.mkdir(mode=mode, exist_ok=True)
 
-    def set_corenlp_env(self) -> None:
-        os.environ["CORENLP_HOME"] = str(self.core_nlp_dir)
+    @validator("netspy_dir", pre=True)
+    def validate_netspy_dir(cls, v: str) -> Path:
 
-    def clear_corenlp_env(self) -> None:
+        direc = Path(v) / "stanza_corenlp"
+        os.environ["CORENLP_HOME"] = str(direc)
 
-        del os.environ["CORENLP_HOME"]
-        get_settings.cache_clear()
+        nltk_dir = Path(v) / "nltk_data"
+        nltk.data.path.append(str(nltk_dir))
+        return Path(v)
 
-    def set_nltk_data_dir(self) -> None:
+    @validator("netspy_config", pre=True)
+    def load_config_from_file(
+        cls, v: Union[str, Path, config_file.Config]
+    ) -> config_file.Config:
 
-        nltk.data.path.append(self.nltk_dir)
+        if isinstance(v, config_file.Config):
+            return v
+
+        config_file_path = Path(v)
+        default_file_path = Path("netspy.toml")
+
+        if not (config_file_path.exists() or default_file_path.exists()):
+            raise IOError("Could not find config_file")
+
+        return (
+            config_file.Config.load(config_file_path)
+            if config_file_path.exists()
+            else config_file.Config.load(default_file_path)
+        )
 
     class Config:
         # pylint: disable=R0903
@@ -76,14 +95,7 @@ class Settings(BaseSettings):
         env_file_encoding = "utf-8"
 
 
-@lru_cache()
-def get_settings(netspy_dir: Optional[Union[str, Path]] = None) -> Settings:
+def get_settings() -> Settings:
 
-    if netspy_dir:
-        settings = Settings(netspy_dir=netspy_dir)
-    else:
-        settings = Settings()
-
-    settings.set_corenlp_env()
-    settings.set_nltk_data_dir()
+    settings = Settings()
     return settings

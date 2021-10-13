@@ -23,6 +23,7 @@ typer = {extras = ["all"], version = "^0.3.2"}
 pydantic = "^1.8.2"
 requests = "^2.26.0"
 tqdm = "^4.62.2"
+rtoml = "^0.7.0"
 
 [tool.poetry.dev-dependencies]
 black = "^21.7b0"
@@ -36,6 +37,8 @@ pre-commit = "^2.14.0"
 pytest-cov = "^2.12.1"
 mkdocs-material = "^7.2.4"
 pytest-mock = "^3.6.1"
+mkdocs-click = "^0.4.0"
+devtools = {extras = ["pygments"], version = "^0.8.0"}
 
 [tool.pytest.ini_options]
 log_cli = true

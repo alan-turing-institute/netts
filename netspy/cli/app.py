@@ -5,16 +5,14 @@ from typing import Any, Dict, List, Optional, Union
 
 import typer
 from matplotlib import pyplot as plt
-from stanza.server import CoreNLPClient
 from typer import colors
 
 import netspy
 from netspy import SpeechGraphFile
-from netspy.config import get_settings
-from netspy.context_manager import OpenIEClient
+from netspy.clients import CoreNLPClient, OpenIEClient
+from netspy.config import Settings, get_settings
 
 app = typer.Typer()
-setting = get_settings()
 
 
 # pylint: disable=C0103
@@ -32,20 +30,16 @@ class Color:
 
 
 @app.command()
-def install(
-    directory: Optional[Path] = typer.Option(
-        None, help="Directory to install netspy dependencies to"
-    )
-) -> None:
+def install() -> None:
     """Install all tool dependencies and langauge models"""
 
-    netspy.install_dependencies(directory)
+    netspy.install_dependencies()
 
 
 @app.command()
 def home() -> None:
     """Show netspy's dependency directory"""
-    typer.echo(f"Netspy directory: {setting.netspy_dir}")
+    typer.echo(f"Netspy directory: {get_settings().netspy_dir}")
 
 
 def cprint(*args: Union[Color, str, List[Union[Color, str]]]) -> None:
@@ -73,18 +67,23 @@ def run(
     pattern: str = typer.Option(
         "*.txt", "--pattern", help="glob pattern to select files in PATH"
     ),
-    config: Optional[Path] = typer.Option(
+    config_file: Optional[Path] = typer.Option(
         None, "--config", help="a netspy configuration file"
     ),
     force: bool = typer.Option(
         False, "--force", help="process even if output already exists"
     ),
-    figure: bool = typer.Option(True, "--figure", help="create figure of network"),
+    figure: bool = typer.Option(True, help="create figure of network"),
     fig_format: str = "png",
 ) -> None:
     """Process transcript(s) in INPUT_DIR
     and pickle graph objects to OUTPUT_DIR.
     Optionally save a figure of the graph network"""
+
+    if config_file:
+        settings = Settings(config_file=config_file)
+    else:
+        settings = Settings()
 
     if not input_path.exists():
         cprint(
@@ -124,10 +123,16 @@ def run(
                 "annotators": "tokenize,ssplit,pos,lemma,parse,depparse,coref,openie"
             },
             be_quiet=True,
+            port=settings.netspy_config.server.corenlp.port,
         )
+
+        # Doesn't block
         corenlp_client.start()
 
-        openie_client = OpenIEClient(quiet=True)
+        openie_client = OpenIEClient(
+            quiet=True, port=settings.netspy_config.server.openie.port
+        )
+        # Blocks
         openie_client.connect()
 
         for transcript_file in all_transcript_files:
@@ -149,6 +154,23 @@ def run(
                 cprint(f"Creating figure: {plot_file}")
                 transcript_file.plot_graph()
                 plt.savefig(transcript_file.output_graph_file(fig_format))
+
+
+@app.command()
+def config() -> None:
+    """Create a defauly configuration file"""
+
+    typer.echo(netspy.Config.default())
+
+
+@app.command()
+def config_verify(config_file: Path) -> None:
+    """Verify a configuration file"""
+
+    # This will raise an exception if config is invalid (i.e missing values or incorrect syntax)
+    netspy.Config.load(config_file)
+
+    typer.echo("Configuration is valid")
 
 
 if __name__ == "__main__":
