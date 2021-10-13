@@ -17,10 +17,10 @@ from netspy.config import Settings
 
 
 class CoreNLPClient(stanza.server.CoreNLPClient):  # type: ignore
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, port: int, *args: Any, **kwargs: Any) -> None:
         host = "http://localhost"
-        port = Settings().netspy_config.server.corenlp.port
         endpoint = f"{host}:{port}"
+
         super().__init__(endpoint=endpoint, *args, **kwargs)
 
 
@@ -28,7 +28,7 @@ class OpenIEClient:
     def __init__(
         self,
         host: str = "http://localhost",
-        port: int = Settings().netspy_config.server.openie.port,
+        port: int = 8099,
         openie_dir: Path = Settings().openie_dir,
         quiet: bool = False,
         memory: int = 20,
