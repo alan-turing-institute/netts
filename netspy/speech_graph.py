@@ -77,7 +77,10 @@ class SpeechGraph:
             preprocess_config.interjections,
             preprocess_config.contractions,
         )  # remove Ums and Mmms
+
+        # ToDo: Refactor and add test
         text = preprocess.remove_irrelevant_text(text)
+
         text = text.strip()  # remove trailing and leading whitespace
 
         # ------------------------------------------------------------------------------
@@ -91,7 +94,7 @@ class SpeechGraph:
         ex_stanza = corenlp_client.annotate(text)
 
         # ------- Basic Transcript Descriptors -------
-        n_tokens, n_sententences, _ = get_transcript_properties(text, ex_stanza)
+        n_tokens, n_sentences, _ = get_transcript_properties(ex_stanza)
 
         # ------------------------------------------------------------------------------
         # ------- Run OpenIE5 (Ollie) -------
@@ -221,7 +224,7 @@ class SpeechGraph:
         # Construct Speech Graph with properties: number of tokens, number of sentences, unconnected nodes as graph property
         G = nx.MultiDiGraph(
             transcript=self.transcript,
-            sentences=n_sententences,
+            sentences=n_sentences,
             tokens=n_tokens,
             unconnected_nodes=unconnected_nodes,
         )

@@ -220,7 +220,7 @@ def replace_problematic_symbols(text):
     return text
 
 
-def get_transcript_properties(text, ex_stanza):
+def get_transcript_properties(ex_stanza):
     punctuation_pos_tags = ["SENT", ".", ":", ",", "(", ")", '"', "'", "`", "$", "#"]
     #
     # Count number of tokens that are not punctuation
