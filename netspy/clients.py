@@ -6,25 +6,37 @@ import logging
 import os
 import socket
 import subprocess
+from pathlib import Path
 from types import TracebackType
 from typing import Any, Dict, Optional, Type
 
 import requests
+import stanza.server
 
-from netspy.config import get_settings
+from netspy.config import Settings
+
+
+class CoreNLPClient(stanza.server.CoreNLPClient):  # type: ignore
+    def __init__(self, port: int, *args: Any, **kwargs: Any) -> None:
+        host = "http://localhost"
+        endpoint = f"{host}:{port}"
+
+        super().__init__(endpoint=endpoint, *args, **kwargs)
 
 
 class OpenIEClient:
     def __init__(
         self,
         host: str = "http://localhost",
-        port: Optional[int] = 6000,
+        port: int = 8099,
+        openie_dir: Path = Settings().openie_dir,
         quiet: bool = False,
         memory: int = 20,
     ) -> None:
 
         self.host = host
         self.port = port
+        self.openie_dir = openie_dir
 
         # Can't type: https://github.com/python/typeshed/issues/4948
         self.process: Any = None
@@ -51,7 +63,7 @@ class OpenIEClient:
     def connect(self) -> None:
 
         iwd = os.getcwd()
-        os.chdir(get_settings().openie_dir)
+        os.chdir(self.openie_dir)
 
         self.process = subprocess.Popen(  # pylint: disable=consider-using-with
             [
@@ -68,10 +80,9 @@ class OpenIEClient:
             universal_newlines=True,
         )
         while True:
-
             if not self.process.stdout:
                 raise IOError("Process can't write to standard out")
-
+            self.process.stdout.flush()
             output = self.process.stdout.readline()
             return_code = self.process.poll()
 

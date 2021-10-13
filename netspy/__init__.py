@@ -5,17 +5,18 @@ from networkx.classes.multidigraph import MultiDiGraph
 from stanza.server import CoreNLPClient
 
 from netspy import preprocess  # noqa: F401 # pylint: disable=E0012,F401
+from netspy.clients import OpenIEClient
 from netspy.config import get_settings
-from netspy.context_manager import OpenIEClient
+from netspy.config_file import Config
 from netspy.install_models import install_dependencies
 from netspy.speech_graph import SpeechGraph, SpeechGraphFile
 
-__version__ = "0.1.0"
-
 __all__ = [
     "install_dependencies",
+    "preprocess",
     "SpeechGraph",
     "SpeechGraphFile",
+    "Config",
     "get_settings",
     "MultiDiGraph",
     "OpenIEClient",

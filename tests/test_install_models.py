@@ -1,3 +1,5 @@
+# pylint: disable=redefined-outer-name, unused-argument
+
 import hashlib
 import logging
 import os
@@ -15,8 +17,6 @@ from netspy.types import DownloadStatus, IncorrectHash
 
 LOGGER = logging.getLogger(__name__)
 
-# pylint: disable=redefined-outer-name
-
 
 @pytest.fixture()
 def netspy_home_dir() -> Generator[Settings, None, None]:
@@ -25,8 +25,6 @@ def netspy_home_dir() -> Generator[Settings, None, None]:
     settings = get_settings()
     yield settings
     shutil.rmtree(settings.netspy_dir)
-    # Clear the settings cache
-    get_settings.cache_clear()
 
 
 def hash_text(text: str) -> str:
@@ -79,9 +77,9 @@ class TestNLTK:
         self, download_path: Path, expected_status: DownloadStatus
     ) -> None:
 
-        settings = get_settings(download_path)
+        settings = get_settings()
 
-        assert install_nltk_punk(settings.netspy_dir) == expected_status
+        assert install_nltk_punk() == expected_status
         assert settings.netspy_dir.exists()
         assert settings.nltk_dir.exists()
 
@@ -90,19 +88,13 @@ class TestNLTK:
             expected_directory_subdir = list(settings.nltk_dir.iterdir())[0]
             assert "tokenizers" in expected_directory_subdir.parts[-1]
 
-        # Ensure the environment variable is reset
-        settings.clear_corenlp_env()
+    def test_download_tmp(self, tmp_path_netspy: Path) -> None:
 
-    def test_download_tmp(self, tmp_path: Path) -> None:
+        self._test_dowload_nltk(tmp_path_netspy, expected_status=DownloadStatus.SUCCESS)
 
-        netspy_directory = tmp_path / "netspy"
-        self._test_dowload_nltk(
-            netspy_directory, expected_status=DownloadStatus.SUCCESS
-        )
+    def test_download_tmp_exists(self, tmp_path_netspy: Path) -> None:
 
-    def test_download_tmp_exists(self, tmp_path: Path) -> None:
-
-        settings = get_settings(tmp_path / "netspy")
+        settings = get_settings()
         # Create nltk folder
         settings.nltk_dir.mkdir(parents=True)
         self._test_dowload_nltk(
@@ -123,10 +115,10 @@ class TestNLTK:
 class TestCoreNLP:
     @pytest.mark.ci_only
     @pytest.mark.slow
-    def test_download_corenlp(self, tmp_path: Path) -> None:
+    def test_download_corenlp(self, tmp_path_netspy: Path) -> None:
 
-        settings = get_settings(tmp_path / "netspy")
-        install_corenlp(settings.netspy_dir)
+        settings = get_settings()
+        install_corenlp()
 
         assert settings.core_nlp_dir.exists()
 
@@ -136,8 +128,6 @@ class TestOpenIE:
         self, download_path: Path, mocker: Any, mock: bool, expected_hash: str
     ) -> None:
 
-        netspy_dir = download_path
-
         # Mock the download_file function to keep it fast
         if mock:
             mocker.patch(
@@ -146,31 +136,22 @@ class TestOpenIE:
         # pylint: disable=import-outside-toplevel
         from netspy.install_models import install_openie5
 
-        settings = get_settings(netspy_dir)
+        settings = get_settings()
 
         # Download and ensure file exists
-        assert (
-            install_openie5(settings.netspy_dir, md5=expected_hash)
-            == DownloadStatus.SUCCESS
-        )
+        assert install_openie5(md5=expected_hash) == DownloadStatus.SUCCESS
         assert settings.openie.exists()
 
         # Check we don't download when it already exists
-        assert (
-            install_openie5(settings.netspy_dir, md5=expected_hash)
-            == DownloadStatus.ALREADY_EXISTS
-        )
+        assert install_openie5(md5=expected_hash) == DownloadStatus.ALREADY_EXISTS
 
         # Pass the wrong hash and raise IncorrectHash exception
         with pytest.raises(IncorrectHash):
-            install_openie5(settings.netspy_dir, md5=hash_text("adfasd"))
+            install_openie5(md5=hash_text("adfasd"))
 
-        # Ensure the environment variable is reset
-        settings.clear_corenlp_env()
+    def test_download_tmp(self, tmp_path_netspy: Path, mocker: Any) -> None:
 
-    def test_download_tmp(self, tmp_path: Path, mocker: Any) -> None:
-
-        self._test_download_openie5(tmp_path / "netspy", mocker, True, hash_text(""))
+        self._test_download_openie5(tmp_path_netspy, mocker, True, hash_text(""))
 
     @pytest.mark.skipif(
         get_settings().netspy_dir.exists(),
@@ -202,8 +183,6 @@ class TestLanguageMode:
         self, download_path: Path, mocker: Any, mock: bool, expected_hash: str
     ) -> None:
 
-        netspy_dir = download_path
-
         # Mock the download_file function to keep it fast
         if mock:
             mocker.patch(
@@ -212,13 +191,10 @@ class TestLanguageMode:
         # pylint: disable=import-outside-toplevel
         from netspy.install_models import install_language_model
 
-        settings = get_settings(netspy_dir)
+        settings = get_settings()
 
         # Download and ensure file exists
-        assert (
-            install_language_model(settings.netspy_dir, md5=expected_hash)
-            == DownloadStatus.SUCCESS
-        )
+        assert install_language_model(md5=expected_hash) == DownloadStatus.SUCCESS
         assert settings.openie_data.exists()
         LOGGER.warning(
             "Dir %s, contents: %s",
@@ -230,22 +206,16 @@ class TestLanguageMode:
 
         # Check we don't download when it already exists
         assert (
-            install_language_model(settings.netspy_dir, md5=expected_hash)
-            == DownloadStatus.ALREADY_EXISTS
+            install_language_model(md5=expected_hash) == DownloadStatus.ALREADY_EXISTS
         )
 
         # Pass the wrong hash and raise IncorrectHash exception
         with pytest.raises(IncorrectHash):
-            install_language_model(settings.netspy_dir, md5=hash_text("adfasd"))
+            install_language_model(md5=hash_text("adfasd"))
 
-        # Ensure the environment variable is reset
-        settings.clear_corenlp_env()
+    def test_download_tmp(self, tmp_path_netspy: Path, mocker: Any) -> None:
 
-    def test_download_tmp(self, tmp_path: Path, mocker: Any) -> None:
-
-        self._test_download_language_model(
-            tmp_path / "netspy", mocker, True, hash_text("")
-        )
+        self._test_download_language_model(tmp_path_netspy, mocker, True, hash_text(""))
 
     @pytest.mark.skipif(
         get_settings().netspy_dir.exists(),

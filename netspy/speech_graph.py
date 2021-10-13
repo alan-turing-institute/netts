@@ -9,13 +9,11 @@ from typing import Optional, Union
 
 import matplotlib.pyplot as plt
 import networkx as nx
-import nltk
-from pyopenie import OpenIE5
-from stanza.server import CoreNLPClient
 
 from netspy import MultiDiGraph, preprocess
-from netspy.config import get_settings
-from netspy.context_manager import OpenIEClient
+from netspy.clients import CoreNLPClient, OpenIEClient
+from netspy.config import Settings
+from netspy.logger import logger
 from netspy.nlp_helper_functions import (  # process_sent,; remove_bad_transcripts,; remove_duplicates,; remove_interjections,; remove_irrelevant_text,; replace_problematic_symbols,
     get_transcript_properties,
 )
@@ -41,8 +39,7 @@ from netspy.visualise_paragraph_functions import (
 
 class SpeechGraph:
     def __init__(
-        self,
-        transcript: str,
+        self, transcript: str, settings: Optional[Settings] = Settings()
     ) -> None:
 
         self.transcript = transcript
@@ -52,33 +49,40 @@ class SpeechGraph:
         self,
         corenlp_client: Optional[CoreNLPClient] = None,
         openie_client: Optional[OpenIEClient] = None,
+        settings: Optional[Settings] = None,
     ) -> MultiDiGraph:
 
-        _ = get_settings()
+        if not settings:
+            settings = Settings()
+
+        preprocess_config = settings.netspy_config.preprocess
 
         start_time = time.time()
-        print(self.transcript)
+
+        logger.debug("%s", self.transcript)
 
         # ------- Clean text -------
         # Need to replace problematic symbols before ANYTHING ELSE, because other tools cannot work with problematic symbols
         text = preprocess.replace_problematic_characters(
-            self.transcript, preprocess.PROBLEMATIC_CHARACTER_MAP
+            self.transcript, preprocess_config.problematic_symbols
         )  # replace ’ with '
-        print(text)
+        logger.debug("%s", text)
         text = preprocess.expand_contractions(
-            text, preprocess.CONTRACTION_MAP
+            text, preprocess_config.contractions
         )  # expand it's to it is
-        print(text)
+        logger.debug("%s", text)
 
         text = preprocess.remove_interjections(
-            text, preprocess.INTERJECTIONS, preprocess.CONTRACTION_MAP
+            text,
+            preprocess_config.interjections,
+            preprocess_config.contractions,
         )  # remove Ums and Mmms
         text = preprocess.remove_irrelevant_text(text)
         text = text.strip()  # remove trailing and leading whitespace
 
         # ------------------------------------------------------------------------------
         # ------- Print cleaned text -------
-        print("\n+++ Paragraph: +++ \n\n %s \n\n+++++++++++++++++++" % (text))
+        logger.debug("\n+++ Paragraph: +++ \n\n %s \n\n+++++++++++++++++++", text)
 
         # ------------------------------------------------------------------------------
         # ------------------------------------------------------------------------------
@@ -88,12 +92,17 @@ class SpeechGraph:
         if corenlp_client:
             ex_stanza = corenlp_client.annotate(text)
         else:
+            logger.debug(
+                "Starting CoreNLP server at %s",
+                f"http://localhost:{settings.netspy_config.server.corenlp.port}",
+            )
             with CoreNLPClient(
                 properties={
                     "annotators": "tokenize,ssplit,pos,lemma,parse,depparse,coref,openie"
                     # 'pos.model': '/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/OpenIE-standalone/target/streams/$global/assemblyOption/$global/streams/assembly/8a3bd51fe5c1bb09a51f326fa358947f6dc78463_8e7f18d9ae73e8daf5ee4d4e11167e10f8827888_da39a3ee5e6b4b0d3255bfef95601890afd80709/edu/stanford/nlp/models/pos-tagger/english-bidirectional/english-bidirectional-distsim.tagger'
                 },
                 be_quiet=True,
+                port=settings.netspy_config.server.corenlp.port,
             ) as corenlp_client:
                 ex_stanza = corenlp_client.annotate(text)
 
@@ -109,7 +118,7 @@ class SpeechGraph:
             ex_ollie = {}
             for i, sentence in enumerate(ex_stanza.sentence):
                 if len(sentence.token) > 1:
-                    print(f"====== Submitting sentence {i+1} tokens =======")
+                    logger.debug("====== Submitting sentence %s tokens =======", i)
                     sentence_text = (" ").join(
                         [
                             token.originalText
@@ -117,7 +126,8 @@ class SpeechGraph:
                             if token.originalText
                         ]
                     )
-                    print("{}".format(sentence_text))
+                    logger.debug("%s", sentence_text)
+                    # prinst("{}".format(sentence_text))
 
                     extraction = openie_client.extract(sentence_text)
 
@@ -138,7 +148,9 @@ class SpeechGraph:
 
         else:
 
-            with OpenIEClient(quiet=True) as client:
+            with OpenIEClient(
+                quiet=True, port=settings.netspy_config.server.openie.port
+            ) as client:
 
                 ex_ollie = {}
                 for i, sentence in enumerate(ex_stanza.sentence):
