@@ -41,8 +41,8 @@ def expand_contractions(text: str, contraction_mapping=None):
     return expanded_text
 
 
-# ToDo Delete this function?
-def process_sent(sent):
+# ToDo Delete this function? It doesn't seem to be used.
+def process_text(text: str) -> str:
 
     stop_words = nltk.corpus.stopwords.words("english")
     new_stop_words = [
@@ -72,23 +72,23 @@ def process_sent(sent):
     ]
     stop_words.extend(new_stop_words)
 
-    sent2 = expand_contractions(sent)
-    tokens = nltk.word_tokenize(sent2)
-    # remove punctuation
+    text = expand_contractions(text)
+    tokens = nltk.word_tokenize(text)
+
     tokens = [t.lower() for t in tokens if t not in string.punctuation]
-    tokens = [w for w in tokens if not w in stop_words]  # remove stopwords
-    sent3 = " ".join(tokens)
-    return sent3
+    tokens = [w for w in tokens if w not in stop_words]
+
+    return " ".join(tokens)
 
 
-def remove_interjections(text):
+def remove_interjections(text: str) -> str:
     """
     Removes interjections (e.g. Um, Mmm, yeah)
 
     Note: The interjections removed by this funciton are specific for English.
     Applying this to other languages may cause problems (For example in German "um" is a presposition)
     """
-    english_interjections = [
+    english_interjections = {
         "Um",
         "um",
         "Uh",
@@ -118,15 +118,15 @@ def remove_interjections(text):
         "Hmmm",
         "inaudible",
         "Inaudible",
-    ]
+    }
 
-    sent2 = expand_contractions(text)
-    tokens = nltk.word_tokenize(sent2)
+    text = expand_contractions(text)
+    tokens = nltk.word_tokenize(text)
 
     # remove interjections
-    tokens = [w for w in tokens if not w in english_interjections]
-    sent3 = " ".join(tokens)
-    return sent3
+    tokens = [w for w in tokens if w not in english_interjections]
+
+    return " ".join(tokens)
 
 
 def remove_irrelevant_text(text):
@@ -192,7 +192,7 @@ def remove_irrelevant_text(text):
     return text
 
 
-def replace_problematic_symbols(text):
+def replace_problematic_symbols(text: str) -> str:
     # key is problematic symbol, value is replacement symbol
     problematic_symbols = {
         "’": "'",
@@ -258,8 +258,7 @@ def remove_duplicates(tats):
     """
     tat_properties = []
     for tat_info in tats:
-        # ToDo Add unit test before correcting regex string with r""
-        tat = re.search("(?<=TAT)\w+", tat_info.name)[0]
+        tat = re.search(r"(?<=TAT)\w+", tat_info.name)[0]
         if len(tat) > 2:
             tat = tat.split("_")[0]
         # find subject id (7 digit combination before word "TAT")
@@ -321,7 +320,7 @@ def remove_bad_transcripts(tats, bad_transcripts_list):
                 exclude.append(matching[0][0])
                 logger.debug("removed bad transcript %s", matching[0])
             elif len(matching) > 1:
-                [exclude.append(match[0]) for match in matching]
+                exclude.extend([match[0] for match in matching])
                 logger.debug("More than one duplicate found: %s", matching)
 
     logger.debug(
@@ -330,7 +329,6 @@ def remove_bad_transcripts(tats, bad_transcripts_list):
         len(exclude),
         len(tats) - len(exclude),
     )
-
 
     tats = [T for t, T in enumerate(tats) if t not in exclude]
     return tats
