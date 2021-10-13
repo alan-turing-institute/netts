@@ -20,6 +20,7 @@ import pandas as pd
 import stanza
 
 from netspy.contractions import CONTRACTION_MAP
+from netspy.logger import logger
 
 # from collections import Counter
 # from sklearn.decomposition import PCA
@@ -134,7 +135,7 @@ def remove_interjections(text):
     return sent3
 
 
-def remove_irrelevant_text(text, be_quiet=True):
+def remove_irrelevant_text(text):
     """
     @author: by Dr. Caro Nettekoven, 2021
 
@@ -151,8 +152,7 @@ def remove_irrelevant_text(text, be_quiet=True):
     # Remove Anything between two (()), specifically between "( (" and ") )", since initial cleaning steps put a single whitespace between punctuation symbols
     match = re.match(r"^.*\(\s\((.*)\)\s\).*$", text)
     if match:
-        if not be_quiet:
-            print(match.group(1))
+        logger.debug(match.group(1))
         match_text = "( (" + match.group(1) + ") )"
         text = text.replace(match_text, "")
     #
@@ -161,16 +161,14 @@ def remove_irrelevant_text(text, be_quiet=True):
     speakerstamp = re.findall(r"\bUnknown Speaker\b\s\d{1}:\d{2}", text)
     if speakerstamp != []:
         for stamp in speakerstamp:
-            if not be_quiet:
-                print(stamp)
+            logger.debug(stamp)
             text = text.replace(stamp, "")
     #
     # ---- Remove time stamp ('00:01:00')----
     timestamp = re.findall(r"[0-9]{2}:[0-9]{2}:[0-9]{2}", text)
     if timestamp != []:
         for stamp in timestamp:
-            if not be_quiet:
-                print(stamp)
+            logger.debug(stamp)
             text = text.replace(stamp, "")
     #
     #
@@ -194,9 +192,8 @@ def remove_irrelevant_text(text, be_quiet=True):
     ]
     #
     for irr in irrelevant_text:
-        if irr in text and not be_quiet:
-            # print('Removing "{0}" from \n"{1}"'.format(irr, text))
-            print('Removing "{0}" "'.format(irr))
+        if irr in text:
+            logger.debug('Removing "%s"', irr)
         text = text.replace(irr, "")
     return text
 
@@ -300,7 +297,7 @@ def remove_duplicates(tats):
 # df.query('subj == "6376314" & tat == "13"')
 
 
-def remove_bad_transcripts(tats, bad_transcripts_list, be_quiet=True):
+def remove_bad_transcripts(tats, bad_transcripts_list):
     """
     @author: by Dr. Caro Nettekoven, 2021
     Removes bad transcripts from input list.
@@ -312,8 +309,6 @@ def remove_bad_transcripts(tats, bad_transcripts_list, be_quiet=True):
         The file names of bad transcripts should be provided in a column labelled "Filenames" in the csv file.
     tats: list of pathlib objects
         List of pathlib objects pointing to tats.
-    be_quiet: boolean
-        If true, suppresses output messages. Default is true.
 
     Returns
     -------
@@ -333,17 +328,17 @@ def remove_bad_transcripts(tats, bad_transcripts_list, be_quiet=True):
         if matching != []:
             if len(matching) == 1:
                 exclude.append(matching[0][0])
-                if not be_quiet:
-                    print("removed bad transcript {}".format(matching[0]))
+                logger.debug("removed bad transcript %s", matching[0])
             elif len(matching) > 1:
                 [exclude.append(match[0]) for match in matching]
-                if not be_quiet:
-                    print("More than one duplicate found: {}".format(matching))
-    if not be_quiet:
-        print(
-            "Obtained {} transcripts. Excluded {} bad transcripts. Kept {} transcripts.".format(
-                len(tats), len(exclude), len(tats) - len(exclude)
-            )
-        )
+                logger.debug("More than one duplicate found: %s", matching)
+
+    logger.debug(
+        "Obtained %s transcripts. Excluded %s bad transcripts. Kept %s transcripts.",
+        len(tats),
+        len(exclude),
+        len(tats) - len(exclude),
+    )
+
     tats = [T for t, T in enumerate(tats) if t not in exclude]
     return tats
