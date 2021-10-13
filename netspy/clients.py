@@ -6,6 +6,7 @@ import logging
 import os
 import socket
 import subprocess
+import time
 from pathlib import Path
 from types import TracebackType
 from typing import Any, Dict, Optional, Type
@@ -82,18 +83,22 @@ class OpenIEClient:
         while True:
             if not self.process.stdout:
                 raise IOError("Process can't write to standard out")
+
             self.process.stdout.flush()
             output = self.process.stdout.readline()
-            return_code = self.process.poll()
 
             if not self.quiet:
                 logging.info("OpenIE stdout: %s", output)
 
+            return_code = self.process.poll()
             if return_code:
                 raise RuntimeError("OpenIE server start up failed", return_code)
 
             if "Server started at port " + str(self.port) in output:
                 break
+
+            # Avoid busy waiting
+            time.sleep(0.01)
 
         os.chdir(iwd)
 
