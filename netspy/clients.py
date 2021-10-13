@@ -21,7 +21,7 @@ class CoreNLPClient(stanza.server.CoreNLPClient):  # type: ignore
         host = "http://localhost"
         port = Settings().netspy_config.server.corenlp.port
         endpoint = f"{host}:{port}"
-        super().__init__(url=endpoint, *args, **kwargs)
+        super().__init__(endpoint=endpoint, *args, **kwargs)
 
 
 class OpenIEClient:
