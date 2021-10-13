@@ -27,7 +27,7 @@ def test_stanza() -> None:
     assert os.getenv("CORENLP_HOME") in [local_version, github_actions_version]
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def module_clients() -> Generator[Clients, None, None]:
 
     _ = netspy.get_settings()
