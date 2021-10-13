@@ -61,6 +61,7 @@ class Settings(BaseSettings):
 
     @validator("netspy_dir", pre=True)
     def validate_netspy_dir(cls, v: str) -> Path:
+
         direc = Path(v) / "stanza_corenlp"
         os.environ["CORENLP_HOME"] = str(direc)
 

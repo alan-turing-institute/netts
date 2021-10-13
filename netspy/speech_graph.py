@@ -102,7 +102,7 @@ class SpeechGraph:
                     # 'pos.model': '/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/OpenIE-standalone/target/streams/$global/assemblyOption/$global/streams/assembly/8a3bd51fe5c1bb09a51f326fa358947f6dc78463_8e7f18d9ae73e8daf5ee4d4e11167e10f8827888_da39a3ee5e6b4b0d3255bfef95601890afd80709/edu/stanford/nlp/models/pos-tagger/english-bidirectional/english-bidirectional-distsim.tagger'
                 },
                 be_quiet=True,
-                endpoint=f"http://localhost:{settings.netspy_config.server.corenlp.port}",
+                port=settings.netspy_config.server.corenlp.port,
             ) as corenlp_client:
                 ex_stanza = corenlp_client.annotate(text)
 

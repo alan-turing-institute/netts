@@ -33,9 +33,9 @@ def test_config_dir(tmp_path: Path) -> None:
 
 # pylint: disable=unused-argument
 @pytest.mark.parametrize("x", range(10))
-def test_set_netspy_home(tmp_path_netspy: Path, x: int) -> None:
+def test_set_netspy_home(tmp_path: Path, x: int) -> None:
 
-    expected_dir = tmp_path_netspy
+    expected_dir = tmp_path
     os.environ["netspy_dir"] = str(expected_dir)
 
     settings = get_settings()
@@ -55,18 +55,18 @@ def test_set_netspy_home(tmp_path_netspy: Path, x: int) -> None:
 
 
 @pytest.fixture()
-def local_config(tmp_path_netspy: Path) -> Path:
+def local_config(tmp_path: Path) -> Path:
 
-    config_file = tmp_path_netspy / "netspy.toml"
+    config_file = tmp_path / "netspy.toml"
     config_file.write_text(netspy.Config.default())
 
     return config_file
 
 
 @pytest.fixture()
-def alt_local_config(tmp_path_netspy: Path) -> Path:
+def alt_local_config(tmp_path: Path) -> Path:
 
-    alt_config_file = tmp_path_netspy / "netspy_alt.toml"
+    alt_config_file = tmp_path / "netspy_alt.toml"
 
     alt_config = netspy.Config(
         server=Servers(
