@@ -1,5 +1,5 @@
 # Netspy - Networks of Transcribed Speech in Python
-![example workflow](https://github.com/alan-turing-institute/netspy/actions/workflows/unit-tests.yml/badge.svg)
+[![GitHub release](https://img.shields.io/github/release/alan-turing-institute/netspy.svg)](https://GitHub.com/alan-turing-institute/netspy/releases/)[![PyPI pyversions](https://img.shields.io/pypi/pyversions/netspy.svg)](https://pypi.python.org/pypi/netspy/)
 [![codecov](https://codecov.io/gh/alan-turing-institute/netspy/branch/main/graph/badge.svg?token=58uMq5hbNt)](https://codecov.io/gh/alan-turing-institute/netspy)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
@@ -53,91 +53,3 @@ poetry run pytest --cov=netspy --cov-report=xml tests -m "not ci_only"
 ```bash
 poetry run mkdocs serve --config-file docs/mkdocs.yml
 ```
-
-### [OpenIE5](https://github.com/dair-iitd/OpenIE-standalone/tree/v5.0.1) and language models
-
-Download precompilled binary from [here](https://drive.google.com/file/d/19z8LO-CYOfJfV5agm82PZ2JNWNUPIB6D/view?usp=sharing) and place in the project root directory.
-
-Create a folder called `data`
-
-```bash
-mkdir legacy/data
-```
-
-Download the language model from [here](https://drive.google.com/file/d/0B-5EkZMOlIt2cFdjYUJZdGxSREU/view?usp=sharing) and place in the data folder.
-
-## Pipeline
-### 1. Construct semantic graphs.
-  Start OpenIE5 server.
-  ```bash
-  java -Xmx20g -XX:+UseConcMarkSweepGC -jar openie-assembly-5.0-SNAPSHOT.jar  --ignore-errors --httpPort 6000
-  ```
-  To create a semantic graph for a single transcript in the dataset, run
-  ```console
-  poetry run python
-  ```
-  ```python
-  import netspy
-  from netspy.speech_graph import plot_graph, speech_graph
-  text=open("../demo_data/3138849-TAT10.txt","r")
-  transcript=text.read()
-  text.close()
-  go = speech_graph(transcript)
-  # To plot a png graph to current working directory:
-  plot_graph(go, 'png')
-  # To generate a gpickle file to current working directory:
-  plot_graph(go, 'gpickle')
-  ```
-  Output:
-  - log file (.txt file)
-  - pickled graph (.gpickle file)
-  - plotted graph (.png file)
-
-  To create semantic graphs for a whole dataset of transcripts, ammend the graph_tats.sh script and run
-  ```console
-  graph_tats.sh
-  ```
-  Output:
-  - For each transcript in dataset
-    - log file (.txt file)
-    - pickled graph (.gpickle file)
-    - plotted graph (.png file)
-  - Summary report for full dataset, including
-    - Number of transcripts in dataset, number of processed transcripts in this round, number of errors encountered
-    - Detailed error report for each transcript where processing finished with an error
-
-### 2. Describe semantic graphs
-  ```console
-  python describe_graphs.py <graph_dir>
-  ```
-  Output: graphs_data.csv
-
-### 3. Plot basic graph measures
-Plots of all basic graph measures are available in the basic_graph_analysis.ipynb notebook
-  - Change graph_dir variable to the folder containing all pickled graphs (e.g. graph_dir = <graph_dir>)
-
-### 4. Count graph motifs
-  ```console
-  python motifs.py <graph_dir>
-  ```
-  Output: motif_counts.csv
-
-### 5. Plot motif counts
-Plots of all motif count measures are available in the  motif_analysis.ipynb notebook
-
-## Additional Measures
-Calculating additional measures for the transcripts to compare semantic graph measures with.
-
-### 1. Syntactic graph measures
-Use SpeechGraph tool from Natalia Mota to construct and describe syntactic measures
-
-### 2. NLP measures
-Use [NLP_psychosis](https://github.com/carobellum/NLP_psychosis) tools to calculate measures.
-
-### 3. Compile all data into one table
-To compile all data (semantic graph data, syntactic graph data, nlp data) into one table, run
-```console
-python compile_all_graph_data.py <graph_dir>
-```
-Output:
-- graphs_data_all.csv
