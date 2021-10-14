@@ -36,11 +36,13 @@ class CoreNLPClient(stanza.server.CoreNLPClient):  # type: ignore
             self.server.terminate()
             try:
                 self.server.wait(5)
+                print("Successfully terminate process")
             except subprocess.TimeoutExpired:
                 # Resorting to more aggressive measures...
                 self.server.kill()
                 try:
                     self.server.wait(10)
+                    print("Successfully killeed process")
                 except subprocess.TimeoutExpired:
                     logger.warning(
                         "Error: Unable to stop CoreNLP server. Trying one last time"
@@ -49,6 +51,7 @@ class CoreNLPClient(stanza.server.CoreNLPClient):  # type: ignore
                     self.server.kill()
                     try:
                         self.server.wait(10)
+                        print("Successfully killed process on second attempt")
                     except subprocess.TimeoutExpired:
                         # oh well
                         raise RuntimeError(
