@@ -9,11 +9,11 @@ import subprocess
 from pathlib import Path
 from types import TracebackType
 from typing import Any, Dict, Optional, Type
-
 import requests
 import stanza.server
 
 from netspy.config import Settings
+from netspy.logger import logger
 
 
 class CoreNLPClient(stanza.server.CoreNLPClient):  # type: ignore
@@ -21,7 +21,14 @@ class CoreNLPClient(stanza.server.CoreNLPClient):  # type: ignore
         host = "http://localhost"
         endpoint = f"{host}:{port}"
 
+        self._port = port
+
         super().__init__(endpoint=endpoint, *args, **kwargs)
+
+    def get_pid(self) -> int:
+
+        if self.server:
+            return self.server.pid
 
 
 class OpenIEClient:
@@ -128,6 +135,16 @@ class OpenIEClient:
 
     def close(self) -> None:
         if self.process and not self.process.poll():
+            try:
+                self.process.wait(5)
+            except subprocess.TimeoutExpired:
+                # Agressive kill
+                self.process.kill()
+                try:
+                    self.process.wait(10)
+                except subprocess.TimeoutExpired:
+                    logger.warning("Unable to stop OpenIE server")
+
             # Close the server
             self.process.kill()
             self.process.wait()
