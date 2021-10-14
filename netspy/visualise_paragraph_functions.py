@@ -359,6 +359,8 @@ def get_node_synonyms(ex_stanza, no_noun):
     """Find node name synonyms in coreference chain.
 
     Extract proper node name and alternative node names"""
+    # pylint: disable=too-many-branches
+
     node_name_synonyms = {}
     for coreference in ex_stanza.corefChain:
         proper_nn = []
@@ -433,6 +435,8 @@ def split_node_synonyms(node_name_synonyms, preposition_edges, edges):
 
     splits nodes that are joined by preposition and adds preposition edge to graph
     """
+    # pylint: disable=too-many-nested-blocks
+
     for preposition_edge in preposition_edges:
         preposition = preposition_edge[2]["relation"]
         keys = list(node_name_synonyms.keys())
@@ -479,6 +483,7 @@ def split_nodes(edges, preposition_edges, no_noun):
 
     Find nodes that include preposition-joined nouns and split the nodes if the second noun appears in any other edge but the current
     """
+    # pylint: disable=too-many-locals, invalid-name, too-many-nested-blocks
     for e, edge_info in enumerate(edges):
         edge = edge_info[:2]
         new_edge = list(edge_info)  # Make edge into list to ammend it
@@ -564,6 +569,7 @@ def merge_corefs(edges, node_name_synonyms, no_noun, poss_pronouns):
     Replace node name with proper node name and edge_label
     Method: test if node text appears in list of alternative node names or is part of the proper node name and replace with the full proper node name
     """
+    # pylint: disable=too-many-branches, too-many-nested-blocks
     orig_edges = deepcopy(edges)
     for e, edge_info in enumerate(edges):
         # print(e, edge)
@@ -662,10 +668,10 @@ def clean_nodes(edges, nouns, adjectives):
 def clean_parallel_edges(edges):
     """Check parallel edges aren't duplicates.
 
-    Check that each parallel edges (i.e. where node1 and node2 are connected by several relations) are not duplicates of each other, but in fact represent
-    different relations of the same pair of nodes.
+    Check that each parallel edges (i.e. where node1 and node2 are connected by several relations)
+    are not duplicates of each other, but in fact represent different relations of the same pair of nodes.
     """
-
+    # pylint: disable=too-many-locals, unused-variable
     # Loop through parallel edges and leave parallel edges only if they represent different relations
     node1 = [edge[0] for edge in edges]
     node2 = [edge[1] for edge in edges]
@@ -687,27 +693,33 @@ def clean_parallel_edges(edges):
     )
 
     # Find duplicate rows
-    boo_same = np.where(df.duplicated())
     boo_similar = np.where(df.duplicated(subset=["n1", "n2", "relation"]).values)
 
     # Of the duplicate rows, pick the row that most represents the proper relation (highest confidence in Ollie for example)
     all_chosen_rows = []
+    print(f"@@@@{boo_similar[0].shape[0]}")
     for b in range(0, boo_similar[0].shape[0]):
         # If both extracted by Ollie, keep the one with the higher confidence
+
         dupl = df.iloc[boo_similar[0][b]]
-        n_one = dupl["n1"]
-        n_two = dupl["n2"]
-        relation = dupl["relation"]
-        extractor = dupl["extractor"]
-        duplicate_rows = df.query("n1 == @n1 & n2 == @n2 & relation == @relation")
+        node_one = dupl["n1"]  # noqa: F841
+        node_two = dupl["n2"]  # noqa: F841
+        relation = dupl["relation"]  # noqa: F841
+        extractor = dupl["extractor"]  # noqa: F841
+
+        duplicate_rows = df.query(
+            "n1 == @node_one & n2 == @node_two & relation == @relation"
+        )
+
         if len(duplicate_rows) == len(duplicate_rows.query('extractor == "ollie"')):
             # If all duplicate rows were extracted by ollie, take the extraction with the highest confidence
+
             chosen_row = duplicate_rows.index[
                 (duplicate_rows.confidence == max(duplicate_rows.confidence))
             ][0]
             if chosen_row not in all_chosen_rows:
                 all_chosen_rows.append(chosen_row)
-                continue
+
         elif len(duplicate_rows) == len(duplicate_rows.duplicated(keep=False)):
             # If all duplicate rows have exactly the same values in all of the rows, then choose the last of the rows
             chosen_row = duplicate_rows.index[-1]
@@ -718,7 +730,6 @@ def clean_parallel_edges(edges):
                         duplicate_rows, duplicate_rows.iloc[-1].to_frame().T
                     )
                 )
-                continue
 
     # Remove all duplicate edges
     all_duplicate_rows = df.duplicated(subset=["n1", "n2", "relation"], keep=False)

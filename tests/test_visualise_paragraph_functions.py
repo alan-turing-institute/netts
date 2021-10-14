@@ -1,7 +1,44 @@
 """Unit tests for the nlp_helper_functions module."""
 from pytest_mock import MockerFixture
 
-from netspy.visualise_paragraph_functions import get_node_synonyms, get_word_types
+from netspy.visualise_paragraph_functions import (
+    clean_parallel_edges,
+    get_node_synonyms,
+    get_word_types,
+)
+
+
+def test_clean_parallel_edges() -> None:
+    edge_one = (
+        "girl",
+        "maid",
+        {"relation": "to be", "confidence": 0.5, "extractor": "ollie"},
+    )
+    edge_two = (
+        "i",
+        "it",
+        {"relation": "am not", "confidence": 0.3, "extractor": "ollie"},
+    )
+    graph = [edge_one, edge_two]
+
+    # We don't expect the function to change this graph at all
+    expected = graph
+    actual = clean_parallel_edges(graph)
+    assert actual == expected
+
+    edge_three = (
+        "girl",
+        "maid",
+        {"relation": "to be", "confidence": 0.99, "extractor": "ollie"},
+    )
+    edge_four = ("girl", "maid", {"relation": "to be", "extractor": "ollie"})
+
+    graph = [edge_one, edge_three, edge_four]
+
+    # We expect duplicates to be removed and only the highest confidence edges to remain
+    expected = [edge_three]
+    actual = clean_parallel_edges(graph)
+    assert actual == expected
 
 
 def test_get_word_types(mocker: MockerFixture) -> None:
