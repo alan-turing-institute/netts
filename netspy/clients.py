@@ -30,6 +30,25 @@ class CoreNLPClient(stanza.server.CoreNLPClient):  # type: ignore
         if self.server:
             return self.server.pid
 
+    def super_stop(self):
+
+        if self.server:
+            self.server.terminate()
+            try:
+                self.server.wait(5)
+            except subprocess.TimeoutExpired:
+                # Resorting to more aggressive measures...
+                self.server.kill()
+                try:
+                    self.server.wait(5)
+                except subprocess.TimeoutExpired:
+                    # oh well
+                    raise RuntimeError("Error: Unable to shut down server")
+                self.server = None
+        if self.stop_cmd:
+            subprocess.run(self.stop_cmd, check=True)
+        self.is_active = False
+
 
 class OpenIEClient:
     def __init__(

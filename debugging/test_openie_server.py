@@ -11,7 +11,8 @@ pid = client.get_pid()
 print(f"Process running on: {pid if pid else 'Cant find pid'}")
 
 
-client.stop()
+# client.stop()
+client.super_stop()
 
 # Make sure server has shut down
 assert not client.server
