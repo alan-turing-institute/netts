@@ -40,11 +40,23 @@ class CoreNLPClient(stanza.server.CoreNLPClient):  # type: ignore
                 # Resorting to more aggressive measures...
                 self.server.kill()
                 try:
-                    self.server.wait(5)
+                    self.server.wait(10)
                 except subprocess.TimeoutExpired:
-                    # oh well
-                    raise RuntimeError("Error: Unable to shut down server")
-                self.server = None
+                    logger.warning(
+                        "Error: Unable to stop CoreNLP server. Trying one last time"
+                    )
+
+                    self.server.kill()
+                    try:
+                        self.server.wait(10)
+                    except subprocess.TimeoutExpired:
+                        # oh well
+                        raise RuntimeError(
+                            f"Error: Unable to stop CoreNLP server. PID: {self.get_pid()}"
+                        )
+
+            self.server = None
+
         if self.stop_cmd:
             subprocess.run(self.stop_cmd, check=True)
         self.is_active = False
@@ -162,11 +174,19 @@ class OpenIEClient:
                 try:
                     self.process.wait(10)
                 except subprocess.TimeoutExpired:
-                    logger.warning("Unable to stop OpenIE server")
+                    logger.warning(
+                        "Unable to stop OpenIE server after 10 seconds. Trying one last time"
+                    )
 
-            # Close the server
-            self.process.kill()
-            self.process.wait()
+                    # Close the server - Have one last go
+                    self.process.kill()
+
+                    try:
+                        self.process.wait(10)
+                    except subprocess.TimeoutExpired:
+                        raise RuntimeError(
+                            f"Error: Unable to stop OpenIE server. PID: {self.get_pid()}"
+                        )
 
     def atexit_kill(self) -> None:
         if self.process and not self.process.poll():

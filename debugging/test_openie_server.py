@@ -4,7 +4,7 @@ client = netspy.CoreNLPClient(port=8888)
 client.start()
 
 # Wait for server to start
-client.ensure_alive()
+# client.ensure_alive()
 
 # Get its PID
 pid = client.get_pid()
