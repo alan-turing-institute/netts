@@ -51,14 +51,8 @@ def module_clients() -> Generator[Any, Any, Any]:
     [
         ("3138838-TAT10.txt", "tests/test_data/3138838-TAT10.pickle"),
         ("3138838-TAT13.txt", "tests/test_data/3138838-TAT13.pickle"),
-        (
-            "3138838-TAT30.txt",
-            "tests/test_data/3138838-TAT30.pickle",
-        ),
-        (
-            "3138849-TAT10.txt",
-            "tests/test_data/3138849-TAT10.pickle",
-        ),
+        ("3138838-TAT30.txt", "tests/test_data/3138838-TAT30.pickle"),
+        ("3138849-TAT10.txt", "tests/test_data/3138849-TAT10.pickle"),
     ],
 )
 def test_speech_pickle(filename: str, output_pickle: str) -> None:
