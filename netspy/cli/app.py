@@ -1,4 +1,5 @@
 import datetime
+import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
@@ -11,6 +12,7 @@ import netspy
 from netspy import SpeechGraphFile
 from netspy.clients import CoreNLPClient, OpenIEClient
 from netspy.config import Settings, get_settings
+from netspy.logger import logger, stanza_logger
 
 app = typer.Typer()
 
@@ -75,6 +77,12 @@ def run(
     ),
     figure: bool = typer.Option(True, help="create figure of network"),
     fig_format: str = "png",
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v", help="Set the logging level to INFO"
+    ),
+    very_verbose: bool = typer.Option(
+        False, "--very-verbose", "-vv", help="Set the logging level to DEBUG"
+    ),
 ) -> None:
     """Process transcript(s) in INPUT_DIR
     and pickle graph objects to OUTPUT_DIR.
@@ -84,6 +92,16 @@ def run(
         settings = Settings(config_file=config_file)
     else:
         settings = Settings()
+
+    if very_verbose:
+        logger.setLevel(logging.DEBUG)
+        stanza_logger.setLevel(logging.DEBUG)
+    elif verbose:
+        logger.setLevel(logging.INFO)
+        stanza_logger.setLevel(logging.INFO)
+    else:
+        logger.setLevel(logging.WARNING)
+        stanza_logger.setLevel(logging.WARNING)
 
     if not input_path.exists():
         cprint(
