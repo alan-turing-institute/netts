@@ -42,6 +42,12 @@ By default these will install to a `netspy` directory in your home directory. If
 export NETSPY_DIR={DIRECTORY}
 ```
 
+or create a file in the netspy root directory called `.env`
+
+```bash
+NETSPY_DIR={DIRECTORY}
+```
+
 > netspy will create the `NETSPY_DIR` if it does not exist.
 
 To verify which directory netspy will use run:
