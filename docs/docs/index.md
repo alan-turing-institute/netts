@@ -55,7 +55,7 @@ By default these will install to a `netspy` directory in your home directory. If
 export NETSPY_DIR={DIRECTORY}
 ```
 
-or create a file in the netspy root directory called `.env` 
+or create a file in the netspy root directory called `.env`
 
 ```bash
 NETSPY_DIR={DIRECTORY}
