@@ -72,6 +72,7 @@ class OpenIEClient:
             [
                 "java",
                 f"-Xmx{self.memory}g",
+                "-XX:+UseConcMarkSweepGC",
                 "-jar",
                 "openie-assembly-5.0-SNAPSHOT.jar",
                 "--ignore-errors",
