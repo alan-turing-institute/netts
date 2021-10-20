@@ -9,6 +9,7 @@ import subprocess
 from pathlib import Path
 from types import TracebackType
 from typing import Any, Dict, Optional, Type
+
 import requests
 import stanza.server
 
@@ -24,45 +25,6 @@ class CoreNLPClient(stanza.server.CoreNLPClient):  # type: ignore
         self._port = port
 
         super().__init__(endpoint=endpoint, *args, **kwargs)
-
-    def get_pid(self) -> int:
-
-        if self.server:
-            return self.server.pid
-
-    def super_stop(self):
-
-        if self.server:
-            self.server.terminate()
-            try:
-                self.server.wait(5)
-                print("Successfully terminate process")
-            except subprocess.TimeoutExpired:
-                # Resorting to more aggressive measures...
-                self.server.kill()
-                try:
-                    self.server.wait(10)
-                    print("Successfully killeed process")
-                except subprocess.TimeoutExpired:
-                    logger.warning(
-                        "Error: Unable to stop CoreNLP server. Trying one last time"
-                    )
-
-                    self.server.kill()
-                    try:
-                        self.server.wait(10)
-                        print("Successfully killed process on second attempt")
-                    except subprocess.TimeoutExpired:
-                        # oh well
-                        raise RuntimeError(
-                            f"Error: Unable to stop CoreNLP server. PID: {self.get_pid()}"
-                        )
-
-            self.server = None
-
-        if self.stop_cmd:
-            subprocess.run(self.stop_cmd, check=True)
-        self.is_active = False
 
 
 class OpenIEClient:
@@ -187,9 +149,7 @@ class OpenIEClient:
                     try:
                         self.process.wait(10)
                     except subprocess.TimeoutExpired:
-                        raise RuntimeError(
-                            f"Error: Unable to stop OpenIE server. PID: {self.get_pid()}"
-                        )
+                        raise RuntimeError("Error: Unable to stop OpenIE server.")
 
     def atexit_kill(self) -> None:
         if self.process and not self.process.poll():

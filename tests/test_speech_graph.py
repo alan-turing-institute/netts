@@ -4,7 +4,6 @@ import pickle
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Generator
 
 import pytest
 
@@ -27,23 +26,23 @@ def test_stanza() -> None:
     assert os.getenv("CORENLP_HOME") in [local_version, github_actions_version]
 
 
-@pytest.fixture(scope="module")
-def module_clients() -> Generator[Any, Any, Any]:
+# @pytest.fixture(scope="module")
+# def module_clients() -> Generator[Any, Any, Any]:
 
-    _ = netspy.get_settings()
+#     _ = netspy.get_settings()
 
-    clients = Clients(
-        openie_client=netspy.OpenIEClient(quiet=True),
-        corenlp_client=netspy.CoreNLPClient(be_quite=True),
-    )
+#     clients = Clients(
+#         openie_client=netspy.OpenIEClient(quiet=True),
+#         corenlp_client=netspy.CoreNLPClient(be_quite=True),
+#     )
 
-    clients.openie_client.connect()
-    clients.corenlp_client.start()
+#     clients.openie_client.connect()
+#     clients.corenlp_client.start()
 
-    yield clients
+#     yield clients
 
-    clients.openie_client.close()
-    clients.corenlp_client.stop()
+#     clients.openie_client.close()
+#     clients.corenlp_client.stop()
 
 
 @pytest.mark.parametrize(

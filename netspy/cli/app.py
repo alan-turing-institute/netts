@@ -1,7 +1,6 @@
 import datetime
 import logging
 from dataclasses import dataclass
-from logging import Logger
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
@@ -147,8 +146,6 @@ def run(
 
         # Doesn't block
         corenlp_client.start()
-
-        cprint(Color(f"Stanza PID: {corenlp_client.get_pid()}", fg="red"))
 
         openie_client = OpenIEClient(
             quiet=True, port=settings.netspy_config.server.openie.port
