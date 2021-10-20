@@ -29,11 +29,20 @@ def test_stanza() -> None:
 def module_clients() -> Generator[Clients, None, None]:
 
     # This has the side effect of setting the CORENLP_HOME environment variable.
-    netspy.get_settings()
+    settings = netspy.get_settings()
 
     clients = Clients(
-        openie_client=netspy.OpenIEClient(quiet=True),
-        corenlp_client=netspy.CoreNLPClient(be_quite=True),
+        openie_client=netspy.OpenIEClient(
+            port=settings.netspy_config.server.openie.port,
+            # quiet=True
+        ),
+        corenlp_client=netspy.CoreNLPClient(
+            properties={
+                "annotators": "tokenize,ssplit,pos,lemma,ner,parse,depparse,coref,openie"
+            },
+            port=settings.netspy_config.server.corenlp.port,
+            # be_quite=True
+        ),
     )
 
     clients.openie_client.connect()
