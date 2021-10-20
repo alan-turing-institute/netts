@@ -1,7 +1,6 @@
 # pylint: disable=C0114, C0116, R0913, redefined-outer-name, W0613
 import os
 import pickle
-import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Generator
@@ -20,17 +19,17 @@ class Clients:
 
 def test_stanza() -> None:
 
-    local_version = str(netspy.config.NETSPY_DIR / "stanza_corenlp")
-    github_actions_version = str(Path(".dependencies") / "stanza_corenlp")
+    settings = netspy.get_settings()
+    assert settings.core_nlp_dir == Path(
+        os.getenv("CORENLP_HOME", "this_dir_doesn't_exist")
+    )
 
-    _ = netspy.get_settings()
-    assert os.getenv("CORENLP_HOME") in [local_version, github_actions_version]
 
-
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="module")
 def module_clients() -> Generator[Clients, None, None]:
 
-    _ = netspy.get_settings()
+    # This has the side effect of setting the CORENLP_HOME environment variable.
+    netspy.get_settings()
 
     clients = Clients(
         openie_client=netspy.OpenIEClient(quiet=True),
@@ -71,6 +70,3 @@ def test_speech_pickle(
     )
 
     assert vars(_load_graph(output_pickle)) == vars(graph)
-
-    # Let the openie server shut down
-    time.sleep(5)
