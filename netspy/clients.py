@@ -68,17 +68,19 @@ class OpenIEClient:
         iwd = os.getcwd()
         os.chdir(self.openie_dir)
 
+        cmd = [
+            "java",
+            f"-Xmx{self.memory}g",
+            "-jar",
+            "openie-assembly-5.0-SNAPSHOT.jar",
+            "--ignore-errors",
+            "--httpPort",
+            str(self.port),
+        ]
+
+        logger.warning("Starting server with cmd: %s", " ".join(cmd))
         self.process = subprocess.Popen(  # pylint: disable=consider-using-with
-            [
-                "java",
-                f"-Xmx{self.memory}g",
-                "-XX:+UseConcMarkSweepGC",
-                "-jar",
-                "openie-assembly-5.0-SNAPSHOT.jar",
-                "--ignore-errors",
-                "--httpPort",
-                str(self.port),
-            ],
+            cmd,
             stdout=subprocess.PIPE,
             universal_newlines=True,
         )
