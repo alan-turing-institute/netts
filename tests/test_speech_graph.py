@@ -34,7 +34,7 @@ def module_clients() -> Generator[Any, Any, Any]:
 
     clients = Clients(
         openie_client=netspy.OpenIEClient(quiet=True),
-        corenlp_client=netspy.CoreNLPClient(be_quite=True),
+        corenlp_client=netspy.CoreNLPClient(port=9090, be_quite=True),
     )
 
     clients.openie_client.connect()
