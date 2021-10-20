@@ -2,7 +2,13 @@
 name = "netspy"
 version = "0.1.0"
 description = "Toolbox for constructing semantic speech networks from speech transcripts.n"
-authors = ["Caroline Nettekoven <crn29@cam.ac.uk>", "Sarah Morgan <sem91@cam.ac.uk>", "Oscar Terence Giles <ogiles@turing.ac.uk>", "Helen Duncan <hduncan@turing.ac.uk>"]
+authors = [
+    "Caroline Nettekoven <crn29@cam.ac.uk>",
+    "Sarah Morgan <sem91@cam.ac.uk>",
+    "Oscar Terence Giles <ogiles@turing.ac.uk>",
+    "Helen Duncan <hduncan@turing.ac.uk>",
+    "Iain Stenson <istenson@turing.ac.uk>",
+]
 license = "MIT"
 repository = "https://github.com/alan-turing-institute/netspy"
 readme = "README.md"
