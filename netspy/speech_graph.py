@@ -36,7 +36,10 @@ from netspy.visualise_paragraph_functions import (
     split_nodes,
 )
 
-
+def pro(openie_client):
+    logger.warning("pro")
+    extraction = openie_client.extract("the hat fits")
+    logger.warning(f"extraction: {extraction}")
 class SpeechGraph:
     def __init__(
         self, transcript: str, settings: Optional[Settings] = Settings()
