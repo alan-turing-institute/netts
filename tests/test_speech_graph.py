@@ -41,9 +41,7 @@ class Clients:
 def test_speech_pickle() -> None:
 
     settings = Settings()
-    client = OpenIEClient(
-        quiet=True, port=settings.netspy_config.server.openie.port
-    )
+    client = OpenIEClient(quiet=True, port=settings.netspy_config.server.openie.port)
     client.connect()
 
     pro(openie_client=client)
