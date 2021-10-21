@@ -113,73 +113,74 @@ class SpeechGraph:
         # ------- Run OpenIE5 (Ollie) -------
         # Ollie can handle more than one sentence at a time, but need to loop through sentences to keep track of sentence index
 
-        if openie_client:
+        # if openie_client:
 
-            ex_ollie = {}
-            for i, sentence in enumerate(ex_stanza.sentence):
-                if len(sentence.token) > 1:
-                    logger.debug("====== Submitting sentence %s tokens =======", i)
-                    sentence_text = (" ").join(
-                        [
-                            token.originalText
-                            for token in sentence.token
-                            if token.originalText
-                        ]
-                    )
-                    logger.debug("%s", sentence_text)
-                    # prinst("{}".format(sentence_text))
+        #     ex_ollie = {}
+        #     for i, sentence in enumerate(ex_stanza.sentence):
+        #         if len(sentence.token) > 1:
+        #             logger.debug("====== Submitting sentence %s tokens =======", i)
+        #             sentence_text = (" ").join(
+        #                 [
+        #                     token.originalText
+        #                     for token in sentence.token
+        #                     if token.originalText
+        #                 ]
+        #             )
+        #             logger.debug("%s", sentence_text)
+        #             # prinst("{}".format(sentence_text))
 
-                    extraction = openie_client.extract(sentence_text)
+        #             extraction = openie_client.extract(sentence_text)
 
-                    ex_ollie[i] = extraction
-                else:
-                    print(
-                        '====== Skipping sentence {}: Sentence has too few tokens: "{}" ======='.format(
-                            i + 1,
-                            (" ").join(
-                                [
-                                    token.originalText
-                                    for token in sentence.token
-                                    if token.originalText
-                                ]
-                            ),
-                        )
-                    )
+        #             ex_ollie[i] = extraction
+        #         else:
+        #             print(
+        #                 '====== Skipping sentence {}: Sentence has too few tokens: "{}" ======='.format(
+        #                     i + 1,
+        #                     (" ").join(
+        #                         [
+        #                             token.originalText
+        #                             for token in sentence.token
+        #                             if token.originalText
+        #                         ]
+        #                     ),
+        #                 )
+        #             )
 
-        else:
+        # else:
 
-            with OpenIEClient(
-                quiet=True, port=settings.netspy_config.server.openie.port
-            ) as client:
+            # with OpenIEClient(
+            #     quiet=True, port=settings.netspy_config.server.openie.port
+            # ) as client:
+        client = openie_client
 
-                ex_ollie = {}
-                for i, sentence in enumerate(ex_stanza.sentence):
-                    if len(sentence.token) > 1:
-                        print(f"====== Submitting sentence {i+1} tokens =======")
-                        sentence_text = (" ").join(
+        ex_ollie = {}
+        for i, sentence in enumerate(ex_stanza.sentence):
+            if len(sentence.token) > 1:
+                print(f"====== Submitting sentence {i+1} tokens =======")
+                sentence_text = (" ").join(
+                    [
+                        token.originalText
+                        for token in sentence.token
+                        if token.originalText
+                    ]
+                )
+                print("{}".format(sentence_text))
+
+                extraction = client.extract(sentence_text)
+                ex_ollie[i] = extraction
+            else:
+                print(
+                    '====== Skipping sentence {}: Sentence has too few tokens: "{}" ======='.format(
+                        i + 1,
+                        (" ").join(
                             [
                                 token.originalText
                                 for token in sentence.token
                                 if token.originalText
                             ]
-                        )
-                        print("{}".format(sentence_text))
-
-                        extraction = client.extract(sentence_text)
-                        ex_ollie[i] = extraction
-                    else:
-                        print(
-                            '====== Skipping sentence {}: Sentence has too few tokens: "{}" ======='.format(
-                                i + 1,
-                                (" ").join(
-                                    [
-                                        token.originalText
-                                        for token in sentence.token
-                                        if token.originalText
-                                    ]
-                                ),
-                            )
-                        )
+                        ),
+                    )
+                )
 
         print("+++++++++++++++++++\n")
 

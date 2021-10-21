@@ -60,7 +60,7 @@ def test_speech_pickle() -> None:
 
     settings = Settings()
     with OpenIEClient(
-        quiet=True, port=settings.netspy_config.server.openie.port
+        quiet=True, port=8045
     ) as client:
 
         graph = SpeechGraph(transcript).process(openie_client=client)
