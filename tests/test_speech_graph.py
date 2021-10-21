@@ -41,11 +41,12 @@ class Clients:
 def test_speech_pickle() -> None:
 
     settings = Settings()
-    with OpenIEClient(
+    client = OpenIEClient(
         quiet=True, port=settings.netspy_config.server.openie.port
-    ) as client:
+    )
+    client.connect()
 
-        pro(openie_client=client)
+    pro(openie_client=client)
 
     # Let the openie server shut down
     # time.sleep(5)
