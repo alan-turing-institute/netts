@@ -4,7 +4,7 @@ import pickle
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Generator
+from typing import Any, Generator, Tuple
 
 import pytest
 
@@ -32,19 +32,17 @@ def module_clients() -> Generator[Any, Any, Any]:
 
     _ = netspy.get_settings()
 
-    clients = Clients(
-        openie_client=netspy.OpenIEClient(quiet=True),
-        corenlp_client=netspy.CoreNLPClient(port=8888, be_quite=True),
-    )
+    openie_client = netspy.OpenIEClient(quiet=True)
 
-    clients.openie_client.connect()
-    clients.corenlp_client.start()
+    corenlp_client = netspy.CoreNLPClient(port=8888, be_quite=True)
 
-    time.sleep(30)
-    yield clients
+    openie_client.connect()
+    corenlp_client.start()
 
-    clients.openie_client.close()
-    clients.corenlp_client.stop()
+    yield (openie_client, corenlp_client)
+
+    openie_client.close()
+    corenlp_client.stop()
 
 
 @pytest.mark.parametrize(
@@ -57,7 +55,7 @@ def module_clients() -> Generator[Any, Any, Any]:
     ],
 )
 def test_speech_pickle(
-    module_clients: Clients, filename: str, output_pickle: str
+    module_clients: Tuple[Any, Any], filename: str, output_pickle: str
 ) -> None:
     def _load_graph(path: str) -> netspy.MultiDiGraph:
         return pickle.loads(Path(path).read_bytes())
@@ -67,8 +65,8 @@ def test_speech_pickle(
         transcript = f.read()
 
     graph = SpeechGraph(transcript).process(
-        openie_client=module_clients.openie_client,
-        corenlp_client=module_clients.corenlp_client,
+        openie_client=module_clients[0],
+        corenlp_client=module_clients[1],
     )
 
     assert vars(_load_graph(output_pickle)) == vars(graph)
