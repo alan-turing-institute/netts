@@ -10,6 +10,8 @@ from typing import Any, Generator
 import pytest
 
 import netspy
+from netspy.clients import OpenIEClient
+from netspy.config import Settings
 from netspy.speech_graph import SpeechGraph
 
 
@@ -56,9 +58,14 @@ def test_speech_pickle() -> None:
     with file.open("r", encoding="utf-8") as f:
         transcript = f.read()
 
-    graph = SpeechGraph(transcript).process()
+    settings = Settings()
+    with OpenIEClient(
+        quiet=True, port=settings.netspy_config.server.openie.port
+    ) as client:
 
-    assert vars(_load_graph("tests/test_data/3138838-TAT10.pickle")) == vars(graph)
+        graph = SpeechGraph(transcript).process(openie_client=client)
+
+        assert vars(_load_graph("tests/test_data/3138838-TAT10.pickle")) == vars(graph)
 
     # Let the openie server shut down
     # time.sleep(5)
