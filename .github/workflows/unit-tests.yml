@@ -51,10 +51,6 @@ jobs:
     - name: Display Python version
       run: poetry run python -c "import sys; print(sys.version)"
 
-    - name: Run tests which can't use netspy cache
-      run: |
-        python -m poetry run pytest tests -m "not slow and without_cache"
-
     # Cache netspy dependencies except openie (cache too big)
     - name: Set up netspy cache
       uses: actions/cache@v2
@@ -74,7 +70,7 @@ jobs:
 
     - name: Generate Report
       run: |
-        python -m poetry run pytest --cov=netspy --cov-report=xml tests -m "not slow and not without_cache"
+        python -m poetry run pytest --cov=netspy --cov-report=xml tests/test_speech_graph.py::test_speech_pickle
 
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v2
