@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import atexit
 import contextlib
-import logging
 import os
 import socket
 import subprocess
@@ -14,6 +13,7 @@ import requests
 import stanza.server
 
 from netspy.config import Settings
+from netspy.logger import logger
 
 
 class MyCoreNLPClient(stanza.server.CoreNLPClient):  # type: ignore
@@ -33,6 +33,8 @@ class MyOpenIEClient:
         quiet: bool = False,
         memory: int = 20,
     ) -> None:
+        logger.warning("Starting with port {}".format(port))
+        logger.warning("Starting with host {}".format(host))
 
         self.host = host
         self.port = port
@@ -65,7 +67,9 @@ class MyOpenIEClient:
         iwd = os.getcwd()
         os.chdir(self.openie_dir)
         print(f"Changed to {self.openie_dir}")
-        print(f"calling java -Xmx{self.memory}g -XX:+UseConcMarkSweepGC -jar openie-assembly-5.0-SNAPSHOT.jar --ignore-errors --httpPort {str(self.port)}")
+        print(
+            f"calling java -Xmx{self.memory}g -XX:+UseConcMarkSweepGC -jar openie-assembly-5.0-SNAPSHOT.jar --ignore-errors --httpPort {str(self.port)}"
+        )
         self.process = subprocess.Popen(  # pylint: disable=consider-using-with
             [
                 "java",
@@ -88,7 +92,7 @@ class MyOpenIEClient:
             return_code = self.process.poll()
 
             if not self.quiet:
-                logging.info("OpenIE stdout: %s", output)
+                logger.warn("OpenIE stdout: %s", output)
 
             if return_code:
                 raise RuntimeError("OpenIE server start up failed", return_code)
@@ -114,6 +118,7 @@ class MyOpenIEClient:
         instruction = f"{self.host}:{self.port}/getExtraction"
         payload = {"properties": str(properties)}
         header_payload = {"Connection": "close"}
+        logger.warning(f"POSTING {instruction}, {header_payload}, {payload}")
         extraction_request = requests.post(
             instruction, params=payload, data=data_payload, headers=header_payload
         )
@@ -126,16 +131,16 @@ class MyOpenIEClient:
         exc_value: Optional[Type[BaseException]],
         traceback: Optional[TracebackType],
     ) -> None:
-        logging.warn("openie exiting")
+        logger.warn("openie exiting")
         self.close()
 
     def close(self) -> None:
         if self.process and not self.process.poll():
             # Close the server
-            logging.warn("openie closing")
+            logger.warn("openie closing")
             self.process.kill()
             self.process.wait()
-            logging.warn("finished waiting")
+            logger.warn("finished waiting")
 
     def atexit_kill(self) -> None:
         if self.process and not self.process.poll():
