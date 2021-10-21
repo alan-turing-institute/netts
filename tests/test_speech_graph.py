@@ -1,7 +1,6 @@
 # pylint: disable=C0114, C0116, R0913, redefined-outer-name, W0613
 import os
 import pickle
-
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Generator
