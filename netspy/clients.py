@@ -16,7 +16,7 @@ import stanza.server
 from netspy.config import Settings
 
 
-class CoreNLPClient(stanza.server.CoreNLPClient):  # type: ignore
+class MyCoreNLPClient(stanza.server.CoreNLPClient):  # type: ignore
     def __init__(self, port: int, *args: Any, **kwargs: Any) -> None:
         host = "http://localhost"
         endpoint = f"{host}:{port}"
@@ -24,7 +24,7 @@ class CoreNLPClient(stanza.server.CoreNLPClient):  # type: ignore
         super().__init__(endpoint=endpoint, *args, **kwargs)
 
 
-class OpenIEClient:
+class MyOpenIEClient:
     def __init__(
         self,
         host: str = "http://localhost",
@@ -97,7 +97,7 @@ class OpenIEClient:
 
         os.chdir(iwd)
 
-    def __enter__(self) -> OpenIEClient:
+    def __enter__(self) -> MyOpenIEClient:
         self.connect()
         return self
 

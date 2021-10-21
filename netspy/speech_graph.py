@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 
 from netspy import MultiDiGraph, preprocess
-from netspy.clients import CoreNLPClient, OpenIEClient
+from netspy.clients import MyCoreNLPClient, MyOpenIEClient
 from netspy.config import Settings
 from netspy.logger import logger
 from netspy.nlp_helper_functions import (  # process_sent,; remove_bad_transcripts,; remove_duplicates,; remove_interjections,; remove_irrelevant_text,; replace_problematic_symbols,
@@ -47,8 +47,8 @@ class SpeechGraph:
 
     def process(
         self,
-        corenlp_client: Optional[CoreNLPClient] = None,
-        openie_client: Optional[OpenIEClient] = None,
+        corenlp_client: Optional[MyCoreNLPClient] = None,
+        openie_client: Optional[MyOpenIEClient] = None,
         settings: Optional[Settings] = None,
     ) -> MultiDiGraph:
 
@@ -148,7 +148,7 @@ class SpeechGraph:
 
         else:
 
-            with OpenIEClient(
+            with MyOpenIEClient(
                 quiet=True, port=settings.netspy_config.server.openie.port
             ) as client:
 

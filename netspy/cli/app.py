@@ -10,7 +10,7 @@ from typer import colors
 
 import netspy
 from netspy import SpeechGraphFile
-from netspy.clients import CoreNLPClient, OpenIEClient
+from netspy.clients import MyCoreNLPClient, MyOpenIEClient
 from netspy.config import Settings, get_settings
 from netspy.logger import logger, stanza_logger
 
@@ -136,7 +136,7 @@ def run(
     # Only start the servers if there are files to process
     if force or n_missing > 0:
 
-        corenlp_client = CoreNLPClient(
+        corenlp_client = MyCoreNLPClient(
             properties={
                 "annotators": "tokenize,ssplit,pos,lemma,parse,depparse,coref,openie"
             },
@@ -147,7 +147,7 @@ def run(
         # Doesn't block
         corenlp_client.start()
 
-        openie_client = OpenIEClient(
+        openie_client = MyOpenIEClient(
             quiet=True, port=settings.netspy_config.server.openie.port
         )
         # Blocks

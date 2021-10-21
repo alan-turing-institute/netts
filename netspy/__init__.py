@@ -4,7 +4,7 @@ speech transcripts.
 from networkx.classes.multidigraph import MultiDiGraph
 
 from netspy import preprocess  # noqa: F401 # pylint: disable=E0012,F401
-from netspy.clients import CoreNLPClient, OpenIEClient
+from netspy.clients import MyCoreNLPClient, MyOpenIEClient
 from netspy.config import get_settings
 from netspy.config_file import Config
 from netspy.install_models import install_dependencies
@@ -18,6 +18,6 @@ __all__ = [
     "Config",
     "get_settings",
     "MultiDiGraph",
-    "OpenIEClient",
-    "CoreNLPClient",
+    "MyOpenIEClient",
+    "MyCoreNLPClient",
 ]

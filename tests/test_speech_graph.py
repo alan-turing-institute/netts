@@ -14,8 +14,8 @@ from netspy.speech_graph import SpeechGraph
 
 @dataclass
 class Clients:
-    openie_client: netspy.OpenIEClient
-    corenlp_client: netspy.CoreNLPClient
+    openie_client: netspy.MyOpenIEClient
+    corenlp_client: netspy.MyCoreNLPClient
 
 
 def test_stanza() -> None:
@@ -30,11 +30,13 @@ def test_stanza() -> None:
 @pytest.fixture(scope="module")
 def module_clients() -> Generator[Any, Any, Any]:
 
-    _ = netspy.get_settings()
+    settings = netspy.get_settings()
 
     clients = Clients(
-        openie_client=netspy.OpenIEClient(),
-        corenlp_client=netspy.CoreNLPClient(port=9090),
+        openie_client=netspy.MyOpenIEClient(
+            quiet=True, port=settings.netspy_config.server.openie.port
+        ),
+        corenlp_client=netspy.MyCoreNLPClient(port=9090),
     )
 
     clients.openie_client.connect()

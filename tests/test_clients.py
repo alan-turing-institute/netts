@@ -1,10 +1,10 @@
 from devtools import debug
 
-from netspy.clients import CoreNLPClient
+from netspy.clients import MyCoreNLPClient
 
 
 def test_corenlp_client() -> None:
-    client = CoreNLPClient(port=5555)
+    client = MyCoreNLPClient(port=5555)
 
     debug(client.port)
 
