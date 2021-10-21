@@ -148,9 +148,9 @@ class SpeechGraph:
 
         # else:
 
-            # with OpenIEClient(
-            #     quiet=True, port=settings.netspy_config.server.openie.port
-            # ) as client:
+        # with OpenIEClient(
+        #     quiet=True, port=settings.netspy_config.server.openie.port
+        # ) as client:
         client = openie_client
 
         ex_ollie = {}

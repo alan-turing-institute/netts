@@ -59,9 +59,7 @@ def test_speech_pickle() -> None:
         transcript = f.read()
 
     settings = Settings()
-    with OpenIEClient(
-        quiet=True, port=8045
-    ) as client:
+    with OpenIEClient(quiet=True, port=8045) as client:
 
         graph = SpeechGraph(transcript).process(openie_client=client)
 
