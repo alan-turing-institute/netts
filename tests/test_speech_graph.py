@@ -61,13 +61,17 @@ def test_speech_pickle(filename: str, output_pickle: str) -> None:
     def _load_graph(path: str) -> netspy.MultiDiGraph:
         return pickle.loads(Path(path).read_bytes())
 
+    print(f"os.getcwd() {os.getcwd()}")
+
     file = Path("demo_data") / filename
     with file.open("r", encoding="utf-8") as f:
         transcript = f.read()
 
     settings = netspy.get_settings()
     with netspy.MyOpenIEClient(
-        quiet=True, port=settings.netspy_config.server.openie.port
+        quiet=False,
+        port=settings.netspy_config.server.openie.port,
+        memory=10
     ) as openie_client:
         corenlp_client = netspy.MyCoreNLPClient(port=9090)
         corenlp_client.start()
@@ -80,4 +84,4 @@ def test_speech_pickle(filename: str, output_pickle: str) -> None:
     assert vars(_load_graph(output_pickle)) == vars(graph)
 
     # Let the openie server shut down
-    time.sleep(5)
+    time.sleep(10)

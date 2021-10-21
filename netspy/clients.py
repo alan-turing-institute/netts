@@ -64,7 +64,8 @@ class MyOpenIEClient:
 
         iwd = os.getcwd()
         os.chdir(self.openie_dir)
-
+        print(f"Changed to {self.openie_dir}")
+        print(f"calling java -Xmx{self.memory}g -XX:+UseConcMarkSweepGC -jar openie-assembly-5.0-SNAPSHOT.jar --ignore-errors --httpPort {str(self.port)}")
         self.process = subprocess.Popen(  # pylint: disable=consider-using-with
             [
                 "java",
@@ -125,13 +126,16 @@ class MyOpenIEClient:
         exc_value: Optional[Type[BaseException]],
         traceback: Optional[TracebackType],
     ) -> None:
+        logging.warn("openie exiting")
         self.close()
 
     def close(self) -> None:
         if self.process and not self.process.poll():
             # Close the server
+            logging.warn("openie closing")
             self.process.kill()
             self.process.wait()
+            logging.warn("finished waiting")
 
     def atexit_kill(self) -> None:
         if self.process and not self.process.poll():
