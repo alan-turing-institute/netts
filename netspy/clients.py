@@ -106,6 +106,11 @@ class OpenIEClient:
         self, sentence: str, properties: Optional[Dict[str, str]] = None
     ) -> Any:
         logging.warning("in extract")
+
+        ret_val = self.process.poll()
+        if ret_val:
+            logging.warning("Process returned with value %s", ret_val)
+
         if not properties:
             properties = {}
 
