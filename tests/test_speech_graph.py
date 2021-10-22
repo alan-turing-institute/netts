@@ -10,7 +10,7 @@ import pytest
 import netspy
 from netspy.clients import OpenIEClient
 from netspy.config import Settings
-from netspy.speech_graph import SpeechGraph, pro
+from netspy.speech_graph import SpeechGraph
 
 
 @dataclass
@@ -40,11 +40,16 @@ class Clients:
 
 def test_speech_pickle() -> None:
 
+    filename = "3138838-TAT10.txt"
+    file = Path("demo_data") / filename
+    with file.open("r", encoding="utf-8") as f:
+        transcript = f.read()
+
     settings = Settings()
     client = OpenIEClient(quiet=True, port=settings.netspy_config.server.openie.port)
     client.connect()
 
-    pro(openie_client=client)
+    SpeechGraph(transcript).pro(openie_client=client)
 
     # Let the openie server shut down
     # time.sleep(5)
