@@ -87,7 +87,7 @@ class OpenIEClient:
             return_code = self.process.poll()
 
             if not self.quiet:
-                logging.info("OpenIE stdout: %s", output)
+                logging.warning("OpenIE stdout: %s", output)
 
             if return_code:
                 raise RuntimeError("OpenIE server start up failed", return_code)
@@ -98,13 +98,14 @@ class OpenIEClient:
         os.chdir(iwd)
 
     def __enter__(self) -> OpenIEClient:
+        logging.warning("in __enter__")
         self.connect()
         return self
 
     def extract(
         self, sentence: str, properties: Optional[Dict[str, str]] = None
     ) -> Any:
-
+        logging.warning("in extract")
         if not properties:
             properties = {}
 
@@ -125,15 +126,18 @@ class OpenIEClient:
         exc_value: Optional[Type[BaseException]],
         traceback: Optional[TracebackType],
     ) -> None:
+        logging.warning("in __exit__")
         self.close()
 
     def close(self) -> None:
+        logging.warning("in close")
         if self.process and not self.process.poll():
             # Close the server
             self.process.kill()
             self.process.wait()
 
     def atexit_kill(self) -> None:
+        logging.warning("in atexit_kill")
         if self.process and not self.process.poll():
             self.process.terminate()
 
