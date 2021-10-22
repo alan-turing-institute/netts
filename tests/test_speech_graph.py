@@ -20,34 +20,29 @@ class Clients:
 
 
 @pytest.fixture(scope="module")
-def module_clients() -> Generator[Any, Any, Any]:
+def openie_client() -> Generator[Any, Any, Any]:
 
     settings = Settings()
-
-    clients = Clients(
-        openie_client=netspy.OpenIEClient(
+    openie_client=netspy.OpenIEClient(
             port=settings.netspy_config.server.openie.port
-        ),
-        corenlp_client=netspy.CoreNLPClient(be_quite=True),
-    )
+        )
 
-    clients.openie_client.connect()
-    clients.corenlp_client.start()
+    openie_client.connect()
 
-    yield clients
-
-    clients.openie_client.close()
-    clients.corenlp_client.stop()
+    yield openie_client
 
 
-def test_speech_pickle(module_clients) -> None:
+    openie_client.close()
+
+
+def test_speech_pickle(openie_client) -> None:
 
     # settings = Settings()
     # with OpenIEClient(
     #     quiet=True, port=settings.netspy_config.server.openie.port
     # ) as client:
 
-    pro(openie_client=module_clients.openie_client)
+    pro(openie_client=openie_client)
 
     # Let the openie server shut down
     # time.sleep(5)
