@@ -37,3 +37,15 @@ Nodes represent entities (e.g. <em>I</em>, <em>man</em>) and edges represent rel
 The tool is freely available as a python package and accessible online.
 The tool can be installed from PyPI \ref{PyPi} and used to construct a semantic speech network from a text file with a single command.
 You can find installation instructions under "Getting Started" and a user guide under "Usage". Figure \ref{FigurePipeline} gives an overview of the main processing steps a text file goes through. For a detailed explanation of the processing pipeline, see "Pipeline".
+
+## Main Contributors
+
+## Citing netts
+
+## Links
+- github
+- BMU Group
+- Alan Turing
+- Sarahs website
+- Pypi
+- Preprint
