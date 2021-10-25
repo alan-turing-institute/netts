@@ -1,9 +1,9 @@
-# Welcome to Netspy
+# Welcome to netts
 
 <img src="/img/semantic_speech_graph_example.png" width=95% style="margin-left: auto; margin-right: auto; display: block;">
 
 <p align="center">
-    <em>Networks of Transcribed Speech in Python</em>
+    <em>Networks of Transcript Semantics</em>
 </p>
 
 ---
@@ -15,4 +15,4 @@
 
 ---
 
-Netspy is a package and CLI for constructing semantic speech networks from speech transcripts.
+netts is a package and CLI for constructing semantic speech networks from speech transcripts.
