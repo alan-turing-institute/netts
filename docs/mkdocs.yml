@@ -1,6 +1,8 @@
 theme:
   name: material
-site_name: Netspy
+  palette:
+    primary: teal
+site_name: Netts
 repo_name: alan-turing-institute/netspy
 repo_url: https://github.com/alan-turing-institute/netspy
 icon:
@@ -14,9 +16,10 @@ markdown_extensions:
   - mkdocs-click
 
 nav:
-  - Netspy: index.md
+  - Overview: index.md
   - Getting Started: install.md
   - Usage:
       - Overview: basic_usage.md
       - Configuration: configuration.md
       - CLI: cli.md
+  - Pipeline: pipeline.md
