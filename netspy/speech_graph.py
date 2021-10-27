@@ -48,7 +48,7 @@ class SpeechGraph:
     def process(
         self,
         corenlp_client: CoreNLPClient,
-        openie_client: OpenIEClient = None,
+        openie_client: OpenIEClient,
         settings: Optional[Settings] = None,
     ) -> MultiDiGraph:
 
