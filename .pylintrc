@@ -150,6 +150,7 @@ disable=print-statement,
         no-self-use,
         duplicate-code,
         fixme,
+        consider-using-f-string,
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -442,6 +443,9 @@ good-names=i,
            f,
            z,
            x,
+           a,
+           b,
+           m,
 
 # Good variable names regexes, separated by a comma. If names match any regex,
 # they will always be accepted
