@@ -132,6 +132,7 @@ class OpenIEClient:
             # Close the server
             self.process.kill()
             self.process.wait()
+            self.process = None
 
     def atexit_kill(self) -> None:
         if self.process and not self.process.poll():
