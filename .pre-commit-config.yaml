@@ -15,21 +15,21 @@ repos:
 
 - repo: local
   hooks:
-    - id: system
+    - id: black
       name: Black
       entry: poetry run black netspy tests
       pass_filenames: false
       language: system
 - repo: local
   hooks:
-    - id: system
+    - id: isort
       name: isort
       entry: poetry run isort netspy tests
       pass_filenames: false
       language: system
 - repo: local
   hooks:
-    - id: system
+    - id: safety
       name: Safety
       # Ignore pip vulnerability
       entry: poetry run safety check --full-report -i 40291
@@ -37,21 +37,21 @@ repos:
       language: system
 - repo: local
   hooks:
-    - id: system
+    - id: mypy
       name: MyPy
       entry: poetry run mypy netspy tests
       pass_filenames: false
       language: system
 - repo: local
   hooks:
-    - id: system
+    - id: pylint
       name: Pylint
       entry: poetry run pylint netspy tests -j 0
       pass_filenames: false
       language: system
 - repo: local
   hooks:
-    - id: system
+    - id: flake8
       name: Flake8
       entry: poetry run flake8 netspy tests
       pass_filenames: false
