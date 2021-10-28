@@ -23,7 +23,7 @@ def test_clean_parallel_edges() -> None:
 
     # We don't expect the function to change this graph at all
     expected = graph
-    actual = clean_parallel_edges(graph)
+    actual = clean_parallel_edges(graph)  # type: ignore[no-untyped-call]
     assert actual == expected
 
     edge_three = (
@@ -33,11 +33,11 @@ def test_clean_parallel_edges() -> None:
     )
     edge_four = ("girl", "maid", {"relation": "to be", "extractor": "ollie"})
 
-    graph = [edge_one, edge_three, edge_four]
+    graph = [edge_one, edge_three, edge_four]  # type: ignore[list-item]
 
     # We expect duplicates to be removed and only the highest confidence edges to remain
     expected = [edge_three]
-    actual = clean_parallel_edges(graph)
+    actual = clean_parallel_edges(graph)  # type: ignore[no-untyped-call]
     assert actual == expected
 
 
@@ -51,7 +51,7 @@ def test_get_word_types(mocker: MockerFixture) -> None:
     sentence.token = [token]
     stanza.sentence = [sentence]
 
-    no_noun, poss_pronouns, dts, nouns, nouns_origtext, adjectives = get_word_types(
+    no_noun, poss_pronouns, dts, nouns, nouns_origtext, adjectives = get_word_types(  # type: ignore[no-untyped-call]
         stanza
     )
     del no_noun, poss_pronouns, dts, adjectives
@@ -77,5 +77,5 @@ def test_get_node_synonyms(mocker: MockerFixture) -> None:
     stanza.corefChain = [coref]
     stanza.sentence = [sentence]
 
-    node_name_synonyms = get_node_synonyms(stanza, [])
+    node_name_synonyms = get_node_synonyms(stanza, [])  # type: ignore[no-untyped-call]
     assert node_name_synonyms == {"word": [(0, "word")]}
