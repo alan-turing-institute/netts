@@ -47,8 +47,8 @@ class SpeechGraph:
 
     def process(
         self,
-        corenlp_client: Optional[CoreNLPClient] = None,
-        openie_client: Optional[OpenIEClient] = None,
+        corenlp_client: CoreNLPClient,
+        openie_client: OpenIEClient,
         settings: Optional[Settings] = None,
     ) -> MultiDiGraph:
 
@@ -77,7 +77,10 @@ class SpeechGraph:
             preprocess_config.interjections,
             preprocess_config.contractions,
         )  # remove Ums and Mmms
+
+        # ToDo: Refactor and add test
         text = preprocess.remove_irrelevant_text(text)
+
         text = text.strip()  # remove trailing and leading whitespace
 
         # ------------------------------------------------------------------------------
@@ -88,98 +91,45 @@ class SpeechGraph:
         # ------------------------------------------------------------------------------
         # ------- Run Stanford CoreNLP (Stanza) -------
         # Annotate and extract with Stanford CoreNLP
-
-        if corenlp_client:
-            ex_stanza = corenlp_client.annotate(text)
-        else:
-            logger.debug(
-                "Starting CoreNLP server at %s",
-                f"http://localhost:{settings.netspy_config.server.corenlp.port}",
-            )
-            with CoreNLPClient(
-                properties={
-                    "annotators": "tokenize,ssplit,pos,lemma,parse,depparse,coref,openie"
-                    # 'pos.model': '/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/OpenIE-standalone/target/streams/$global/assemblyOption/$global/streams/assembly/8a3bd51fe5c1bb09a51f326fa358947f6dc78463_8e7f18d9ae73e8daf5ee4d4e11167e10f8827888_da39a3ee5e6b4b0d3255bfef95601890afd80709/edu/stanford/nlp/models/pos-tagger/english-bidirectional/english-bidirectional-distsim.tagger'
-                },
-                be_quiet=True,
-                port=settings.netspy_config.server.corenlp.port,
-            ) as corenlp_client:
-                ex_stanza = corenlp_client.annotate(text)
+        ex_stanza = corenlp_client.annotate(text)
 
         # ------- Basic Transcript Descriptors -------
-        n_tokens, n_sententences, _ = get_transcript_properties(text, ex_stanza)
+        n_tokens, n_sentences, _ = get_transcript_properties(ex_stanza)
 
         # ------------------------------------------------------------------------------
         # ------- Run OpenIE5 (Ollie) -------
         # Ollie can handle more than one sentence at a time, but need to loop through sentences to keep track of sentence index
 
-        if openie_client:
+        ex_ollie = {}
+        for i, sentence in enumerate(ex_stanza.sentence):
+            if len(sentence.token) > 1:
+                logger.debug("====== Submitting sentence %s tokens =======", i)
+                sentence_text = (" ").join(
+                    [
+                        token.originalText
+                        for token in sentence.token
+                        if token.originalText
+                    ]
+                )
+                logger.debug("%s", sentence_text)
+                # prinst("{}".format(sentence_text))
 
-            ex_ollie = {}
-            for i, sentence in enumerate(ex_stanza.sentence):
-                if len(sentence.token) > 1:
-                    logger.debug("====== Submitting sentence %s tokens =======", i)
-                    sentence_text = (" ").join(
-                        [
-                            token.originalText
-                            for token in sentence.token
-                            if token.originalText
-                        ]
-                    )
-                    logger.debug("%s", sentence_text)
-                    # prinst("{}".format(sentence_text))
+                extraction = openie_client.extract(sentence_text)
 
-                    extraction = openie_client.extract(sentence_text)
-
-                    ex_ollie[i] = extraction
-                else:
-                    print(
-                        '====== Skipping sentence {}: Sentence has too few tokens: "{}" ======='.format(
-                            i + 1,
-                            (" ").join(
-                                [
-                                    token.originalText
-                                    for token in sentence.token
-                                    if token.originalText
-                                ]
-                            ),
-                        )
-                    )
-
-        else:
-
-            with OpenIEClient(
-                quiet=True, port=settings.netspy_config.server.openie.port
-            ) as client:
-
-                ex_ollie = {}
-                for i, sentence in enumerate(ex_stanza.sentence):
-                    if len(sentence.token) > 1:
-                        print(f"====== Submitting sentence {i+1} tokens =======")
-                        sentence_text = (" ").join(
+                ex_ollie[i] = extraction
+            else:
+                print(
+                    '====== Skipping sentence {}: Sentence has too few tokens: "{}" ======='.format(
+                        i + 1,
+                        (" ").join(
                             [
                                 token.originalText
                                 for token in sentence.token
                                 if token.originalText
                             ]
-                        )
-                        print("{}".format(sentence_text))
-
-                        extraction = client.extract(sentence_text)
-                        ex_ollie[i] = extraction
-                    else:
-                        print(
-                            '====== Skipping sentence {}: Sentence has too few tokens: "{}" ======='.format(
-                                i + 1,
-                                (" ").join(
-                                    [
-                                        token.originalText
-                                        for token in sentence.token
-                                        if token.originalText
-                                    ]
-                                ),
-                            )
-                        )
+                        ),
+                    )
+                )
 
         print("+++++++++++++++++++\n")
 
@@ -274,7 +224,7 @@ class SpeechGraph:
         # Construct Speech Graph with properties: number of tokens, number of sentences, unconnected nodes as graph property
         G = nx.MultiDiGraph(
             transcript=self.transcript,
-            sentences=n_sententences,
+            sentences=n_sentences,
             tokens=n_tokens,
             unconnected_nodes=unconnected_nodes,
         )
