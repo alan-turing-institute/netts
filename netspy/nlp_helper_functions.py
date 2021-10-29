@@ -5,31 +5,20 @@ Created on Wed Dec 18 15:07:59 2019
 @author: Dr Sarah E Morgan, with input from Dr Bo Wang
 modified by Dr. Caro Nettekoven, 2020
 """
-# flake8: noqa
-# pylint: skip-file
-
-# from __future__ import division
-import itertools
 import re
-import string
 from itertools import compress
 
 import nltk
-import numpy as np
 import pandas as pd
-import stanza
 
 from netspy.contractions import CONTRACTION_MAP
 from netspy.logger import logger
 
-# from collections import Counter
-# from sklearn.decomposition import PCA
 
+def expand_contractions(text: str, contraction_mapping=None):
+    if contraction_mapping is None:
+        contraction_mapping = CONTRACTION_MAP
 
-# import gensim
-
-
-def expand_contractions(text: str, contraction_mapping=CONTRACTION_MAP):
     contractions_pattern = re.compile(
         "({})".format("|".join(contraction_mapping.keys())),
         flags=re.IGNORECASE | re.DOTALL,
@@ -51,51 +40,14 @@ def expand_contractions(text: str, contraction_mapping=CONTRACTION_MAP):
     return expanded_text
 
 
-def process_sent(sent):
-
-    stop_words = nltk.corpus.stopwords.words("english")
-    newStopWords = [
-        "Um",
-        "um",
-        "Uh",
-        "uh",
-        "Eh",
-        "eh",
-        "Ehm",
-        "Em",
-        "em",
-        "Mmm",
-        "mmm",
-        "ah",
-        "Ah",
-        "Aah",
-        "aah",
-        "hmm",
-        "hmmm",
-        "Hmm",
-        "Hmmm",
-        "inaudible",
-        "Inaudible",
-        "[]",
-        "[?]",
-    ]
-    stop_words.extend(newStopWords)
-
-    sent2 = expand_contractions(sent)  # expand contractions
-    tokens = nltk.word_tokenize(sent2)
-    # remove punctuation
-    tokens = [t.lower() for t in tokens if t not in string.punctuation]
-    tokens = [w for w in tokens if not w in stop_words]  # remove stopwords
-    sent3 = " ".join(tokens)
-    return sent3
-
-
-def remove_interjections(text):
+def remove_interjections(text: str) -> str:
     """
-    @author: by Dr. Caro Nettekoven, 2020
-    Note: The interjections removed by this funciton are specific for English. Applying this to other languages may cause problems (For example in German "um" is a presposition)
+    Removes interjections (e.g. Um, Mmm, yeah)
+
+    Note: The interjections removed by this funciton are specific for English.
+    Applying this to other languages may cause problems (For example in German "um" is a presposition)
     """
-    english_interjections = [
+    english_interjections = {
         "Um",
         "um",
         "Uh",
@@ -125,28 +77,30 @@ def remove_interjections(text):
         "Hmmm",
         "inaudible",
         "Inaudible",
-    ]
-    #
-    sent2 = expand_contractions(text)  # expand contractions
-    tokens = nltk.word_tokenize(sent2)
+    }
+
+    text = expand_contractions(text)
+    tokens = nltk.word_tokenize(text)
+
     # remove interjections
-    tokens = [w for w in tokens if not w in english_interjections]
-    sent3 = " ".join(tokens)
-    return sent3
+    tokens = [w for w in tokens if w not in english_interjections]
+
+    return " ".join(tokens)
 
 
 def remove_irrelevant_text(text):
     """
-    @author: by Dr. Caro Nettekoven, 2021
-
     Removes irrelevant text from the transcript.
+
     Irrelevant text was either added by the transcription program (example: 'Transcribed by https://otter.ai')
     or by the transcriber (examples: '[ ]', '[ ? ]', '( unclear )')
-    or was genuine speech but recording of the participants reading out instructions (example:  'Please describe a scene that is pleased to be recording', 'we are recording').
-    Since the last class of irrelevant speech can vary, I made a list of frequent read out instructions occurring in the dataset. These will have to be ammended for other task instructions.
+    or was genuine speech but recording of the participants reading out instructions
+    (example:  'Please describe a scene that is pleased to be recording', 'we are recording').
+    Since the last class of irrelevant speech can vary, I made a list of frequent read out instructions occurring in the dataset.
+    These will have to be ammended for other task instructions.
 
     """
-    #
+
     # ---- Remove double-bracketed speech ----
     # Some transcribers marked irrelevant speech by putting it between double brackets.
     # Remove Anything between two (()), specifically between "( (" and ") )", since initial cleaning steps put a single whitespace between punctuation symbols
@@ -155,25 +109,24 @@ def remove_irrelevant_text(text):
         logger.debug(match.group(1))
         match_text = "( (" + match.group(1) + ") )"
         text = text.replace(match_text, "")
-    #
-    #
+
     # ---- Remove speaker stamp ('Unknown Speaker  0:01')----
     speakerstamp = re.findall(r"\bUnknown Speaker\b\s\d{1}:\d{2}", text)
     if speakerstamp != []:
         for stamp in speakerstamp:
             logger.debug(stamp)
             text = text.replace(stamp, "")
-    #
+
     # ---- Remove time stamp ('00:01:00')----
     timestamp = re.findall(r"[0-9]{2}:[0-9]{2}:[0-9]{2}", text)
     if timestamp != []:
         for stamp in timestamp:
             logger.debug(stamp)
             text = text.replace(stamp, "")
-    #
-    #
+
     # ---- Remove other irrelevant text ----
-    # For all other irrelevant text, I searched for specific words in the transcriptions ("recording", "prolific", "describe") and copied the irrelevant speech excerpts manually.
+    # For all other irrelevant text, I searched for specific words in the transcriptions ("recording", "prolific", "describe")
+    # and copied the irrelevant speech excerpts manually.
     irrelevant_text = [
         "Please describe what you see in the image . Please speak for a full minute . We are recording .",
         "Okay, this is where we see this bits please speak to the for full minute that we are recording .",
@@ -190,7 +143,7 @@ def remove_irrelevant_text(text):
         "( unclear . )",
         "Transcribed by https : //otter.ai",
     ]
-    #
+
     for irr in irrelevant_text:
         if irr in text:
             logger.debug('Removing "%s"', irr)
@@ -198,7 +151,7 @@ def remove_irrelevant_text(text):
     return text
 
 
-def replace_problematic_symbols(text):
+def replace_problematic_symbols(text: str) -> str:
     # key is problematic symbol, value is replacement symbol
     problematic_symbols = {
         "’": "'",
@@ -212,37 +165,35 @@ def replace_problematic_symbols(text):
         "–": "-",
         "\n": " ",
     }
-    #
-    # replace symbols
-    for symbol in problematic_symbols.keys():
-        text = text.replace(symbol, problematic_symbols[symbol])
-    #
+
+    for old, new in problematic_symbols.items():
+        text = text.replace(old, new)
+
     return text
 
 
 def get_transcript_properties(ex_stanza):
     punctuation_pos_tags = ["SENT", ".", ":", ",", "(", ")", '"', "'", "`", "$", "#"]
-    #
+
     # Count number of tokens that are not punctuation
     total_tokens = 0
     total_punctuations = 0
-    #
+
     for sent in ex_stanza.sentence:
         no_tokens_in_sentence = len(sent.token)
         total_tokens += no_tokens_in_sentence
-        #
+
         for token in sent.token:
             # for word in token.words:
             if token.pos in punctuation_pos_tags:
                 # print(token.word, token.pos)
                 total_punctuations += 1
-    #
+
     n_tokens = total_tokens - total_punctuations
-    #
-    #
-    n_sententences = len(ex_stanza.sentence)
-    #
-    return n_tokens, n_sententences, total_punctuations
+
+    n_sentences = len(ex_stanza.sentence)
+
+    return n_tokens, n_sentences, total_punctuations
 
 
 # Setting up word2vec:
@@ -258,16 +209,15 @@ def get_transcript_properties(ex_stanza):
 
 def remove_duplicates(tats):
     """
-    @author: by Dr. Caro Nettekoven, 2021
     Removes duplicate transcripts from input list.
-    Sometimes, different versions of the same transcript (same subject and same tat stimulus) exists, due to the transcriptions being generated by different transcribing programs.
+
+    Sometimes, different versions of the same transcript (same subject and same tat stimulus) exists,
+    due to the transcriptions being generated by different transcribing programs.
     This function removes duplicate transcripts. Currently, the function keeps the first transcript.
     """
-    # --------------------- Remove duplicate files ---------------------------------------
-    #
     tat_properties = []
     for tat_info in tats:
-        tat = re.search("(?<=TAT)\w+", tat_info.name)[0]
+        tat = re.search(r"(?<=TAT)\w+", tat_info.name)[0]
         if len(tat) > 2:
             tat = tat.split("_")[0]
         # find subject id (7 digit combination before word "TAT")
@@ -280,10 +230,10 @@ def remove_duplicates(tats):
                 str(tat_info).split("Kings/")[1],
             ]
         )
-    #
+
     #  Make dataframe
     df = pd.DataFrame(tat_properties, columns=["subj", "tat", "filename", "fullpath"])
-    #
+
     dupl = df.duplicated(subset=["subj", "tat"], keep="first")
     tats = list(compress(tats, ~dupl))
     return tats
@@ -299,8 +249,8 @@ def remove_duplicates(tats):
 
 def remove_bad_transcripts(tats, bad_transcripts_list):
     """
-    @author: by Dr. Caro Nettekoven, 2021
     Removes bad transcripts from input list.
+
     Bad transcripts are identified by the transcribers and provided as a .csv file with the file name in the column "Filenames".
 
     Parameters
@@ -318,8 +268,7 @@ def remove_bad_transcripts(tats, bad_transcripts_list):
     """
     bad_transcripts = pd.read_csv(bad_transcripts_list)
     bad_transcripts.Filenames = bad_transcripts.Filenames.str.strip(".weba")
-    bad_transcripts.head()
-    #
+
     exclude = []
     for transcript in bad_transcripts.Filenames.values:
         matching = [
@@ -330,7 +279,7 @@ def remove_bad_transcripts(tats, bad_transcripts_list):
                 exclude.append(matching[0][0])
                 logger.debug("removed bad transcript %s", matching[0])
             elif len(matching) > 1:
-                [exclude.append(match[0]) for match in matching]
+                exclude.extend([match[0] for match in matching])
                 logger.debug("More than one duplicate found: %s", matching)
 
     logger.debug(
