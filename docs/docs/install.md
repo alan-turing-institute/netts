@@ -1,18 +1,24 @@
 # Getting Started
 
-## Install with pip
+## Install netspy
+
+### Latest Stable Release
+
+To install the latest official release from PyPI:
 
 ```bash
 pip install netspy
 ```
 
-## Development Version
+### Development Version
 
-If you would like the latest development version of netspy install it from GitHub. This code may change at anytime.
+To install the latest development version, install it from GitHub:
 
 ```bash
 pip install git+https://github.com/alan-turing-institute/netspy
 ```
+
+Be aware that this code may change or break at anytime.
 
 ## Install Additional Dependencies
 
@@ -31,23 +37,23 @@ import netspy
 netspy.install_dependencies()
 ```
 
-> Dependencies are large (>5Gb) and may take some time to download.
+Dependencies are large (>5Gb) and may take some time to download.
 
-### Install to alternative directory
+### Install to an Alternative Directory
 
-By default these will install to a `netspy` directory in your home directory. If you would like to install in a different location set an environment variable called `NETSPY_DIR`.
+By default, the dependencies will be installed to a `netspy` directory in your home directory. If you would like to install in a different location, set an environment variable called `NETSPY_DIR` either on the commandline:
 
 ```bash
 export NETSPY_DIR={DIRECTORY}
 ```
 
-or create a file in the netspy root directory called `.env`
+or by creating a `.env` file in your working directory with these contents:
 
 ```bash
 NETSPY_DIR={DIRECTORY}
 ```
 
-> netspy will create the `NETSPY_DIR` if it does not exist.
+netspy will create `NETSPY_DIR` for you if it doesn't already exist.
 
 To verify which directory netspy will use run:
 
