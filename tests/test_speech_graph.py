@@ -6,7 +6,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Generator
 
+import networkx as nx  # type: ignore [import]
+import numpy as np
 import pytest
+from matplotlib import image
+from matplotlib import pyplot as plt
 
 import netspy
 from netspy.speech_graph import SpeechGraph
@@ -154,12 +158,43 @@ def test_speech_pickle(
     with file.open("r", encoding="utf-8") as f:
         transcript = f.read()
 
+    settings = netspy.get_settings()
+
     graph = SpeechGraph(transcript).process(
         openie_client=module_clients.openie_client,
         corenlp_client=module_clients.corenlp_client,
+        preprocess_config=settings.netspy_config.preprocess,
     )
 
     assert vars(_load_graph(output_pickle)) == vars(graph)
+
+
+def test_plot_graph() -> None:
+
+    speech_graph = SpeechGraph("")
+
+    multi_di_graph = nx.MultiDiGraph()
+    multi_di_graph.add_edge(1, 2, relation="one->two")
+    multi_di_graph.add_edge(2, 3, relation="two->three")
+    multi_di_graph.add_edge(3, 1, relation="three->one")
+
+    speech_graph.graph = multi_di_graph
+
+    # Note: We had to hard-code the RNG seed in plot_graph
+    speech_graph.plot_graph()
+
+    # Save it somewhere easy to access in case we want to overwrite the
+    # expected_test_plot_graph.png with it
+    plt.savefig("tests/test_data/actual_test_plot_graph.png")
+
+    actual = image.imread("tests/test_data/actual_test_plot_graph.png")
+    expected = image.imread("tests/test_data/expected_test_plot_graph.png")
+
+    mean_squared_error = np.square(np.subtract(actual, expected)).mean()
+
+    # To allow for minor differences, such as node_side increasing by 10.
+    # Value found experimentally.
+    assert mean_squared_error <= 0.00001
 
 
 # @pytest.mark.parametrize(
