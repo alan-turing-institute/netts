@@ -7,7 +7,9 @@ from pathlib import Path
 from typing import Generator
 
 import networkx as nx  # type: ignore [import]
+import numpy as np
 import pytest
+from matplotlib import image
 from matplotlib import pyplot as plt
 
 import netspy
@@ -183,13 +185,12 @@ def test_plot_graph() -> None:
     # expected_test_plot_graph.png with it
     plt.savefig("tests/test_data/actual_test_plot_graph.png")
 
-    # This is probably quite fragile and there are probably much better methods
-    with open("tests/test_data/expected_test_plot_graph.png", "rb") as fexpected, open(
-        "tests/test_data/actual_test_plot_graph.png", "rb"
-    ) as factual:
-        bytes_actual = factual.read()
-        bytes_expected = fexpected.read()
-    assert bytes_expected == bytes_actual
+    actual = image.imread("tests/test_data/actual_test_plot_graph.png")
+    expected = image.imread("tests/test_data/expected_test_plot_graph.png")
+
+    mean_squared_error = np.square(np.subtract(actual, expected)).mean()
+
+    assert mean_squared_error < 0.0
 
 
 # @pytest.mark.parametrize(
