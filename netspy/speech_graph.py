@@ -232,7 +232,7 @@ class SpeechGraph:
             _, ax = plt.subplots()
 
         # Plot Graph and add edge labels
-        pos = nx.spring_layout(self.graph)
+        pos = nx.spring_layout(self.graph, seed=20)
         nx.draw(
             self.graph,
             pos,
