@@ -1,7 +1,15 @@
+---
 name: slow-unit-tests
 on:
-  # Only runs on PRs to main
+  # Only runs on PRs to main to cut down on minutes used...
   pull_request:
+    branches:
+      - main
+  # ...or when a PR is merged into main.
+  # We want it to run on main because then the
+  # cache can be used in other branches.
+  # https://github.community/t/actions-cache-cache-not-being-hit-despite-of-being-present/17956/3
+  push:
     branches:
       - main
 jobs:
