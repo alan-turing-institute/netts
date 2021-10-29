@@ -2,6 +2,14 @@
 
 ## CLI Arguments
 
+When you install the netspy package, you also get the `netspy` commandline interface (CLI). To see all of the commands and options for the CLI, run:
+
+```bash
+netspy --help
+```
+
+Each `netspy` sub command also supports the `--help` option.
+
 The command `netspy run` has a few optional parameters:
 
 ### Pattern
