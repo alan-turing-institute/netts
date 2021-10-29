@@ -9,10 +9,11 @@ from pathlib import Path
 from typing import Any, Generator, Optional
 
 import pytest
+import pytest_mock
 import requests
 
 from netspy.config import Settings, get_settings
-from netspy.install_models import install_corenlp, install_nltk_punk
+from netspy.install_models import download_file, install_corenlp, install_nltk_punk
 from netspy.types import DownloadStatus, IncorrectHash
 
 LOGGER = logging.getLogger(__name__)
@@ -240,3 +241,21 @@ class TestLanguageMode:
         self._test_download_language_model(
             netspy_home_dir.netspy_dir, mocker, False, hash_text("")
         )
+
+
+class TestDownloadFile:
+    def test_tries_twice(self, mocker: pytest_mock.MockerFixture) -> None:
+        mock_get = mocker.patch("requests.get")
+        mock_get.side_effect = requests.exceptions.ChunkedEncodingError
+
+        raised = False
+        try:
+            mock_path = mocker.MagicMock()
+            download_file("my-url", mock_path)
+        except requests.exceptions.ChunkedEncodingError:
+            raised = True
+
+        assert raised
+
+        expected_call = mocker.call(url="my-url", stream=True)
+        mock_get.assert_has_calls([expected_call, expected_call])
