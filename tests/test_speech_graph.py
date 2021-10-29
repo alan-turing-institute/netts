@@ -179,6 +179,8 @@ def test_plot_graph() -> None:
     multi_di_graph.add_edge(3, 1, relation="three->one")
 
     speech_graph.graph = multi_di_graph
+
+    # Note: We had to hard-code the RNG seed in plot_graph
     speech_graph.plot_graph()
 
     # Save it somewhere easy to access in case we want to overwrite the
@@ -190,7 +192,9 @@ def test_plot_graph() -> None:
 
     mean_squared_error = np.square(np.subtract(actual, expected)).mean()
 
-    assert mean_squared_error < 0.0
+    # To allow for minor differences, such as node_side increasing by 10.
+    # Value found experimentally.
+    assert mean_squared_error <= 0.00001
 
 
 # @pytest.mark.parametrize(
