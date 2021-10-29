@@ -60,11 +60,11 @@ jobs:
       uses: actions/cache@v2
       id: netspy-dependencies
       with:
+        # Don't cache the openie language model as it alone is > 5GB
         path: |
           .dependencies/nltk_data/*
           .dependencies/stanza_corenlp/*
-          .dependencies/openie/*
-          !.dependencies/openie/openie-assembly-5.0-SNAPSHOT.jar
+          .dependencies/openie/openie-assembly-5.0-SNAPSHOT.jar
         key: netspy-dependencies
 
     - name: Install netspy dependencies
