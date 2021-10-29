@@ -9,11 +9,9 @@
 ---
 [![GitHub release](https://img.shields.io/github/release/alan-turing-institute/netspy.svg)](https://GitHub.com/alan-turing-institute/netspy/releases/)[![PyPI pyversions](https://img.shields.io/pypi/pyversions/netspy.svg)](https://pypi.python.org/pypi/netspy/)
 
-
-
 **Documentation**: <a href="" target="_blank"></a>
 
-**Source Code**: <a href="https://github.com/alan-turing-institute/netspy" target="_blank">https://github.com/alan-turing-institute/netspy</a>
+**Source Code**: [https://github.com/alan-turing-institute/netspy](https://github.com/alan-turing-institute/netspy)
 
 ---
 
