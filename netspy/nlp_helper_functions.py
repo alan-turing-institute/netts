@@ -6,7 +6,6 @@ Created on Wed Dec 18 15:07:59 2019
 modified by Dr. Caro Nettekoven, 2020
 """
 import re
-import string
 from itertools import compress
 
 import nltk
@@ -39,46 +38,6 @@ def expand_contractions(text: str, contraction_mapping=None):
     expanded_text = contractions_pattern.sub(expand_match, text)
     expanded_text = re.sub("'", "", expanded_text)
     return expanded_text
-
-
-# ToDo Delete this function? It doesn't seem to be used.
-def process_text(text: str) -> str:
-
-    stop_words = nltk.corpus.stopwords.words("english")
-    new_stop_words = [
-        "Um",
-        "um",
-        "Uh",
-        "uh",
-        "Eh",
-        "eh",
-        "Ehm",
-        "Em",
-        "em",
-        "Mmm",
-        "mmm",
-        "ah",
-        "Ah",
-        "Aah",
-        "aah",
-        "hmm",
-        "hmmm",
-        "Hmm",
-        "Hmmm",
-        "inaudible",
-        "Inaudible",
-        "[]",
-        "[?]",
-    ]
-    stop_words.extend(new_stop_words)
-
-    text = expand_contractions(text)
-    tokens = nltk.word_tokenize(text)
-
-    tokens = [t.lower() for t in tokens if t not in string.punctuation]
-    tokens = [w for w in tokens if w not in stop_words]
-
-    return " ".join(tokens)
 
 
 def remove_interjections(text: str) -> str:
