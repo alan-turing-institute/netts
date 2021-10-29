@@ -1,4 +1,5 @@
 # Netspy - Networks of Transcribed Speech in Python
+
 [![GitHub release](https://img.shields.io/github/release/alan-turing-institute/netspy.svg)](https://GitHub.com/alan-turing-institute/netspy/releases/)[![PyPI pyversions](https://img.shields.io/pypi/pyversions/netspy.svg)](https://pypi.python.org/pypi/netspy/)
 [![codecov](https://codecov.io/gh/alan-turing-institute/netspy/branch/main/graph/badge.svg?token=58uMq5hbNt)](https://codecov.io/gh/alan-turing-institute/netspy)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
@@ -45,11 +46,13 @@ poetry run pre-commit run --all-files
 ### Unit tests
 
 Run all unit tests excluding slow tests (require downloads) and those that write to `~/netspy` (these run on GitHub Actions).
+
 ```bash
 poetry run pytest --cov=netspy --cov-report=xml tests -m "not ci_only"
 ```
 
 ### Preview docs
+
 ```bash
 poetry run mkdocs serve --config-file docs/mkdocs.yml
 ```

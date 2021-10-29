@@ -1,11 +1,12 @@
+# Getting Started
 
-### Install with pip
+## Install with pip
 
 ```bash
 pip install netspy
 ```
 
-### Development Version
+## Development Version
 
 If you would like the latest development version of netspy install it from GitHub. This code may change at anytime.
 
@@ -13,24 +14,22 @@ If you would like the latest development version of netspy install it from GitHu
 pip install git+https://github.com/alan-turing-institute/netspy
 ```
 
-
 ## Install Additional Dependencies
 
 Netspy requires additional dependencies including [CoreNLP](https://stanfordnlp.github.io/CoreNLP/) and [OpenIE](https://github.com/dair-iitd/OpenIE-standalone). You can install them either directly from the netspy CLI or in Python.
 
-
 === "CLI"
 
-    ```bash
-    netspy install
-    ```
+```bash
+netspy install
+```
 
 === "Python"
 
-    ```python
-    import netspy
-    netspy.install_dependencies()
-    ```
+```python
+import netspy
+netspy.install_dependencies()
+```
 
 > Dependencies are large (>5Gb) and may take some time to download.
 
@@ -54,14 +53,14 @@ To verify which directory netspy will use run:
 
 === "CLI"
 
-    ```bash
-    netspy home
-    ```
+```bash
+netspy home
+```
 
 === "Python"
 
-    ```python
-    import netspy
-    settings = netspy.get_settings()
-    print(settings.netspy_dir)
-    ```
+```python
+import netspy
+settings = netspy.get_settings()
+print(settings.netspy_dir)
+```
