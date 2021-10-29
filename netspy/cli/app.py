@@ -153,9 +153,13 @@ def run(
         # Blocks
         openie_client.connect()
 
+        preprocess_config = settings.netspy_config.preprocess
+
         for transcript_file in all_transcript_files:
             if transcript_file.missing or force:
-                transcript_file.process(corenlp_client, openie_client)
+                transcript_file.process(
+                    corenlp_client, openie_client, preprocess_config
+                )
             transcript_file.dump()
 
         corenlp_client.stop()

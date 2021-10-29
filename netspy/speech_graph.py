@@ -1,9 +1,4 @@
-# flake8: noqa
-# pylint: skip-file
-
 import pickle
-import sys
-import time
 from pathlib import Path
 from typing import Optional, Union
 
@@ -12,11 +7,9 @@ import networkx as nx
 
 from netspy import MultiDiGraph, preprocess
 from netspy.clients import CoreNLPClient, OpenIEClient
-from netspy.config import Settings
+from netspy.config_file import PreProcessing
 from netspy.logger import logger
-from netspy.nlp_helper_functions import (  # process_sent,; remove_bad_transcripts,; remove_duplicates,; remove_interjections,; remove_irrelevant_text,; replace_problematic_symbols,
-    get_transcript_properties,
-)
+from netspy.nlp_helper_functions import get_transcript_properties
 from netspy.visualise_paragraph_functions import (
     add_adj_edges,
     add_obl_edges,
@@ -38,39 +31,23 @@ from netspy.visualise_paragraph_functions import (
 
 
 class SpeechGraph:
-    def __init__(
-        self, transcript: str, settings: Optional[Settings] = Settings()
-    ) -> None:
+    def __init__(self, transcript: str) -> None:
 
         self.transcript = transcript
         self.graph: Optional[MultiDiGraph] = None
 
-    def process(
-        self,
-        corenlp_client: CoreNLPClient,
-        openie_client: OpenIEClient,
-        settings: Optional[Settings] = None,
-    ) -> MultiDiGraph:
-
-        if not settings:
-            settings = Settings()
-
-        preprocess_config = settings.netspy_config.preprocess
-
-        start_time = time.time()
-
-        logger.debug("%s", self.transcript)
+    def get_tidy_text(self, preprocess_config: PreProcessing) -> str:
+        text = self.transcript
 
         # ------- Clean text -------
         # Need to replace problematic symbols before ANYTHING ELSE, because other tools cannot work with problematic symbols
         text = preprocess.replace_problematic_characters(
             self.transcript, preprocess_config.problematic_symbols
         )  # replace ’ with '
-        logger.debug("%s", text)
+
         text = preprocess.expand_contractions(
             text, preprocess_config.contractions
         )  # expand it's to it is
-        logger.debug("%s", text)
 
         text = preprocess.remove_interjections(
             text,
@@ -82,6 +59,19 @@ class SpeechGraph:
         text = preprocess.remove_irrelevant_text(text)
 
         text = text.strip()  # remove trailing and leading whitespace
+        return text
+
+    def process(
+        self,
+        corenlp_client: CoreNLPClient,
+        openie_client: OpenIEClient,
+        preprocess_config: PreProcessing,
+    ) -> MultiDiGraph:
+        # pylint: disable=unused-variable, too-many-locals
+
+        logger.debug("%s", self.transcript)
+
+        text = self.get_tidy_text(preprocess_config)
 
         # ------------------------------------------------------------------------------
         # ------- Print cleaned text -------
@@ -222,17 +212,16 @@ class SpeechGraph:
         # fig = plt.figure(figsize=(25.6, 9.6))
 
         # Construct Speech Graph with properties: number of tokens, number of sentences, unconnected nodes as graph property
-        G = nx.MultiDiGraph(
+        self.graph = nx.MultiDiGraph(
             transcript=self.transcript,
             sentences=n_sentences,
             tokens=n_tokens,
             unconnected_nodes=unconnected_nodes,
         )
         # Add Edges
-        G.add_edges_from(edges)
+        self.graph.add_edges_from(edges)
 
-        self.graph = G
-        return G
+        return self.graph
 
     def plot_graph(self, ax=None, **kwargs) -> None:
 
@@ -243,7 +232,7 @@ class SpeechGraph:
             _, ax = plt.subplots()
 
         # Plot Graph and add edge labels
-        pos = nx.spring_layout(self.graph)
+        pos = nx.spring_layout(self.graph, seed=20)
         nx.draw(
             self.graph,
             pos,
@@ -258,18 +247,8 @@ class SpeechGraph:
             **kwargs,
         )
 
-        edge_labels = dict(
-            [
-                (
-                    (
-                        u,
-                        v,
-                    ),
-                    d["relation"],
-                )
-                for u, v, d in self.graph.edges(data=True)
-            ]
-        )
+        edge_labels = {(u, v): d["relation"] for u, v, d in self.graph.edges(data=True)}
+
         nx.draw_networkx_edge_labels(
             self.graph, pos, edge_labels=edge_labels, font_color="red"
         )
