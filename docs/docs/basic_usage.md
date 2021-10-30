@@ -18,22 +18,33 @@ echo "I see a man in the dark standing against a light post. It seems to be in t
 
 We can create a semantic graph from the transcript using either the CLI of python package
 
-=== "CLI"
-
-```bash
-netspy run transcript.txt outputs
-```
-
 === "Python"
 
 ```python
 import netspy
 
+settings = netspy.get_settings()
+
+openie_client = netspy.OpenIEClient(port=settings.netspy_config.server.openie.port)
+corenlp_client = netspy.CoreNLPClient(
+    port=settings.netspy_config.server.corenlp.port,
+    properties={"annotators": "tokenize,ssplit,pos,lemma,parse,depparse,coref,openie"},
+)
+
 with open("transcript.txt") as f:
     transcript = f.read()
 
-graph = netspy.SpeechGraph(transcript).process()
+graph = netspy.SpeechGraph(transcript).process(
+    openie_client=module_clients.openie_client,
+    corenlp_client=module_clients.corenlp_client,
+    preprocess_config=settings.netspy_config.preprocess,
+)
+```
 
+=== "CLI"
+
+```bash
+netspy run transcript.txt outputs
 ```
 
 `netspy run` is the CLI command. The first argument `transcript.txt` is the file or directory to process, and the second argument `outputs` is the name of a directory to output the results to. If the output directory doesn't exist netspy will create it.
@@ -94,5 +105,5 @@ for trans in all_transcripts:
 If you processed transcripts with the netspy CLI you may want to load the pickled graph object into Python for further analysis.
 
 ```python
-python
+
 ```
