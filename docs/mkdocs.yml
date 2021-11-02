@@ -1,14 +1,16 @@
 theme:
   name: material
-  favicon: /Users/CN/Documents/Projects/Cambridge/from_turing/netspy/docs/docs/img/favicon_ico/favicon-16x16.png
-  logo: /Users/CN/Documents/Projects/Cambridge/from_turing/netspy/docs/docs/img/favicon_ico/favicon-16x16.png
   palette:
     primary: teal
+  logo: img/favicon_io/favicon-32x32.png
+  favicon: img/favicon_io/favicon.ico
+  # icon:
+    # repo: fontawesome/brands/gitlab
 site_name: Netts
 repo_name: alan-turing-institute/netspy
 repo_url: https://github.com/alan-turing-institute/netspy
-icon:
-  repo: fontawesome/brands/github-alt
+# icon:
+#   repo: fontawesome/brands/github-alt
 
 markdown_extensions:
   - pymdownx.highlight
