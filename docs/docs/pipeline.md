@@ -1,68 +1,84 @@
 # Pipeline
 
-
 ---
 
 
 **Networks of Transcript Semantics (netts)** is a network algorithm that builds on state-of-the-art Natural Language Processing libraries to create speech networks that capture semantic content.
 Netts takes transcripts of spoken text as input (e.g. <em>I see a man</em>) and outputs a semantic speech network.
 
+
+> **_Semantic Speech Network:_**  Network that represents the semantic content of speech transcripts. In these networks, nodes are entities (e.g. <em>I</em>, <em>man</em>). Edges are relations between nodes (e.g. <em>see</em>).
+
 <!-- __Networks of Transcript Semantics (netts)__ is a package for constructing semantic speech networks from speech transcripts. -->
 
 <img src="/img/tool_pipeline.png" width=95% style="margin-left: auto; margin-right: auto; display: block;">
 
 <p align="center">
-    <em>netts pipeline</em>
+    <em>Netts pipeline.</em>
 </p>
 
 
 
-> **_Semantic Speech Network:_**  Network that represents the semantic content of speech transcripts. In these networks, nodes are entities (e.g. <em>I</em>, <em>man</em>). Edges are relations between nodes (e.g. <em>see</em>).
 
 
-The algorithm can capture information content in speech, even when semantically connected nodes are separated by several sentences.
-Netts is fast (~ 40 seconds processing time per speech excerpt) and is robust against artefacts typical for transcribed speech, lending itself to the automated construction of speech networks from large datasets.
-In the following we describe how netts processes a speech transcript to construct the semantic speech network.
-The processing pipeline is shown in the netts pipeline figure above.
+Netts can capture semantic links between nodes in speech content, even when semantically these nodes are separated by several sentences.
+The algorithm is robust against artefacts typical for spoken text.
+As described in [Usage](basic_usage.md), netts can be used to process a single transcript or a folder of many transcripts.
+With about 40 seconds processing time per speech transcript, netts takes little time to process large batches of speech transcripts and therefore is ideal for the automated construction of speech networks from large datasets.
 
-
+In the following sections the netts processing pipeline is described in detail.
+See figure above for an overview of the netts pipeline.
 
 ## Preprocessing
-Netts starts by expanding the most common English contractions (e.g. expanding <em>I'm</em> to <em>I am</em>), removing interjections (<em>Mh</em>, <em>Uhm</em>) and removing any transcription notes (e.g. timestamps, <em>[inaudible]</em>) that were inserted by the transcriber.
-No stop words or punctuation are removed to stay as close to the original speech as possible.
-This and other processing steps are customizable in netts, e.g. with the option to pass a user-defined text file of transcription notes that should be ignored by netts.
+Netts first expands the most common English contractions (e.g. expanding <em>I'm</em> to <em>I am</em>).
+It then removes interjections (<em>Mh</em>, <em>Uhm</em>).
+Netts also removes any transcription notes (e.g. timestamps, <em>[inaudible]</em>) that were inserted by the transcriber.
+The user can pass a file of transcription notes that should be removed from the transcripts before processing.
+See [Configuration](configuration.md) for a step-by-step guide on passing custom transcription notes to netts for removal.
+Netts does not remove stop words or punctuation to stay as close to the original speech as possible.
 
-Netts uses CoreNLP to perform sentence splitting, tokenization, part of speech tagging, lemmatization, dependency parsing and co-referencing on the transcript \cite{Manning2015} with the default language model implemented in CoreNLP.
-These Natural Language Processing techniques are briefly described in the following.
-The transcript is first split into sentences (sentence splitting) and further split into meaningful entities, usually words (tokenization).
-Each word is then assigned a part of speech label, indicating whether it is a verb, noun, or another part of speech (part of speech tagging).
-Each word is also assigned their dictionary form or lemma (lemmatization) and the grammatical relationship between words is identified (dependency parsing).
-Finally, any occurrences where two or more expressions in the transcript refer to the same entity are identified (co-referencing), for example where a noun <em>man</em> and a pronoun <em>he</em> refer to the same person.
+Netts then uses [CoreNLP](https://stanfordnlp.github.io/CoreNLP/) to perform sentence splitting, tokenization, part of speech tagging, lemmatization, dependency parsing and co-referencing on the transcript.
+Netts uses the default language model implemented in CoreNLP.
+
+We describe these Natural Language Processing steps briefly in the following.
+The transcript is first split into sentences (sentence splitting).
+It is then further split into meaningful entities, usually words (tokenization).
+Each word is assigned a part of speech label.
+The part of speech label indicates whether the word is a verb, noun, or another part of speech (part of speech tagging).
+Each word is also assigned their dictionary form or lemma (lemmatization).
+Next, the grammatical relationship between words is identified (dependency parsing).
+Finally, any occurrences where two or more expressions in the transcript refer to the same entity are identified (co-referencing).
+For example where a noun <em>man</em> and a pronoun <em>he</em> refer to the same person.
 
 ## Finding nodes and edges
-Netts then submits each sentence to OpenIE5 for relation extraction \cite{Mausam2012a}, where semantic relationships between entities are extracted from the sentence.
+Netts submits each sentence to [OpenIE5](https://github.com/dair-iitd/OpenIE-standalone) for relation extraction.
+Openie5 extracts semantic relationships between entities from the sentence.
 For example, performing relation extraction on the sentence <em>I see a man</em> identifies the relation <em>see</em> between the entities <em>I</em> and <em>a man</em>.
-From these extracted relations, our tool creates an initial list of the edges which should be present in the semantic speech network.
+From these extracted relations, netts creates an initial list of the edges that will be present in the semantic speech network.
 In the edge list, the entities are the nodes and the relations are the edge labels.
 
-Next, netts uses the previously identified part of speech tags and dependency structure  to extract edges defined by adjectives or prepositions: For instance, <em>a man on the picture</em> contains a preposition edge where the entity <em>a man</em> and <em>the picture</em> are linked by an edge labelled <em>on</em>.
-An example of an adjective edge would be <em>dark background</em>, where <em>dark</em> and <em>background</em> are linked by an implicit <em>is</em>.
+Next, netts uses the part of speech tags and dependency structure to extract edges defined by adjectives or prepositions:
+For instance, <em>a man on the picture</em> contains a preposition edge where the entity <em>a man</em> and <em>the picture</em> are linked by an edge labelled <em>on</em>.
+An example of an adjective edge would be <em>dark background</em>.
+Here, <em>dark</em> and <em>background</em> are linked by an implicit <em>is</em>.
 These adjective edges and preposition edges are added to the edge list.
-%- Nodes that include another edge (for example a preposition edge) get split into two nodes connected by the preposition.
-
-This edge list is further refined during the next processing steps.
+During the next processing steps this edge list is further refined.
 
 ## Refining nodes and edges
-After creation of the edge list, netts uses the previously identified co-referencing structure to merge nodes that refer to the same entity.
-This is to account for cases where entities are referred to with different words, for example using the pronoun <em>he</em> to refer to <em>a man</em> or using the synonym <em>the guy</em> to refer to <em>a man</em>.
-To ensure that every entity mentioned in the text is represented by a unique node in the semantic speech network, nodes referring to the same entity are merged by replacing the node label in the edge list with the most representative node label (first mention of the entity that is a noun).
-In our example, this would mean <em>he</em> and <em>the guy</em> would be replaced by <em>a man</em>.
-
-Node labels are then cleaned of superfluous words such as determiners, e.g. replacing <em>a man</em> with <em>man</em>.
+After creating the edge list, netts uses the co-referencing information to merge nodes that refer to the same entity.
+This is to take into account cases different words refer to the same entity.
+For example in the case where the pronoun <em>he</em> is used to refer to <em>a man</em> or in the case where the synonym <em>the guy</em> is used to refer to <em>a man</em>.
+Every entity mentioned in the text should be represented by a unique node in the semantic speech network.
+Therefore, nodes referring to the same entity are merged by replacing the node label in the edge list with the most representative node label (first mention of the entity that is a noun).
+In the example above, <em>he</em> and <em>the guy</em> would be replaced by <em>a man</em>.
+Node labels are then cleaned of superfluous words such as determiners.
+For example, <em>a man</em> would turn into <em>man</em>.
 
 ## Constructing network
-Finally, netts constructs a semantic speech network from the edge list using networkx and the network is plotted and the output consisting of the networkx object, the network image and the tool output messages saved as a [networkx graph object](https://networkx.org/documentation/stable/reference/classes/multidigraph.html).
-The resulting graphs are directed and unweighted, and can have parallel edges and self-loops.
+In the final step, netts constructs a semantic speech network from the edge list using [networkx](https://networkx.org/).
+The network is then plotted and saves the output.
+The output consists of the networkx object, the network image and the log messages from netts.
+The resulting graphs are directed and unweighted, and can have parallel edges and self-loops (as it is a [MultiDiGraph](https://networkx.org/documentation/stable/reference/classes/multidigraph.html)).
 Parallel edges are two or more edges that link the same two nodes in the same direction.
 A self-loop is an edge that links a node with itself.
-An example semantic speech network is shown in the example semantic speech network figure along with the corresponding speech transcript and stimulus picture.
+See [here](index.md) for an example semantic speech network along with the corresponding speech transcript and stimulus picture.
