@@ -1,5 +1,7 @@
 theme:
   name: material
+  favicon: /Users/CN/Documents/Projects/Cambridge/from_turing/netspy/docs/docs/img/favicon_ico/favicon-16x16.png
+  logo: /Users/CN/Documents/Projects/Cambridge/from_turing/netspy/docs/docs/img/favicon_ico/favicon-16x16.png
   palette:
     primary: teal
 site_name: Netts
