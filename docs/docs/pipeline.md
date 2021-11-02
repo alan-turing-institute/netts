@@ -3,7 +3,11 @@
 
 ---
 
-__Networks of Transcript Semantics (netts)__ is a package for constructing semantic speech networks from transcribed speech.
+
+**Networks of Transcript Semantics (netts)** is a network algorithm that builds on state-of-the-art Natural Language Processing libraries to create speech networks that capture semantic content.
+Netts takes transcripts of spoken text as input (e.g. <em>I see a man</em>) and outputs a semantic speech network.
+
+<!-- __Networks of Transcript Semantics (netts)__ is a package for constructing semantic speech networks from speech transcripts. -->
 
 <img src="/img/tool_pipeline.png" width=95% style="margin-left: auto; margin-right: auto; display: block;">
 
@@ -13,17 +17,13 @@ __Networks of Transcript Semantics (netts)__ is a package for constructing seman
 
 
 
-**Netts** is a network algorithm that builds on state-of-the-art Natural Language Processing libraries to create speech networks that capture semantic content.
-Netts takes transcripts of spoken text as input (e.g. <em>I see a man</em>) and outputs the semantic speech network (Figure \ref{fig:ExampleGraph}).
-
-
-> **_Semantic Speech Network:_**  Nodes are entities (e.g. <em>I</em>, <em>man</em>). Edges are relations between nodes (e.g. <em>see</em>).
+> **_Semantic Speech Network:_**  Network that represents the semantic content of speech transcripts. In these networks, nodes are entities (e.g. <em>I</em>, <em>man</em>). Edges are relations between nodes (e.g. <em>see</em>).
 
 
 The algorithm can capture information content in speech, even when semantically connected nodes are separated by several sentences.
 Netts is fast (~ 40 seconds processing time per speech excerpt) and is robust against artefacts typical for transcribed speech, lending itself to the automated construction of speech networks from large datasets.
 In the following we describe how netts processes a speech transcript to construct the semantic speech network.
-The processing pipeline is shown in Figure \ref{fig:Pipeline}.
+The processing pipeline is shown in the netts pipeline figure above.
 
 
 
@@ -61,8 +61,8 @@ In our example, this would mean <em>he</em> and <em>the guy</em> would be replac
 Node labels are then cleaned of superfluous words such as determiners, e.g. replacing <em>a man</em> with <em>man</em>.
 
 ## Constructing network
-Finally, netts constructs a semantic speech network from the edge list using networkx and the network is plotted and the output consisting of the networkx object, the network image and the tool output messages saved \cite{networkx}.
+Finally, netts constructs a semantic speech network from the edge list using networkx and the network is plotted and the output consisting of the networkx object, the network image and the tool output messages saved as a [networkx graph object](https://networkx.org/documentation/stable/reference/classes/multidigraph.html).
 The resulting graphs are directed and unweighted, and can have parallel edges and self-loops.
 Parallel edges are two or more edges that link the same two nodes in the same direction.
 A self-loop is an edge that links a node with itself.
-An example semantic speech network is shown in Figure \ref{fig:ExampleGraph} along with the corresponding speech transcript and stimulus picture.
+An example semantic speech network is shown in the example semantic speech network figure along with the corresponding speech transcript and stimulus picture.
