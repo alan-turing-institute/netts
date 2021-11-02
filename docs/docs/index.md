@@ -1,6 +1,6 @@
 # Welcome to netts
 
-Network of Transcript Semantics (netts) is a toolbox that creates networks capturing the semantic content of speech.
+Network of Transcript Semantics (netts) creates networks capturing the semantic content of speech.
 
 <img src="/img/semantic_speech_graph_example_with_picture.png" width=95% style="margin-left: auto; margin-right: auto; display: block;">
 
