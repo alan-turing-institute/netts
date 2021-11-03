@@ -7,11 +7,6 @@
 
 Toolbox for constructing semantic speech networks from speech transcripts.
 
-## Contributors
-Netts was written by [Caroline Nettekoven](https://www.caroline-nettekoven.com) in collaboration with [Sarah Morgan](https://semorgan.org).
-
-Netts was packaged in collaboration with [Oscar Giles](https://www.turing.ac.uk/people/researchers/oscar-giles), [Iain Stenson](https://www.turing.ac.uk/research/research-engineering/meet-the-team) and [Helen Duncan](https://www.turing.ac.uk/people/research-engineering/helen-duncan).
-
 ## About
 
 The algorithms in this toolbox create a semantic speech graph from transcribed speech. Speech transcripts are short paragraphs of largely raw, uncleaned speech-like text. For example:
@@ -61,6 +56,12 @@ poetry run pytest --cov=netspy --cov-report=xml tests -m "not ci_only"
 ```bash
 poetry run mkdocs serve --config-file docs/mkdocs.yml
 ```
+
+
+## Contributors
+Netts was written by [Caroline Nettekoven](https://www.caroline-nettekoven.com) in collaboration with [Sarah Morgan](https://semorgan.org).
+
+Netts was packaged in collaboration with [Oscar Giles](https://www.turing.ac.uk/people/researchers/oscar-giles), [Iain Stenson](https://www.turing.ac.uk/research/research-engineering/meet-the-team) and [Helen Duncan](https://www.turing.ac.uk/people/research-engineering/helen-duncan).
 
 
 ## Citing netts
