@@ -9,13 +9,19 @@ Netts takes transcripts of spoken text as input (e.g. <em>I see a man</em>) and 
 
 > **_Semantic Speech Network:_**  Network that represents the semantic content of speech transcripts. In these networks, nodes are entities (e.g. <em>I</em>, <em>man</em>). Edges are relations between nodes (e.g. <em>see</em>).
 
-<!-- __Networks of Transcript Semantics (netts)__ is a package for constructing semantic speech networks from speech transcripts. -->
-
-<img src="/img/tool_pipeline.png" width=95% style="margin-left: auto; margin-right: auto; display: block;">
+<!-- Alternative pipeline placeholder image -->
+<img src="/img/Pipeline_figure_reduced.png " width=95% style="margin-left: auto; margin-right: auto; display: block;">
 
 <p align="center">
     <em>Netts pipeline.</em>
 </p>
+
+<!-- Figures are commented out until copyright issues are clear -->
+<!-- <img src="/img/tool_pipeline.png" width=95% style="margin-left: auto; margin-right: auto; display: block;">
+
+<p align="center">
+    <em>Netts pipeline.</em>
+</p> -->
 
 
 
@@ -78,7 +84,7 @@ For example, <em>a man</em> would turn into <em>man</em>.
 In the final step, netts constructs a semantic speech network from the edge list using [networkx](https://networkx.org/).
 The network is then plotted and saves the output.
 The output consists of the networkx object, the network image and the log messages from netts.
-The resulting graphs are directed and unweighted, and can have parallel edges and self-loops (as it is a [MultiDiGraph](https://networkx.org/documentation/stable/reference/classes/multidigraph.html)).
+The resulting network (a [MultiDiGraph](https://networkx.org/documentation/stable/reference/classes/multidigraph.html)) is directed and unweighted, and can have parallel edges and self-loops.
 Parallel edges are two or more edges that link the same two nodes in the same direction.
 A self-loop is an edge that links a node with itself.
 See [here](index.md) for an example semantic speech network along with the corresponding speech transcript and stimulus picture.
