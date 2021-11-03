@@ -10,13 +10,13 @@ Netts takes transcripts of spoken text as input (e.g. <em>I see a man</em>) and 
 > **_Semantic Speech Network:_**  Network that represents the semantic content of speech transcripts. In these networks, nodes are entities (e.g. <em>I</em>, <em>man</em>). Edges are relations between nodes (e.g. <em>see</em>).
 
 <!-- Alternative pipeline placeholder image -->
-<img src="/img/Pipeline_figure_reduced.png " width=95% style="margin-left: auto; margin-right: auto; display: block;">
+<!-- <img src="/img/Pipeline_figure_reduced.png " width=95% style="margin-left: auto; margin-right: auto; display: block;">
 
 <p align="center">
     <em>Netts pipeline.</em>
-</p>
+</p> -->
 
-<!-- Figures are commented out until copyright issues are clear -->
+<!-- Figure is commented out until copyright issues are clear -->
 <!-- <img src="/img/tool_pipeline.png" width=95% style="margin-left: auto; margin-right: auto; display: block;">
 
 <p align="center">
