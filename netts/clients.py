@@ -13,7 +13,7 @@ from typing import Any, Dict, Optional, Type
 import requests
 import stanza.server
 
-from netspy.config import Settings
+from netts.config import Settings
 
 
 class CoreNLPClient(stanza.server.CoreNLPClient):  # type: ignore

@@ -10,8 +10,8 @@ jobs:
         python-version: [3.7]
       fail-fast: false
     env:
-      # Set the location of netspy dependencies
-      NETSPY_DIR: '.dependencies'
+      # Set the location of netts dependencies
+      NETTS_DIR: '.dependencies'
 
     steps:
     - uses: actions/checkout@v2
@@ -53,6 +53,6 @@ jobs:
       run: poetry run python -c "import sys; print(sys.version)"
 
     # ToDo Add code coverage to these tests?
-    - name: Run tests which can't use netspy cache
+    - name: Run tests which can't use netts cache
       run: |
         python -m poetry run pytest tests -m "not slow and without_cache"

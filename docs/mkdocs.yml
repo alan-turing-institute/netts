@@ -1,8 +1,8 @@
 theme:
   name: material
-site_name: Netspy
-repo_name: alan-turing-institute/netspy
-repo_url: https://github.com/alan-turing-institute/netspy
+site_name: Netts
+repo_name: alan-turing-institute/netts
+repo_url: https://github.com/alan-turing-institute/netts
 icon:
   repo: fontawesome/brands/github-alt
 
@@ -14,7 +14,7 @@ markdown_extensions:
   - mkdocs-click
 
 nav:
-  - Netspy: index.md
+  - Netts: index.md
   - Getting Started: install.md
   - Usage:
       - Overview: basic_usage.md

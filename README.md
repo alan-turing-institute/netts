@@ -1,7 +1,7 @@
-# Netspy - Networks of Transcribed Speech in Python
+# netts - NETworks of Transcript Semantics in Python
 
-[![GitHub release](https://img.shields.io/github/release/alan-turing-institute/netspy.svg)](https://GitHub.com/alan-turing-institute/netspy/releases/)[![PyPI pyversions](https://img.shields.io/pypi/pyversions/netspy.svg)](https://pypi.python.org/pypi/netspy/)
-[![codecov](https://codecov.io/gh/alan-turing-institute/netspy/branch/main/graph/badge.svg?token=58uMq5hbNt)](https://codecov.io/gh/alan-turing-institute/netspy)
+[![GitHub release](https://img.shields.io/github/release/alan-turing-institute/netts.svg)](https://GitHub.com/alan-turing-institute/netts/releases/)[![PyPI pyversions](https://img.shields.io/pypi/pyversions/netts.svg)](https://pypi.python.org/pypi/netts/)
+[![codecov](https://codecov.io/gh/alan-turing-institute/netts/branch/main/graph/badge.svg?token=58uMq5hbNt)](https://codecov.io/gh/alan-turing-institute/netts)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 
@@ -31,10 +31,10 @@ Then ensure all dependencies are installed:
 poetry install
 ```
 
-Install additional dependencies to `~/netspy`:
+Install additional dependencies to `~/netts`:
 
 ```bash
-netspy install
+netts install
 ```
 
 ### Pre-commit
@@ -45,10 +45,10 @@ poetry run pre-commit run --all-files
 
 ### Unit tests
 
-Run all unit tests excluding slow tests (require downloads) and those that write to `~/netspy` (these run on GitHub Actions).
+Run all unit tests excluding slow tests (require downloads) and those that write to `~/netts` (these run on GitHub Actions).
 
 ```bash
-poetry run pytest --cov=netspy --cov-report=xml tests -m "not ci_only"
+poetry run pytest --cov=netts --cov-report=xml tests -m "not ci_only"
 ```
 
 ### Preview docs

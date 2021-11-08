@@ -21,8 +21,8 @@ jobs:
         python-version: [3.7]
       fail-fast: false
     env:
-      # Set the location of netspy dependencies
-      NETSPY_DIR: '.dependencies'
+      # Set the location of netts dependencies
+      NETTS_DIR: '.dependencies'
 
     steps:
     - uses: actions/checkout@v2
@@ -63,26 +63,26 @@ jobs:
     - name: Display Python version
       run: poetry run python -c "import sys; print(sys.version)"
 
-    # Cache netspy dependencies except openie (cache too big)
-    - name: Set up netspy cache
+    # Cache netts dependencies except openie (cache too big)
+    - name: Set up netts cache
       uses: actions/cache@v2
-      id: netspy-dependencies
+      id: netts-dependencies
       with:
         # Don't cache the openie language model as it alone is > 5GB
         path: |
           .dependencies/nltk_data/*
           .dependencies/stanza_corenlp/*
           .dependencies/openie/openie-assembly-5.0-SNAPSHOT.jar
-        key: netspy-dependencies
+        key: netts-dependencies
 
-    - name: Install netspy dependencies
+    - name: Install netts dependencies
       shell: bash
       run: |
-        python -m poetry run netspy install
+        python -m poetry run netts install
 
     - name: Generate Report
       run: |
-        python -m poetry run pytest --cov=netspy --cov-report=xml tests -m "not slow and not without_cache"
+        python -m poetry run pytest --cov=netts --cov-report=xml tests -m "not slow and not without_cache"
 
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v2
