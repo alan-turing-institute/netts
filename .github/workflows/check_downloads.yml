@@ -46,7 +46,7 @@ jobs:
       run: |
         python -m poetry env use ${{ matrix.python-version }}
         python -m poetry install
-        python -m poetry run netspy install
+        python -m poetry run netts install
 
     - name: Display Python version
       run: poetry run python -c "import sys; print(sys.version)"

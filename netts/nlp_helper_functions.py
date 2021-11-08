@@ -11,8 +11,8 @@ from itertools import compress
 import nltk
 import pandas as pd
 
-from netspy.contractions import CONTRACTION_MAP
-from netspy.logger import logger
+from netts.contractions import CONTRACTION_MAP
+from netts.logger import logger
 
 
 def expand_contractions(text: str, contraction_mapping=None):
