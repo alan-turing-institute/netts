@@ -1,6 +1,6 @@
 # Welcome to Netts
 
-<img src="/img/semantic_speech_graph_example.png" width=95% style="margin-left: auto; margin-right: auto; display: block;">
+![Graph](/img/semantic_speech_graph_example.png){ width="95%" }
 
 <p align="center">
     <em>Networks of Transcribed Speech in Python</em>
