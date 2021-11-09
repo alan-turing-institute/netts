@@ -5,12 +5,12 @@ from typing import Optional, Union
 import matplotlib.pyplot as plt
 import networkx as nx
 
-from netspy import MultiDiGraph, preprocess
-from netspy.clients import CoreNLPClient, OpenIEClient
-from netspy.config_file import PreProcessing
-from netspy.logger import logger
-from netspy.nlp_helper_functions import get_transcript_properties
-from netspy.visualise_paragraph_functions import (
+from netts import MultiDiGraph, preprocess
+from netts.clients import CoreNLPClient, OpenIEClient
+from netts.config_file import PreProcessing
+from netts.logger import logger
+from netts.nlp_helper_functions import get_transcript_properties
+from netts.visualise_paragraph_functions import (
     add_adj_edges,
     add_obl_edges,
     add_prep_edges,

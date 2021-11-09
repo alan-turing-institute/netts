@@ -1,6 +1,6 @@
 import logging
 
-logger = logging.getLogger("netspy")
+logger = logging.getLogger("netts")
 
 log_handler = logging.StreamHandler()
 log_formatter = logging.Formatter(
