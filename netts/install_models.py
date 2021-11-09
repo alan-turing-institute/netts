@@ -10,9 +10,9 @@ import requests
 import stanza
 import tqdm
 
-from netspy.config import get_settings
-from netspy.logger import logger
-from netspy.types import DownloadStatus, IncorrectHash
+from netts.config import get_settings
+from netts.logger import logger
+from netts.types import DownloadStatus, IncorrectHash
 
 
 def hash_file(file: Path) -> str:
@@ -96,7 +96,7 @@ def install_nltk_punk() -> DownloadStatus:
         logger.warning("NLTK directory already exists: %s", settings.nltk_dir)
         return DownloadStatus.ALREADY_EXISTS
 
-    settings.netspy_dir.mkdir(exist_ok=True)
+    settings.netts_dir.mkdir(exist_ok=True)
     nltk.download("punkt", download_dir=settings.nltk_dir, quiet=True)
 
     return DownloadStatus.SUCCESS
@@ -114,7 +114,7 @@ def install_corenlp() -> DownloadStatus:
         )
         return DownloadStatus.ALREADY_EXISTS
 
-    settings.netspy_dir.mkdir(exist_ok=True)
+    settings.netts_dir.mkdir(exist_ok=True)
     stanza.install_corenlp(dir=settings.core_nlp_dir)
     return DownloadStatus.SUCCESS
 

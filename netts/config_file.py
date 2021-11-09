@@ -34,8 +34,8 @@ class PreProcessing(BaseModel):
 
 
 class Config(BaseModel):
-    title: str = "Netspy config file"
-    netspy_version: str = str(__version__)
+    title: str = "Netts config file"
+    netts_version: str = str(__version__)
     creation_time: Optional[str] = datetime.datetime.now().isoformat()
 
     server: Servers = Servers(
