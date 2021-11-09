@@ -12,6 +12,15 @@ authors = [
 license = "MIT"
 repository = "https://github.com/alan-turing-institute/netts"
 readme = "README.md"
+classifiers = [
+    "License :: OSI Approved",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering",
+    "Programming Language :: Python :: 3",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+]
 
 [tool.poetry.scripts]
 netts =  "netts.cli:app"
