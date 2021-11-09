@@ -44,4 +44,4 @@ jobs:
         run: |
           python -m poetry env use ${{ matrix.python-version }}
           python -m poetry install
-      - run: mkdocs gh-deploy --force
+      - run: poetry run mkdocs gh-deploy --force
