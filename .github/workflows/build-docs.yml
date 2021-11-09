@@ -1,9 +1,7 @@
 name: Build docs
 on:
-  push:
-    branches:
-      - main
-      - ogiles/build-docs
+  release:
+    types: [published]
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -49,4 +47,4 @@ jobs:
         run: poetry run python -c "import sys; print(sys.version)"
 
       - name: Deploy docs
-        run: poetry run mkdocs gh-deploy --force --config-file docs/mkdocs.yml    
+        run: poetry run mkdocs gh-deploy --force --config-file docs/mkdocs.yml
