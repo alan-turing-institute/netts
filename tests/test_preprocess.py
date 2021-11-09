@@ -2,7 +2,7 @@ from typing import Dict, List
 
 import pytest
 
-from netspy.preprocess import (
+from netts.preprocess import (
     expand_contractions,
     remove_interjections,
     replace_problematic_characters,

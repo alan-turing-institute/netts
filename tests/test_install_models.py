@@ -12,20 +12,20 @@ import pytest
 import pytest_mock
 import requests
 
-from netspy.config import Settings, get_settings
-from netspy.install_models import download_file, install_corenlp, install_nltk_punk
-from netspy.types import DownloadStatus, IncorrectHash
+from netts.config import Settings, get_settings
+from netts.install_models import download_file, install_corenlp, install_nltk_punk
+from netts.types import DownloadStatus, IncorrectHash
 
 LOGGER = logging.getLogger(__name__)
 
 
 @pytest.fixture()
-def netspy_home_dir() -> Generator[Settings, None, None]:
+def netts_home_dir() -> Generator[Settings, None, None]:
     "A home directory with cleanup"
 
     settings = get_settings()
     yield settings
-    shutil.rmtree(settings.netspy_dir)
+    shutil.rmtree(settings.netts_dir)
 
 
 def hash_text(text: str) -> str:
@@ -38,7 +38,7 @@ def hash_text(text: str) -> str:
 def mock_download_file(
     _: str, path: Path, __: Optional[str] = None
 ) -> requests.Response:
-    """Mock netspy.install_models.download_file
+    """Mock netts.install_models.download_file
 
     Write an empty file to `path` and return a `requests.Response` with
     status code 200
@@ -52,7 +52,7 @@ def mock_download_file(
 
 
 def mock_zip_file(_: str, path: Path, __: Optional[str] = None) -> requests.Response:
-    """Mock netspy.install_models.download_file and zip contents
+    """Mock netts.install_models.download_file and zip contents
 
     Write an empty file to `path` and return a `requests.Response` with
     status code 200
@@ -81,7 +81,7 @@ class TestNLTK:
         settings = get_settings()
 
         assert install_nltk_punk() == expected_status
-        assert settings.netspy_dir.exists()
+        assert settings.netts_dir.exists()
         assert settings.nltk_dir.exists()
 
         # Verify we downloaded folder if we're expecting it to be there
@@ -89,34 +89,34 @@ class TestNLTK:
             expected_directory_subdir = list(settings.nltk_dir.iterdir())[0]
             assert "tokenizers" in expected_directory_subdir.parts[-1]
 
-    def test_download_tmp(self, tmp_path_netspy: Path) -> None:
+    def test_download_tmp(self, tmp_path_netts: Path) -> None:
 
-        self._test_dowload_nltk(tmp_path_netspy, expected_status=DownloadStatus.SUCCESS)
+        self._test_dowload_nltk(tmp_path_netts, expected_status=DownloadStatus.SUCCESS)
 
-    def test_download_tmp_exists(self, tmp_path_netspy: Path) -> None:
+    def test_download_tmp_exists(self, tmp_path_netts: Path) -> None:
 
         settings = get_settings()
         # Create nltk folder
         settings.nltk_dir.mkdir(parents=True)
         self._test_dowload_nltk(
-            settings.netspy_dir, expected_status=DownloadStatus.ALREADY_EXISTS
+            settings.netts_dir, expected_status=DownloadStatus.ALREADY_EXISTS
         )
 
     @pytest.mark.skipif(
-        get_settings().netspy_dir.exists(),
-        reason="netspy dir already exists. Remove to run this test",
+        get_settings().netts_dir.exists(),
+        reason="netts dir already exists. Remove to run this test",
     )
     @pytest.mark.without_cache
-    def test_download_home(self, netspy_home_dir: Settings) -> None:
+    def test_download_home(self, netts_home_dir: Settings) -> None:
         self._test_dowload_nltk(
-            netspy_home_dir.netspy_dir, expected_status=DownloadStatus.SUCCESS
+            netts_home_dir.netts_dir, expected_status=DownloadStatus.SUCCESS
         )
 
 
 class TestCoreNLP:
     @pytest.mark.ci_only
     @pytest.mark.slow
-    def test_download_corenlp(self, tmp_path_netspy: Path) -> None:
+    def test_download_corenlp(self, tmp_path_netts: Path) -> None:
 
         settings = get_settings()
         install_corenlp()
@@ -132,10 +132,10 @@ class TestOpenIE:
         # Mock the download_file function to keep it fast
         if mock:
             mocker.patch(
-                "netspy.install_models.download_file", side_effect=mock_download_file
+                "netts.install_models.download_file", side_effect=mock_download_file
             )
         # pylint: disable=import-outside-toplevel
-        from netspy.install_models import install_openie5
+        from netts.install_models import install_openie5
 
         settings = get_settings()
 
@@ -150,32 +150,32 @@ class TestOpenIE:
         with pytest.raises(IncorrectHash):
             install_openie5(md5=hash_text("adfasd"))
 
-    def test_download_tmp(self, tmp_path_netspy: Path, mocker: Any) -> None:
+    def test_download_tmp(self, tmp_path_netts: Path, mocker: Any) -> None:
 
-        self._test_download_openie5(tmp_path_netspy, mocker, True, hash_text(""))
+        self._test_download_openie5(tmp_path_netts, mocker, True, hash_text(""))
 
     @pytest.mark.skipif(
-        get_settings().netspy_dir.exists(),
-        reason="netspy dir already exists. Remove to run this test",
+        get_settings().netts_dir.exists(),
+        reason="netts dir already exists. Remove to run this test",
     )
-    def test_download_home(self, mocker: Any, netspy_home_dir: Settings) -> None:
+    def test_download_home(self, mocker: Any, netts_home_dir: Settings) -> None:
 
         self._test_download_openie5(
-            netspy_home_dir.netspy_dir, mocker, True, hash_text("")
+            netts_home_dir.netts_dir, mocker, True, hash_text("")
         )
 
     @pytest.mark.ci_only
     @pytest.mark.slow
     @pytest.mark.without_cache
     @pytest.mark.skipif(
-        get_settings().netspy_dir.exists(),
-        reason="netspy dir already exists. Remove to run this test",
+        get_settings().netts_dir.exists(),
+        reason="netts dir already exists. Remove to run this test",
     )
-    def test_download_real(self, mocker: Any, netspy_home_dir: Settings) -> None:
+    def test_download_real(self, mocker: Any, netts_home_dir: Settings) -> None:
         """Download without mocking"""
 
         self._test_download_openie5(
-            netspy_home_dir.netspy_dir, mocker, False, hash_text("")
+            netts_home_dir.netts_dir, mocker, False, hash_text("")
         )
 
 
@@ -187,10 +187,10 @@ class TestLanguageMode:
         # Mock the download_file function to keep it fast
         if mock:
             mocker.patch(
-                "netspy.install_models.download_file", side_effect=mock_zip_file
+                "netts.install_models.download_file", side_effect=mock_zip_file
             )
         # pylint: disable=import-outside-toplevel
-        from netspy.install_models import install_language_model
+        from netts.install_models import install_language_model
 
         settings = get_settings()
 
@@ -214,32 +214,32 @@ class TestLanguageMode:
         with pytest.raises(IncorrectHash):
             install_language_model(md5=hash_text("adfasd"))
 
-    def test_download_tmp(self, tmp_path_netspy: Path, mocker: Any) -> None:
+    def test_download_tmp(self, tmp_path_netts: Path, mocker: Any) -> None:
 
-        self._test_download_language_model(tmp_path_netspy, mocker, True, hash_text(""))
+        self._test_download_language_model(tmp_path_netts, mocker, True, hash_text(""))
 
     @pytest.mark.skipif(
-        get_settings().netspy_dir.exists(),
-        reason="netspy dir already exists. Remove to run this test",
+        get_settings().netts_dir.exists(),
+        reason="netts dir already exists. Remove to run this test",
     )
-    def test_download_home(self, mocker: Any, netspy_home_dir: Settings) -> None:
+    def test_download_home(self, mocker: Any, netts_home_dir: Settings) -> None:
 
         self._test_download_language_model(
-            netspy_home_dir.netspy_dir, mocker, True, hash_text("")
+            netts_home_dir.netts_dir, mocker, True, hash_text("")
         )
 
     @pytest.mark.ci_only
     @pytest.mark.slow
     @pytest.mark.without_cache
     @pytest.mark.skipif(
-        get_settings().netspy_dir.exists(),
-        reason="netspy dir already exists. Remove to run this test",
+        get_settings().netts_dir.exists(),
+        reason="netts dir already exists. Remove to run this test",
     )
-    def test_download_real(self, mocker: Any, netspy_home_dir: Settings) -> None:
+    def test_download_real(self, mocker: Any, netts_home_dir: Settings) -> None:
         """Download without mocking"""
 
         self._test_download_language_model(
-            netspy_home_dir.netspy_dir, mocker, False, hash_text("")
+            netts_home_dir.netts_dir, mocker, False, hash_text("")
         )
 
 

@@ -1,7 +1,7 @@
 """Unit tests for the nlp_helper_functions module."""
 from pytest_mock import MockerFixture
 
-from netspy.visualise_paragraph_functions import (
+from netts.visualise_paragraph_functions import (
     clean_parallel_edges,
     get_node_synonyms,
     get_word_types,
