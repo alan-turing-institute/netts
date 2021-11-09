@@ -37,7 +37,7 @@ jobs:
         id: cache
         with:
           path: .venv
-          key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
+          key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}-${{ hashFiles('**/pyproject.toml') }}
 
       - name: Install dependencies
         shell: bash
@@ -45,4 +45,8 @@ jobs:
           python -m poetry env use ${{ matrix.python-version }}
           python -m poetry install
 
-      - run: python -m poetry run mkdocs gh-deploy --force
+      - name: Display Python version
+        run: poetry run python -c "import sys; print(sys.version)"
+
+      - name: Deploy docs
+        run: poetry run mkdocs gh-deploy --force
