@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "netspy"
+name = "netts"
 version = "0.1.0"
-description = "Toolbox for constructing semantic speech networks from speech transcripts.n"
+description = "Toolbox for constructing NETworks of Transcript Semantics."
 authors = [
     "Caroline Nettekoven <crn29@cam.ac.uk>",
     "Sarah Morgan <sem91@cam.ac.uk>",
@@ -10,11 +10,11 @@ authors = [
     "Iain Stenson <istenson@turing.ac.uk>",
 ]
 license = "MIT"
-repository = "https://github.com/alan-turing-institute/netspy"
+repository = "https://github.com/alan-turing-institute/netts"
 readme = "README.md"
 
 [tool.poetry.scripts]
-netspy =  "netspy.cli:app"
+netts =  "netts.cli:app"
 
 [tool.poetry.dependencies]
 python = ">=3.7.1,<3.11"
@@ -53,7 +53,7 @@ log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(linen
 log_cli_date_format = "%Y-%m-%d %H:%M:%S"
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "without_cache: marks tests to run that require no netspy dependencies cached (deselect with '-m \"not without_cache\"')",
+    "without_cache: marks tests to run that require no netts dependencies cached (deselect with '-m \"not without_cache\"')",
     "ci_only: marks tests that should only run on ci (deselect with '-m \"not ci_only\"')",
 ]
 

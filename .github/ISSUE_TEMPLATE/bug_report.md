@@ -1,7 +1,7 @@
 ---
 
 name: Bug Report
-about: Create a bug report to help us improve netspy
+about: Create a bug report to help us improve netts
 title: "BUG:"
 labels: "Bug, Needs Triage"
 
@@ -9,9 +9,9 @@ labels: "Bug, Needs Triage"
 
 - [ ] I have checked that this issue has not already been reported.
 
-- [ ] I have confirmed this bug exists on the latest version of netspy
+- [ ] I have confirmed this bug exists on the latest version of netts
 
-- [ ] (optional) I have confirmed this bug exists on the main branch of netspy
+- [ ] (optional) I have confirmed this bug exists on the main branch of netts
 
 ---
 

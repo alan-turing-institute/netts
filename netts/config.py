@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Union
 import nltk
 from pydantic import BaseSettings, validator
 
-from netspy import config_file
+from netts import config_file
 
 if TYPE_CHECKING:
     HttpUrl = str
@@ -13,12 +13,12 @@ else:
     from pydantic import HttpUrl
 
 HOME_DIR = Path.home()
-NETSPY_DIR = HOME_DIR / "netspy"
+NETTS_DIR = HOME_DIR / "netts"
 
 
 class Settings(BaseSettings):
 
-    netspy_dir: Path = NETSPY_DIR
+    netts_dir: Path = NETTS_DIR
     openie_url: HttpUrl = (
         "https://netspy.blob.core.windows.net/netspy/openie-assembly-5.0-SNAPSHOT.jar"
         + "?sv=2020-04-08&st=2021-09-01T14%3A49%3A27Z&se=2022-08-31T14%3A49%3A00Z&sr=c&sp=rl&sig=eODqh0aLqLO5gVrgehkRRa498JytTT9qFh6ptOwbzBc%3D"
@@ -28,19 +28,19 @@ class Settings(BaseSettings):
         + "?sv=2020-04-08&st=2021-09-01T14%3A49%3A27Z&se=2022-08-31T14%3A49%3A00Z&sr=c&sp=rl&sig=eODqh0aLqLO5gVrgehkRRa498JytTT9qFh6ptOwbzBc%3D"
     )
     # You can pass a Path or str to the config file and the validator will load it as config_file.Config
-    netspy_config: config_file.Config = config_file.Config()
+    netts_config: config_file.Config = config_file.Config()
 
     @property
     def nltk_dir(self) -> Path:
-        return self.netspy_dir / "nltk_data"
+        return self.netts_dir / "nltk_data"
 
     @property
     def core_nlp_dir(self) -> Path:
-        return self.netspy_dir / "stanza_corenlp"
+        return self.netts_dir / "stanza_corenlp"
 
     @property
     def openie_dir(self) -> Path:
-        return self.netspy_dir / "openie"
+        return self.netts_dir / "openie"
 
     @property
     def openie(self) -> Path:
@@ -55,12 +55,12 @@ class Settings(BaseSettings):
     def openie_language_model(self) -> Path:
         return self.openie_data / "languageModel"
 
-    def mk_netspy_dir(self, mode: int = 0o777) -> None:
-        """Create the netspy directory"""
-        self.netspy_dir.mkdir(mode=mode, exist_ok=True)
+    def mk_netts_dir(self, mode: int = 0o777) -> None:
+        """Create the netts directory"""
+        self.netts_dir.mkdir(mode=mode, exist_ok=True)
 
-    @validator("netspy_dir", pre=True)
-    def validate_netspy_dir(cls, v: str) -> Path:
+    @validator("netts_dir", pre=True)
+    def validate_netts_dir(cls, v: str) -> Path:
 
         direc = Path(v) / "stanza_corenlp"
         os.environ["CORENLP_HOME"] = str(direc)
@@ -69,7 +69,7 @@ class Settings(BaseSettings):
         nltk.data.path.append(str(nltk_dir))
         return Path(v)
 
-    @validator("netspy_config", pre=True)
+    @validator("netts_config", pre=True)
     def load_config_from_file(
         cls, v: Union[str, Path, config_file.Config]
     ) -> config_file.Config:
@@ -78,7 +78,7 @@ class Settings(BaseSettings):
             return v
 
         config_file_path = Path(v)
-        default_file_path = Path("netspy.toml")
+        default_file_path = Path("netts.toml")
 
         if not (config_file_path.exists() or default_file_path.exists()):
             raise IOError("Could not find config_file")
