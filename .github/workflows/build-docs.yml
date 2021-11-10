@@ -9,12 +9,6 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         python-version: [3.7]
-      runs-on: ubuntu-latest
-      steps: 
-        ...
-        - name Set up Python
-          uses: actions/setup-python@v1
-        ...
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
