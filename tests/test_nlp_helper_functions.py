@@ -1,8 +1,5 @@
 """Unit tests for the nlp_helper_functions module."""
-from netspy.nlp_helper_functions import (
-    remove_interjections,
-    replace_problematic_symbols,
-)
+from netts.nlp_helper_functions import remove_interjections, replace_problematic_symbols
 
 
 def test_replace_problematic_symbols() -> None:

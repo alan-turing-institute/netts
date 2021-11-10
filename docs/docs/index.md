@@ -3,7 +3,7 @@
 Network of Transcript Semantics (netts) creates networks capturing the semantic content of speech.
 
 <!-- Alternative example graph placeholder image -->
-<img src="/img/ExampleGraph_alternative_text_pic_2.png" width=95% style="margin-left: auto; margin-right: auto; display: block;"> 
+<img src="/img/ExampleGraph_alternative_text_pic_2.png" width=95% style="margin-left: auto; margin-right: auto; display: block;">
 
 <p align="center">
     <em>Network of Transcript Semantics</em>
@@ -17,11 +17,11 @@ Network of Transcript Semantics (netts) creates networks capturing the semantic 
 </p> -->
 
 ---
-[![GitHub release](https://img.shields.io/github/release/alan-turing-institute/netspy.svg)](https://GitHub.com/alan-turing-institute/netspy/releases/)[![PyPI pyversions](https://img.shields.io/pypi/pyversions/netspy.svg)](https://pypi.python.org/pypi/netspy/)
+[![GitHub release](https://img.shields.io/github/release/alan-turing-institute/netts.svg)](https://GitHub.com/alan-turing-institute/netts/releases/)[![PyPI pyversions](https://img.shields.io/pypi/pyversions/netts.svg)](https://pypi.python.org/pypi/netts/)
 
 **Documentation**: <a href="" target="_blank"></a>
 
-**Source Code**: [https://github.com/alan-turing-institute/netspy](https://github.com/alan-turing-institute/netspy)
+**Source Code**: [https://github.com/alan-turing-institute/netts](https://github.com/alan-turing-institute/netts)
 
 ---
 
@@ -79,4 +79,3 @@ If you use netts in your work, please cite this paper:
 
 <!-- - [Caroline Nettekoven](https://www.neuroscience.cam.ac.uk/directory/profile.php?caronettekoven)
 - [Sarah Morgan](https://www.neuroscience.cam.ac.uk/directory/profile.php?caronettekoven) -->
-
