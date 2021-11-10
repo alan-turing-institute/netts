@@ -29,28 +29,28 @@ netts run transcript.txt outputs
 ```python
 import netts
 
-settings = netspy.get_settings()
+settings = netts.get_settings()
 
-openie_client = netspy.OpenIEClient(port=settings.netspy_config.server.openie.port)
-corenlp_client = netspy.CoreNLPClient(
-    port=settings.netspy_config.server.corenlp.port,
+openie_client = netts.OpenIEClient(port=settings.netts_config.server.openie.port)
+corenlp_client = netts.CoreNLPClient(
+    port=settings.netts_config.server.corenlp.port,
     properties={"annotators": "tokenize,ssplit,pos,lemma,parse,depparse,coref,openie"},
 )
 
 with open("transcript.txt") as f:
     transcript = f.read()
 
-graph = netspy.SpeechGraph(transcript).process(
+graph = netts.SpeechGraph(transcript).process(
     openie_client=module_clients.openie_client,
     corenlp_client=module_clients.corenlp_client,
-    preprocess_config=settings.netspy_config.preprocess,
+    preprocess_config=settings.netts_config.preprocess,
 )
 ```
 
 === "CLI"
 
 ```bash
-netspy run transcript.txt outputs
+netts run transcript.txt outputs
 ```
 
 `netts run` is the CLI command. The first argument `transcript.txt` is the file or directory to process, and the second argument `outputs` is the name of a directory to output the results to. If the output directory doesn't exist netts will create it.
