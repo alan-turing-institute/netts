@@ -1,6 +1,6 @@
 from devtools import debug
 
-from netspy.clients import CoreNLPClient
+from netts.clients import CoreNLPClient
 
 
 def test_corenlp_client() -> None:

@@ -2,17 +2,17 @@
 
 ## CLI Arguments
 
-When you install the netspy package, you also get the `netspy` commandline interface (CLI). To see all of the commands and options for the CLI, run:
+When you install the netts package, you also get the `netts` commandline interface (CLI). To see all of the commands and options for the CLI, run:
 
 ```bash
 netspy --help
 ```
 
-Each `netspy` sub command also supports the `--help` option.
+Each `netts` sub command also supports the `--help` option.
 
 ## The Run Command
 
-The `netspy run` command will process a transcript (or directory of transcripts), building semantic [MultiDiGraphs](https://networkx.org/documentation/stable/reference/classes/multidigraph.html) and saving them as [pickled](https://docs.python.org/3/library/pickle.html#module-pickle) Python objects to the specified output directory. By default, netspy will also draw the graphs and save them in `.png` format next to the pickled objects.
+The `netts run` command will process a transcript (or directory of transcripts), building semantic [MultiDiGraphs](https://networkx.org/documentation/stable/reference/classes/multidigraph.html) and saving them as [pickled](https://docs.python.org/3/library/pickle.html#module-pickle) Python objects to the specified output directory. By default, netspy will also draw the graphs and save them in `.png` format next to the pickled objects.
 
 ```bash
 netspy run my_transcripts output_folder
@@ -39,12 +39,12 @@ You can pass a [glob pathname](https://docs.python.org/3/library/glob.html) to f
 === "CLI"
 
 ```bash
-netspy run INPUT_DIR OUTPUT_DIR --pattern "*_monday.txt"
+netts run DIRECTORY OUTPUT_DIR --pattern "*_monday.txt"
 ```
 
 ### Force
 
-By default netspy will not re-process a files if they already exist in the output dir. If you wish to process them again, add the `--force` flag.
+By default netts will not reprocess a file if it already exists in the output dir. If you wish to reprocess it again add the `--force` flag.
 
 === "CLI"
 

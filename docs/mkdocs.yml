@@ -4,13 +4,11 @@ theme:
     primary: teal
   logo: img/favicon_io/favicon-32x32.png
   favicon: img/favicon_io/favicon.ico
-  # icon:
-    # repo: fontawesome/brands/gitlab
 site_name: Netts
-repo_name: alan-turing-institute/netspy
-repo_url: https://github.com/alan-turing-institute/netspy
-# icon:
-#   repo: fontawesome/brands/github-alt
+repo_name: alan-turing-institute/netts
+repo_url: https://github.com/alan-turing-institute/netts
+icon:
+  repo: fontawesome/brands/github-alt
 
 markdown_extensions:
   - pymdownx.highlight

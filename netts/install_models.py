@@ -10,9 +10,9 @@ import requests
 import stanza
 import tqdm
 
-from netspy.config import get_settings
-from netspy.logger import logger
-from netspy.types import DownloadStatus, IncorrectHash
+from netts.config import get_settings
+from netts.logger import logger
+from netts.types import DownloadStatus, IncorrectHash
 
 
 def hash_file(file: Path) -> str:
@@ -58,19 +58,30 @@ def download_file(
     url: str, path: Path, description: Optional[str] = None
 ) -> requests.Response:
 
-    logger.warning("Downloading from url: %s to %s", url, path)
+    for i in range(2):
+        try:
+            logger.warning("Downloading from url: %s to %s", url, path)
 
-    resp = requests.get(url=url, stream=True)
-    file_size = int(resp.headers.get("content-length"))
-    chunk_size = 131072
-    with path.open(mode="wb") as f:
-        with tqdm.tqdm(
-            total=file_size, unit="B", unit_scale=True, desc=description
-        ) as pbar:
-            for chunk in resp.iter_content(chunk_size=chunk_size):
-                if chunk:
-                    f.write(chunk)
-                    pbar.update(len(chunk))
+            resp = requests.get(url=url, stream=True)
+            file_size = int(resp.headers.get("content-length"))
+            chunk_size = 131072
+            with path.open(mode="wb") as f:
+                with tqdm.tqdm(
+                    total=file_size, unit="B", unit_scale=True, desc=description
+                ) as pbar:
+                    for chunk in resp.iter_content(chunk_size=chunk_size):
+                        if chunk:
+                            f.write(chunk)
+                            pbar.update(len(chunk))
+
+            break
+
+        except requests.exceptions.ChunkedEncodingError as e:
+            # Allow one failure
+            if i == 0:
+                logger.warning("Download failed, retrying.")
+            else:
+                raise e
 
     return resp
 
@@ -85,7 +96,7 @@ def install_nltk_punk() -> DownloadStatus:
         logger.warning("NLTK directory already exists: %s", settings.nltk_dir)
         return DownloadStatus.ALREADY_EXISTS
 
-    settings.netspy_dir.mkdir(exist_ok=True)
+    settings.netts_dir.mkdir(exist_ok=True)
     nltk.download("punkt", download_dir=settings.nltk_dir, quiet=True)
 
     return DownloadStatus.SUCCESS
@@ -103,7 +114,7 @@ def install_corenlp() -> DownloadStatus:
         )
         return DownloadStatus.ALREADY_EXISTS
 
-    settings.netspy_dir.mkdir(exist_ok=True)
+    settings.netts_dir.mkdir(exist_ok=True)
     stanza.install_corenlp(dir=settings.core_nlp_dir)
     return DownloadStatus.SUCCESS
 
@@ -114,6 +125,7 @@ def install_openie5(md5: Optional[str] = None) -> DownloadStatus:
     fname = settings.openie
 
     if file_exists(fname, file_hash=md5):
+        logger.warning("OpenIE 5.1 binary already exists: %s", settings.openie)
         return DownloadStatus.ALREADY_EXISTS
 
     if not settings.openie_dir.exists():

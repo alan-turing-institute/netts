@@ -18,8 +18,8 @@ jobs:
         python-version: [3.7]
       fail-fast: false
     env:
-      # Set the location of netspy dependencies
-      NETSPY_DIR: '.dependencies'
+      # Set the location of netts dependencies
+      NETTS_DIR: '.dependencies'
 
     steps:
 

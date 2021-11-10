@@ -1,10 +1,10 @@
 # pylint: disable=E0012,F401
-from netspy.preprocess.defaults import (
+from netts.preprocess.defaults import (
     CONTRACTION_MAP,
     INTERJECTIONS,
     PROBLEMATIC_CHARACTER_MAP,
 )
-from netspy.preprocess.preprocess import (
+from netts.preprocess.preprocess import (
     expand_contractions,
     remove_interjections,
     remove_irrelevant_text,

@@ -8,11 +8,11 @@ import typer
 from matplotlib import pyplot as plt
 from typer import colors
 
-import netspy
-from netspy import SpeechGraphFile
-from netspy.clients import CoreNLPClient, OpenIEClient
-from netspy.config import Settings, get_settings
-from netspy.logger import logger, stanza_logger
+import netts
+from netts import SpeechGraphFile
+from netts.clients import CoreNLPClient, OpenIEClient
+from netts.config import Settings, get_settings
+from netts.logger import logger, stanza_logger
 
 app = typer.Typer()
 
@@ -35,20 +35,20 @@ class Color:
 def install() -> None:
     """Install all tool dependencies and langauge models"""
 
-    netspy.install_dependencies()
+    netts.install_dependencies()
 
 
 @app.command()
 def home() -> None:
-    """Show netspy's dependency directory"""
-    typer.echo(f"Netspy directory: {get_settings().netspy_dir}")
+    """Show netts's dependency directory"""
+    typer.echo(f"Netts directory: {get_settings().netts_dir}")
 
 
 def cprint(*args: Union[Color, str, List[Union[Color, str]]]) -> None:
 
     all_text = args
     time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    output = typer.style(f"{time} Netspy") + ": "
+    output = typer.style(f"{time} Netts") + ": "
 
     for text in all_text:
         if isinstance(text, str):
@@ -70,7 +70,7 @@ def run(
         "*.txt", "--pattern", help="glob pattern to select files in PATH"
     ),
     config_file: Optional[Path] = typer.Option(
-        None, "--config", help="a netspy configuration file"
+        None, "--config", help="a netts configuration file"
     ),
     force: bool = typer.Option(
         False, "--force", help="process even if output already exists"
@@ -141,19 +141,19 @@ def run(
                 "annotators": "tokenize,ssplit,pos,lemma,parse,depparse,coref,openie"
             },
             be_quiet=True,
-            port=settings.netspy_config.server.corenlp.port,
+            port=settings.netts_config.server.corenlp.port,
         )
 
         # Doesn't block
         corenlp_client.start()
 
         openie_client = OpenIEClient(
-            quiet=True, port=settings.netspy_config.server.openie.port
+            quiet=True, port=settings.netts_config.server.openie.port
         )
         # Blocks
         openie_client.connect()
 
-        preprocess_config = settings.netspy_config.preprocess
+        preprocess_config = settings.netts_config.preprocess
 
         for transcript_file in all_transcript_files:
             if transcript_file.missing or force:
@@ -182,7 +182,7 @@ def run(
 def config() -> None:
     """Create a defauly configuration file"""
 
-    typer.echo(netspy.Config.default())
+    typer.echo(netts.Config.default())
 
 
 @app.command()
@@ -190,7 +190,7 @@ def config_verify(config_file: Path) -> None:
     """Verify a configuration file"""
 
     # This will raise an exception if config is invalid (i.e missing values or incorrect syntax)
-    netspy.Config.load(config_file)
+    netts.Config.load(config_file)
 
     typer.echo("Configuration is valid")
 

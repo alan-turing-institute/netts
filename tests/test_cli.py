@@ -1,6 +1,6 @@
 # from typer.testing import CliRunner
 
-# from netspy.cli import app
+# from netts.cli import app
 
 # runner = CliRunner()
 
