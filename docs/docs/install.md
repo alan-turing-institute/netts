@@ -1,6 +1,6 @@
 # Getting Started
 
-## Install netspy
+## Install netts
 
 ### Latest Stable Release
 
@@ -41,7 +41,7 @@ Dependencies are large (>5Gb) and may take some time to download.
 
 ### Install to an Alternative Directory
 
-By default, the dependencies will be installed to a `netspy` directory in your home directory. If you would like to install in a different location, set an environment variable called `NETSPY_DIR` either on the commandline:
+By default, the dependencies will be installed to a `netts` directory in your home directory. If you would like to install in a different location, set an environment variable called `NETTS_DIR` either on the commandline:
 
 ```bash
 export NETTS_DIR={DIRECTORY}
@@ -53,7 +53,7 @@ or by creating a `.env` file in your working directory with these contents:
 NETTS_DIR={DIRECTORY}
 ```
 
-netspy will create `NETSPY_DIR` for you if it doesn't already exist.
+netts will create `NETTS_DIR` for you if it doesn't already exist.
 
 To verify which directory netts will use run:
 

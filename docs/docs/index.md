@@ -71,7 +71,7 @@ If you use netts in your work, please cite this paper:
 ## Links
 
 - [PyPI](https://pypi.org)
-- [Github](https://github.com/alan-turing-institute/netspy)
+- [Github](https://github.com/alan-turing-institute/netts)
 - [Brain Mapping Unit](https://www.psychiatry.cam.ac.uk/groups/brain-mapping-unit/)
 - [Computational Psychiatry Group](https://www.psychiatry.cam.ac.uk/groups/brain-mapping-unit/)
 - [Alan Turing Institute](https://www.turing.ac.uk/research/research-projects/towards-incoherent-speech-predictor-psychosis-risk)
