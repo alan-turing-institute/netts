@@ -9,7 +9,8 @@ authors = [
     "Helen Duncan <hduncan@turing.ac.uk>",
     "Iain Stenson <istenson@turing.ac.uk>",
 ]
-license = "MIT"
+license = "GPL-3.0-or-later3"
+documentation = "https://alan-turing-institute.github.io/netts/"
 repository = "https://github.com/alan-turing-institute/netts"
 readme = "README.md"
 
