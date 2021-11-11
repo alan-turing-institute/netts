@@ -5,6 +5,8 @@ from typing import Dict, List
 
 import nltk
 
+from netts.logger import logger
+
 
 def replace_problematic_characters(text: str, character_map: Dict[str, str]) -> str:
     """Replace characters in a string
@@ -55,7 +57,7 @@ def remove_interjections(
     return " ".join(tokens_no_interjections)
 
 
-def remove_irrelevant_text(text: str, be_quiet: bool = True) -> str:
+def remove_irrelevant_text(text: str) -> str:
     #
     # ---- Remove double-bracketed speech ----
     # Some transcribers marked irrelevant speech by putting it between double brackets.
@@ -63,8 +65,7 @@ def remove_irrelevant_text(text: str, be_quiet: bool = True) -> str:
     #  since initial cleaning steps put a single whitespace between punctuation symbols
     match = re.match(r"^.*\(\s\((.*)\)\s\).*$", text)
     if match:
-        if not be_quiet:
-            print(match.group(1))
+        logger.info(match.group(1))
         match_text = "( (" + match.group(1) + ") )"
         text = text.replace(match_text, "")
     #
@@ -73,16 +74,14 @@ def remove_irrelevant_text(text: str, be_quiet: bool = True) -> str:
     speakerstamp = re.findall(r"\bUnknown Speaker\b\s\d{1}:\d{2}", text)
     if speakerstamp != []:
         for stamp in speakerstamp:
-            if not be_quiet:
-                print(stamp)
+            logger.info(stamp)
             text = text.replace(stamp, "")
     #
     # ---- Remove time stamp ('00:01:00')----
     timestamp = re.findall(r"[0-9]{2}:[0-9]{2}:[0-9]{2}", text)
     if timestamp != []:
         for stamp in timestamp:
-            if not be_quiet:
-                print(stamp)
+            logger.info(stamp)
             text = text.replace(stamp, "")
     #
     #
@@ -107,8 +106,8 @@ def remove_irrelevant_text(text: str, be_quiet: bool = True) -> str:
     ]
     #
     for irr in irrelevant_text:
-        if irr in text and not be_quiet:
-            # print('Removing "{0}" from \n"{1}"'.format(irr, text))
-            print(f'Removing "{irr}"')
+        if irr in text:
+            # logger.warning('Removing "{0}" from \n"{1}"'.format(irr, text))
+            logger.info('Removing "%s"', irr)
         text = text.replace(irr, "")
     return text

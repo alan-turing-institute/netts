@@ -184,9 +184,9 @@ def get_transcript_properties(ex_stanza):
         total_tokens += no_tokens_in_sentence
 
         for token in sent.token:
-            # for word in token.words:
+
             if token.pos in punctuation_pos_tags:
-                # print(token.word, token.pos)
+
                 total_punctuations += 1
 
     n_tokens = total_tokens - total_punctuations
