@@ -21,7 +21,7 @@ Below is the semantic speech graph constructed from this text.
 
 ## Getting started
 
-Read the full documentation [here](alan-turing-institute.github.io/netts/).
+Read the full documentation [here](https://alan-turing-institute.github.io/netts/).
 
 ### Where to get it
 
