@@ -19,43 +19,41 @@ Below is the semantic speech graph constructed from this text.
 ![Semantic speech graph example](docs/docs/img/ExampleGraph_alternative_text_pic_2.png)
 *Figure 1. Semantic Speech Graph. Nodes represents an entity mentioned by the speaker (e.g. I, man, jacket). Edges represent relations between nodes mentioned by the speaker (e.g. see, has on).*
 
-## Developer Dependencies
+## Getting started
 
-### Python dependencies
+Read the full documentation [here](alan-turing-institute.github.io/netts/).
 
-To get started install [Poetry](https://python-poetry.org/docs/).
+### Where to get it
 
-Then ensure all dependencies are installed:
+You can install the latest release from [PyPi](https://pypi.org/project/netts/)
 
 ```bash
-poetry install
+pip install netts
 ```
 
-Install additional dependencies to `~/netts`:
+or get the latest development version from GitHub (not stable)
+
+```bash
+pip install git+https://github.com/alan-turing-institute/netts
+```
+
+### Additional dependencies
+
+Netts requires a few additional dependencies to work which you can download with the netts CLI that was installed by pip
 
 ```bash
 netts install
 ```
 
-### Pre-commit
+### Basic usage
+
+The quickest way to process a transcript is with the CLI.
 
 ```bash
-poetry run pre-commit run --all-files
+netts run transcript.txt outputs
 ```
 
-### Unit tests
-
-Run all unit tests excluding slow tests (require downloads) and those that write to `~/netts` (these run on GitHub Actions).
-
-```bash
-poetry run pytest --cov=netts --cov-report=xml tests -m "not ci_only"
-```
-
-### Preview docs
-
-```bash
-poetry run mkdocs serve --config-file docs/mkdocs.yml
-```
+where `transcript.txt` is a text file containing transcribed speech and `outputs` is the name of a directory to write the outputs to.
 
 ## Contributors
 
