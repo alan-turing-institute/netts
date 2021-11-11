@@ -7,7 +7,7 @@
 
 Toolbox for constructing semantic speech networks from speech transcripts.
 
-This toolbox was built as part of an ongoing project investigating the potential of [speech markers to predict psychosis risk](https://www.turing.ac.uk/research/research-projects/towards-incoherent-speech-predictor-psychosis-risk) funded by the [Alan Turing Institute](https://www.turing.ac.uk) and led by [Sarah Morgan](https://www.neuroscience.cam.ac.uk/directory/profile.php?SarahMorgan) at the [University of Cambridge](https://www.cam.ac.uk). Tools were written by [Caroline Nettekoven](https://www.neuroscience.cam.ac.uk/directory/profile.php?caronettekoven) at the  [Cambridge Brain Mapping Unit](http://www.bmu.psychiatry.cam.ac.uk).
+## About
 
 The algorithms in this toolbox create a semantic speech graph from transcribed speech. Speech transcripts are short paragraphs of largely raw, uncleaned speech-like text. For example:
 
@@ -16,7 +16,7 @@ The algorithms in this toolbox create a semantic speech graph from transcribed s
 
 Below is the semantic speech graph constructed from this text.
 
-![Semantic speech graph example](assets/semantic_speech_graph_example.png)
+![Semantic speech graph example](docs/docs/img/ExampleGraph_alternative_text_pic_2.png)
 *Figure 1. Semantic Speech Graph. Nodes represents an entity mentioned by the speaker (e.g. I, man, jacket). Edges represent relations between nodes mentioned by the speaker (e.g. see, has on).*
 
 ## Developer Dependencies
@@ -56,3 +56,15 @@ poetry run pytest --cov=netts --cov-report=xml tests -m "not ci_only"
 ```bash
 poetry run mkdocs serve --config-file docs/mkdocs.yml
 ```
+
+
+## Contributors
+Netts was written by [Caroline Nettekoven](https://www.caroline-nettekoven.com) in collaboration with [Sarah Morgan](https://semorgan.org).
+
+Netts was packaged in collaboration with [Oscar Giles](https://www.turing.ac.uk/people/researchers/oscar-giles), [Iain Stenson](https://www.turing.ac.uk/research/research-engineering/meet-the-team) and [Helen Duncan](https://www.turing.ac.uk/people/research-engineering/helen-duncan).
+
+
+## Citing netts
+
+If you use netts in your work, please cite this paper:
+> Caroline R. Nettekoven, Kelly Diederen, Oscar Giles, Helen Duncan, Iain Stenson, Julianna Olah, Nigel Collier, Petra Vertes, Tom J. Spencer, Sarah E. Morgan, and Philip McGuire. 2021. “Networks of Transcript Semantics - Netts.”
