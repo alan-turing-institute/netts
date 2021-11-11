@@ -16,6 +16,8 @@ markdown_extensions:
   - pymdownx.tabbed
   - pymdownx.inlinehilite
   - mkdocs-click
+  - attr_list
+  - md_in_html
 
 nav:
   - Overview: index.md

@@ -2,8 +2,8 @@
 
 Network of Transcript Semantics (netts) creates networks capturing the semantic content of speech.
 
-<!-- Alternative example graph placeholder image -->
-<img src="/img/ExampleGraph_alternative_text_pic_2.png" width=95% style="margin-left: auto; margin-right: auto; display: block;">
+![Graph](img/semantic_speech_graph_example.png){ width="95%" }
+
 
 <p align="center">
     <em>Network of Transcript Semantics</em>
@@ -19,7 +19,7 @@ Network of Transcript Semantics (netts) creates networks capturing the semantic 
 ---
 [![GitHub release](https://img.shields.io/github/release/alan-turing-institute/netts.svg)](https://GitHub.com/alan-turing-institute/netts/releases/)[![PyPI pyversions](https://img.shields.io/pypi/pyversions/netts.svg)](https://pypi.python.org/pypi/netts/)
 
-**Documentation**: <a href="" target="_blank"></a>
+**Documentation**: [https://alan-turing-institute.github.io/netts/](https://alan-turing-institute.github.io/netts/)
 
 **Source Code**: [https://github.com/alan-turing-institute/netts](https://github.com/alan-turing-institute/netts)
 
