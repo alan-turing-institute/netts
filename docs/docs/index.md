@@ -4,7 +4,6 @@ Network of Transcript Semantics (netts) creates networks capturing the semantic 
 
 ![Graph](img/semantic_speech_graph_example.png){ width="95%" }
 
-
 <p align="center">
     <em>Network of Transcript Semantics</em>
 </p>
@@ -32,10 +31,8 @@ It maps the content of speech as a network and analyses the network using graph 
 The networks are referred to as **semantic speech networks**.
 This is novel analysis method for speech data has provided new insight on speech alterations in psychiatric conditions.
 
-
 Netts uses Natural Language Processing (NLP) to construct speech networks from transcripts of spoken text (e.g. <em>I see a man</em>).
 Nodes represent entities (e.g. <em>I</em>, <em>man</em>) and edges represent relations between nodes (e.g. <em>see</em>).
-
 
 <!-- Alternative pipeline placeholder image -->
 <!-- <img src="/img/Pipeline_figure_reduced.png " width=95% style="margin-left: auto; margin-right: auto; display: block;">
@@ -57,11 +54,10 @@ Netts can be used to construct a semantic speech network from a text file with a
 For a detailed explanation of the processing pipeline, see [Pipeline](pipeline.md).
 
 ## Contributors
+
 Netts was written by [Caroline Nettekoven](https://www.caroline-nettekoven.com) in collaboration with [Sarah Morgan](https://semorgan.org).
 
 Netts was packaged in collaboration with [Oscar Giles](https://www.turing.ac.uk/people/researchers/oscar-giles), [Iain Stenson](https://www.turing.ac.uk/research/research-engineering/meet-the-team) and [Helen Duncan](https://www.turing.ac.uk/people/research-engineering/helen-duncan).
-
-
 
 ## Citing netts
 
@@ -76,6 +72,9 @@ If you use netts in your work, please cite this paper:
 - [Computational Psychiatry Group](https://www.psychiatry.cam.ac.uk/groups/brain-mapping-unit/)
 - [Alan Turing Institute](https://www.turing.ac.uk/research/research-projects/towards-incoherent-speech-predictor-psychosis-risk)
 
+<!--
 
-<!-- - [Caroline Nettekoven](https://www.neuroscience.cam.ac.uk/directory/profile.php?caronettekoven)
-- [Sarah Morgan](https://www.neuroscience.cam.ac.uk/directory/profile.php?caronettekoven) -->
+- [Caroline Nettekoven](https://www.neuroscience.cam.ac.uk/directory/profile.php?caronettekoven)
+- [Sarah Morgan](https://www.neuroscience.cam.ac.uk/directory/profile.php?caronettekoven)
+
+-->

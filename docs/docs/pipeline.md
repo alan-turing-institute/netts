@@ -2,10 +2,8 @@
 
 ---
 
-
 **Networks of Transcript Semantics (netts)** is a network algorithm that builds on state-of-the-art Natural Language Processing libraries to create speech networks that capture semantic content.
 Netts takes transcripts of spoken text as input (e.g. <em>I see a man</em>) and outputs a semantic speech network.
-
 
 > **_Semantic Speech Network:_**  Network that represents the semantic content of speech transcripts. In these networks, nodes are entities (e.g. <em>I</em>, <em>man</em>). Edges are relations between nodes (e.g. <em>see</em>).
 
@@ -23,10 +21,6 @@ Netts takes transcripts of spoken text as input (e.g. <em>I see a man</em>) and 
     <em>Netts pipeline.</em>
 </p> -->
 
-
-
-
-
 Netts can capture semantic links between nodes in speech content, even when semantically these nodes are separated by several sentences.
 The algorithm is robust against artefacts typical for spoken text.
 As described in [Usage](basic_usage.md), netts can be used to process a single transcript or a folder of many transcripts.
@@ -36,6 +30,7 @@ In the following sections the netts processing pipeline is described in detail.
 See figure above for an overview of the netts pipeline.
 
 ## Preprocessing
+
 Netts first expands the most common English contractions (e.g. expanding <em>I'm</em> to <em>I am</em>).
 It then removes interjections (<em>Mh</em>, <em>Uhm</em>).
 Netts also removes any transcription notes (e.g. timestamps, <em>[inaudible]</em>) that were inserted by the transcriber.
@@ -57,6 +52,7 @@ Finally, any occurrences where two or more expressions in the transcript refer t
 For example where a noun <em>man</em> and a pronoun <em>he</em> refer to the same person.
 
 ## Finding nodes and edges
+
 Netts submits each sentence to [OpenIE5](https://github.com/dair-iitd/OpenIE-standalone) for relation extraction.
 Openie5 extracts semantic relationships between entities from the sentence.
 For example, performing relation extraction on the sentence <em>I see a man</em> identifies the relation <em>see</em> between the entities <em>I</em> and <em>a man</em>.
@@ -71,6 +67,7 @@ These adjective edges and preposition edges are added to the edge list.
 During the next processing steps this edge list is further refined.
 
 ## Refining nodes and edges
+
 After creating the edge list, netts uses the co-referencing information to merge nodes that refer to the same entity.
 This is to take into account cases different words refer to the same entity.
 For example in the case where the pronoun <em>he</em> is used to refer to <em>a man</em> or in the case where the synonym <em>the guy</em> is used to refer to <em>a man</em>.
@@ -81,6 +78,7 @@ Node labels are then cleaned of superfluous words such as determiners.
 For example, <em>a man</em> would turn into <em>man</em>.
 
 ## Constructing network
+
 In the final step, netts constructs a semantic speech network from the edge list using [networkx](https://networkx.org/).
 The network is then plotted and saves the output.
 The output consists of the networkx object, the network image and the log messages from netts.
