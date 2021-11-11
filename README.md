@@ -1,4 +1,4 @@
-# netts - NETworks of Transcript Semantics in Python
+# netts - NETworks of Transcript Semantics
 
 [![GitHub release](https://img.shields.io/github/release/alan-turing-institute/netts.svg)](https://GitHub.com/alan-turing-institute/netts/releases/)[![PyPI pyversions](https://img.shields.io/pypi/pyversions/netts.svg)](https://pypi.python.org/pypi/netts/)
 [![codecov](https://codecov.io/gh/alan-turing-institute/netts/branch/main/graph/badge.svg?token=58uMq5hbNt)](https://codecov.io/gh/alan-turing-institute/netts)
