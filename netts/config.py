@@ -20,11 +20,11 @@ class Settings(BaseSettings):
 
     netts_dir: Path = NETTS_DIR
     openie_url: HttpUrl = (
-        "https://netts.blob.core.windows.net/netspy/openie-assembly-5.0-SNAPSHOT.jar"
+        "https://netspy.blob.core.windows.net/netspy/openie-assembly-5.0-SNAPSHOT.jar"
         + "?sv=2020-04-08&st=2021-09-01T14%3A49%3A27Z&se=2022-08-31T14%3A49%3A00Z&sr=c&sp=rl&sig=eODqh0aLqLO5gVrgehkRRa498JytTT9qFh6ptOwbzBc%3D"
     )
     openie_language_url: HttpUrl = (
-        "https://netts.blob.core.windows.net/netspy/languageModel.zip"
+        "https://netspy.blob.core.windows.net/netspy/languageModel.zip"
         + "?sv=2020-04-08&st=2021-09-01T14%3A49%3A27Z&se=2022-08-31T14%3A49%3A00Z&sr=c&sp=rl&sig=eODqh0aLqLO5gVrgehkRRa498JytTT9qFh6ptOwbzBc%3D"
     )
     # You can pass a Path or str to the config file and the validator will load it as config_file.Config
