@@ -169,3 +169,6 @@ figures/
 
 # VScode settings
 .vscode/
+
+# Docs
+docs/site
