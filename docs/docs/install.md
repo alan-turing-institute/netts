@@ -18,7 +18,8 @@ If you would like the latest development version of netts install it from GitHub
 pip install git+https://github.com/alan-turing-institute/netts
 ```
 
-Be aware that this code may change or break at anytime.
+!!! warning
+    Be aware that the development code is under active development and may change at any time. Use the PyPi release by default.
 
 ## Install Additional Dependencies
 
@@ -37,7 +38,8 @@ import netts
 netts.install_dependencies()
 ```
 
-Dependencies are large (>5Gb) and may take some time to download.
+!!! info
+    Dependencies are large (>5Gb) and may take some time to download.
 
 ### Install to an Alternative Directory
 
