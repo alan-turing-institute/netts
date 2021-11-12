@@ -30,11 +30,11 @@ We can break this down into the following components:
 | ----------- | -----|------ |
 | netts run   | Path to transcript   | path of output directory   |
 
-
 1. `transcript.txt` can be replaced with the full path to any `.txt` file.
 2. `outputs` can be replaced with the path to any directory. If the directory does not exist yet netts will create it.
 
 ### Outputs
+
 Once netts processes the transcript the output directory will contain two files:
 
 ```text
