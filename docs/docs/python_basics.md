@@ -18,7 +18,6 @@ echo "I see a man in the dark standing against a light post. It seems to be in t
 
 We can then process a single transcript using the following Python script, which we'll run through step by step.
 
-
 ```python hl_lines="5-7"
 --8<-- "process_transcript.py"
 ```
@@ -28,7 +27,7 @@ First we load a `Settings` object which provides information about the netts con
 !!! info
     If the dependencies have already been installed this function will do nothing.
 
-#### Start the CoreNLP and OpenIE5 servers
+### Start the CoreNLP and OpenIE5 servers
 
 ```python hl_lines="9-11"
 --8<-- "process_transcript.py"
@@ -39,7 +38,7 @@ Netts uses [Openie5](https://github.com/dair-iitd/OpenIE-standalone) and [CoreNL
 !!! warning
     The servers are extremely memory hungry. If the server fails to start you probably ran out of memory and failed silently. Try on a machine with more memory.
 
-#### Process a transcript
+### Process a transcript
 
 ```python hl_lines="13-22"
 --8<-- "process_transcript.py"
@@ -49,7 +48,7 @@ Next we oad our transcript into memory, create a `SpeechGraph` object and then c
 
 Here we use a default configuration object `settings.netts_config.preprocess`.
 
-#### Plot graph and save outputs
+### Plot graph and save outputs
 
 ```python hl_lines="24-30"
 --8<-- "process_transcript.py"
