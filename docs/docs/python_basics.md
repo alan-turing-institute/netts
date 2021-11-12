@@ -19,7 +19,7 @@ echo "I see a man in the dark standing against a light post. It seems to be in t
 We can then process a single transcript using the following Python script, which we'll run through step by step.
 
 
-```python hl_lines="4-6"
+```python hl_lines="5-7"
 --8<-- "process_transcript.py"
 ```
 
@@ -30,7 +30,7 @@ First we load a `Settings` object which provides information about the netts con
 
 #### Start the CoreNLP and OpenIE5 servers
 
-```python hl_lines="8-10"
+```python hl_lines="9-11"
 --8<-- "process_transcript.py"
 ```
 
@@ -41,7 +41,7 @@ Netts uses [Openie5](https://github.com/dair-iitd/OpenIE-standalone) and [CoreNL
 
 #### Process a transcript
 
-```python hl_lines="12-21"
+```python hl_lines="13-22"
 --8<-- "process_transcript.py"
 ```
 
@@ -51,7 +51,7 @@ Here we use a default configuration object `settings.netts_config.preprocess`.
 
 #### Plot graph and save outputs
 
-```python hl_lines="23-29"
+```python hl_lines="24-30"
 --8<-- "process_transcript.py"
 ```
 
