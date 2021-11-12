@@ -50,7 +50,7 @@ Nodes represent entities (e.g. <em>I</em>, <em>man</em>) and edges represent rel
 </p> -->
 
 The tool is freely available as a python package and accessible online. It can be installed from the python package index PyPI, see [Getting Started](install.md) for installation instructions.
-Netts can be used to construct a semantic speech network from a text file with a single command. See [Usage](basic_usage.md) for a user guide.
+Netts can be used to construct a semantic speech network from a text file with a single command. See [CLI usage](cli_basics.md) for a user guide.
 For a detailed explanation of the processing pipeline, see [Pipeline](pipeline.md).
 
 ## Contributors

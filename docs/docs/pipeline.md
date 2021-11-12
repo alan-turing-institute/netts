@@ -23,7 +23,7 @@ Netts takes transcripts of spoken text as input (e.g. <em>I see a man</em>) and 
 
 Netts can capture semantic links between nodes in speech content, even when semantically these nodes are separated by several sentences.
 The algorithm is robust against artefacts typical for spoken text.
-As described in [Usage](basic_usage.md), netts can be used to process a single transcript or a folder of many transcripts.
+As described in [CLI usage](cli_basics.md), netts can be used to process a single transcript or a folder of many transcripts.
 With about 40 seconds processing time per speech transcript, netts takes little time to process large batches of speech transcripts and therefore is ideal for the automated construction of speech networks from large datasets.
 
 In the following sections the netts processing pipeline is described in detail.
