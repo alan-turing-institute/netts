@@ -17,7 +17,7 @@ from netts.config import Settings
 
 
 class CoreNLPClient(stanza.server.CoreNLPClient):  # type: ignore
-    def __init__(self, port: int, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, *args: Any, port: int = 8089, **kwargs: Any) -> None:
         host = "http://localhost"
         endpoint = f"{host}:{port}"
 
