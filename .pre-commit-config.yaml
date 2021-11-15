@@ -46,7 +46,7 @@ repos:
   hooks:
     - id: pylint
       name: Pylint
-      entry: poetry run pylint netts tests examples -j 0
+      entry: poetry run pylint --jobs=0 netts/ tests/ examples/
       pass_filenames: false
       language: system
 - repo: local

@@ -19,7 +19,7 @@ pip install git+https://github.com/alan-turing-institute/netts
 ```
 
 !!! warning
-    Be aware that the development code is under active development and may change at any time. Use the PyPi release by default.
+    Be aware that the development code is under active development and may change at any time.
 
 ## Install Additional Dependencies
 
@@ -39,7 +39,7 @@ netts.install_dependencies()
 ```
 
 !!! info
-    Dependencies are large (>5Gb) and may take some time to download.
+    Dependencies are large (>5GB) and may take some time to download.
 
 ### Install to an Alternative Directory
 

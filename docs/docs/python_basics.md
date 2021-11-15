@@ -36,7 +36,7 @@ First we load a `Settings` object which provides information about the netts con
 Netts uses [Openie5](https://github.com/dair-iitd/OpenIE-standalone) and [CoreNLP](https://stanfordnlp.github.io/CoreNLP/) under the hood. These are both [Java](https://en.wikipedia.org/wiki/Java_(programming_language)) programmes that we installed in the previous step. We use a [context manager](https://book.pythontips.com/en/latest/context_managers.html) to start the servers, which makes sure they are both automatically shut down when processing finishes.
 
 !!! warning
-    The servers are extremely memory hungry. If the server fails to start you probably ran out of memory and failed silently. Try on a machine with more memory.
+    The servers are extremely memory hungry, using ~8GB. If the server fails to start you probably ran out of memory and failed silently. Try on a machine with more memory.
 
 ### Process a transcript
 
@@ -44,7 +44,7 @@ Netts uses [Openie5](https://github.com/dair-iitd/OpenIE-standalone) and [CoreNL
 --8<-- "process_transcript.py"
 ```
 
-Next we oad our transcript into memory, create a `SpeechGraph` object and then call is `process` method, passing our two servers and a configuration object.
+Next we load our transcript into memory, create a `SpeechGraph` object and then call its `process` method, passing our two servers and a configuration object.
 
 Here we use a default configuration object `settings.netts_config.preprocess`.
 

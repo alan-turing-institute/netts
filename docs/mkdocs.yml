@@ -3,7 +3,7 @@ theme:
   palette:
     primary: teal
   logo: img/favicon_io/favicon.ico
-  # favicon: img/favicon_io/favicon.ico
+  favicon: img/favicon_io/favicon.ico
 site_name: Netts
 repo_name: alan-turing-institute/netts
 repo_url: https://github.com/alan-turing-institute/netts

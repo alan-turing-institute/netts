@@ -26,9 +26,9 @@ netts run transcript.txt outputs
 
 We can break this down into the following components:
 
-| CLI Command     | transcript.txt | outputs |
-| ----------- | -----|------ |
-| netts run   | Path to transcript   | path of output directory   |
+| CLI Command | transcript.txt | outputs |
+| - | - | - |
+| netts run | Path to transcript | path of output directory |
 
 1. `transcript.txt` can be replaced with the full path to any `.txt` file.
 2. `outputs` can be replaced with the path to any directory. If the directory does not exist yet netts will create it.
