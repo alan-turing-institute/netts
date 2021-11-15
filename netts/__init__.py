@@ -24,16 +24,19 @@ from netts.clients import CoreNLPClient, OpenIEClient
 from netts.config import get_settings
 from netts.config_file import Config
 from netts.install_models import install_dependencies
-from netts.speech_graph import SpeechGraph, SpeechGraphFile
+from netts.speech_graph import SpeechGraph, SpeechGraphFile, pickle_graph
+from netts.version import __version__
 
 __all__ = [
     "install_dependencies",
     "preprocess",
     "SpeechGraph",
+    "pickle_graph",
     "SpeechGraphFile",
     "Config",
     "get_settings",
     "MultiDiGraph",
     "OpenIEClient",
     "CoreNLPClient",
+    "__version__",
 ]

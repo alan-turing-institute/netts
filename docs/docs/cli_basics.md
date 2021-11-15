@@ -1,11 +1,11 @@
-# Overview
+# CLI
 
 Netts takes speech transcripts and converts them into a semantic graph. Imagine we have the following short transcript in a file called `transcript.txt`:
 
 > I see a man in the dark standing against a light post. It seems to be in the middle of the night; I think because the lightbulb is working. On the picture there seems to be like a park and... Or trees but in those trees there are little balls of light reflections as well. I cannot see the… Anything else because it’s very dark. But the man on the picture seems to wear a hat and, and has a jacket on and he seems to have a hoodie on as well. The picture is very, very mysterious, which I like about it, but for me I would like to understand more concept, context of the picture.
 
 <details>
-<summary>Follow along</summary>
+<summary>Follow along - Example transcript</summary>
 To follow along create this example in a file by running the following command in a terminal
 
 ```bash
@@ -16,7 +16,7 @@ echo "I see a man in the dark standing against a light post. It seems to be in t
 
 ## Create a semantic graph
 
-We can create a semantic graph from the transcript using either the CLI of python package
+We can create a semantic graph from the transcript using either the CLI of python package. We can process a single transcript with the CLI like this
 
 === "CLI"
 
@@ -24,38 +24,18 @@ We can create a semantic graph from the transcript using either the CLI of pytho
 netts run transcript.txt outputs
 ```
 
-=== "Python"
+We can break this down into the following components:
 
-```python
-import netts
+| CLI Command | transcript.txt | outputs |
+| - | - | - |
+| netts run | Path to transcript | path of output directory |
 
-settings = netts.get_settings()
+1. `transcript.txt` can be replaced with the full path to any `.txt` file.
+2. `outputs` can be replaced with the path to any directory. If the directory does not exist yet netts will create it.
 
-openie_client = netts.OpenIEClient(port=settings.netts_config.server.openie.port)
-corenlp_client = netts.CoreNLPClient(
-    port=settings.netts_config.server.corenlp.port,
-    properties={"annotators": "tokenize,ssplit,pos,lemma,parse,depparse,coref,openie"},
-)
+### Outputs
 
-with open("transcript.txt") as f:
-    transcript = f.read()
-
-graph = netts.SpeechGraph(transcript).process(
-    openie_client=module_clients.openie_client,
-    corenlp_client=module_clients.corenlp_client,
-    preprocess_config=settings.netts_config.preprocess,
-)
-```
-
-=== "CLI"
-
-```bash
-netts run transcript.txt outputs
-```
-
-`netts run` is the CLI command. The first argument `transcript.txt` is the file or directory to process, and the second argument `outputs` is the name of a directory to output the results to. If the output directory doesn't exist netts will create it.
-
-The output directory will contain two files:
+Once netts processes the transcript the output directory will contain two files:
 
 ```text
 outputs/
@@ -86,30 +66,4 @@ you can process it with
 
 ```bash
 netts run all_transcripts outputs
-```
-
-=== "Python"
-
-```python
-from pathlib import Path
-import netts
-
-directory = "all_transcripts"
-all_transcripts = Path(directory).glob("*.txt")
-
-all_graphs = []
-for trans in all_transcripts:
-    with open(trans) as f:
-        transcript = f.read()
-
-    graph = netts.SpeechGraph(transcript).process()
-    all_graphs.append(graph)
-```
-
-## Load pickled graphs into python
-
-If you processed transcripts with the netts CLI you may want to load the pickled graph object into Python for further analysis.
-
-```python
-
 ```

@@ -2,7 +2,7 @@ theme:
   name: material
   palette:
     primary: teal
-  logo: img/favicon_io/favicon-32x32.png
+  logo: img/favicon_io/favicon.ico
   favicon: img/favicon_io/favicon.ico
 site_name: Netts
 repo_name: alan-turing-institute/netts
@@ -11,19 +11,26 @@ icon:
   repo: fontawesome/brands/github-alt
 
 markdown_extensions:
-  - pymdownx.highlight
+  - pymdownx.snippets:
+      check_paths: true
+      base_path: "examples/"
   - pymdownx.superfences
+  - pymdownx.highlight
   - pymdownx.tabbed
   - pymdownx.inlinehilite
   - mkdocs-click
   - attr_list
   - md_in_html
+  - admonition
 
 nav:
   - Overview: index.md
   - Getting Started: install.md
   - Usage:
-      - Overview: basic_usage.md
-      - Configuration: configuration.md
-      - CLI: cli.md
+      - CLI: cli_basics.md
+      - Python: python_basics.md
+      - Postprocess: post-processing.md
+      - CLI Configuration: configuration.md
+      - API:
+        - CLI: cli.md
   - Pipeline: pipeline.md

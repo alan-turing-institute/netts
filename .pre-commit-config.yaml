@@ -17,14 +17,14 @@ repos:
   hooks:
     - id: black
       name: Black
-      entry: poetry run black netts tests
+      entry: poetry run black netts tests examples
       pass_filenames: false
       language: system
 - repo: local
   hooks:
     - id: isort
       name: isort
-      entry: poetry run isort netts tests
+      entry: poetry run isort netts tests examples
       pass_filenames: false
       language: system
 - repo: local
@@ -46,14 +46,14 @@ repos:
   hooks:
     - id: pylint
       name: Pylint
-      entry: poetry run pylint netts tests -j 0
+      entry: poetry run pylint --jobs=0 netts/ tests/ examples/
       pass_filenames: false
       language: system
 - repo: local
   hooks:
     - id: flake8
       name: Flake8
-      entry: poetry run flake8 netts tests
+      entry: poetry run flake8 netts tests examples
       pass_filenames: false
       language: system
 - repo: https://github.com/igorshubovych/markdownlint-cli
