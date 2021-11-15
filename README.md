@@ -1,6 +1,7 @@
 # netts - NETworks of Transcript Semantics
 
-[![GitHub release](https://img.shields.io/github/release/alan-turing-institute/netts.svg)](https://GitHub.com/alan-turing-institute/netts/releases/)[![PyPI pyversions](https://img.shields.io/pypi/pyversions/netts.svg)](https://pypi.python.org/pypi/netts/)
+[![GitHub release](https://img.shields.io/github/v/release/alan-turing-institute/netts?include_prereleases)](https://GitHub.com/alan-turing-institute/netts/releases/)
+[![PyPI pyversions](https://img.shields.io/pypi/pyversions/netts.svg)](https://pypi.python.org/pypi/netts/)
 [![codecov](https://codecov.io/gh/alan-turing-institute/netts/branch/main/graph/badge.svg?token=58uMq5hbNt)](https://codecov.io/gh/alan-turing-institute/netts)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
