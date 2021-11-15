@@ -16,7 +16,9 @@ Network of Transcript Semantics (netts) creates networks capturing the semantic 
 </p> -->
 
 ---
-[![GitHub release](https://img.shields.io/github/release/alan-turing-institute/netts.svg)](https://GitHub.com/alan-turing-institute/netts/releases/)[![PyPI pyversions](https://img.shields.io/pypi/pyversions/netts.svg)](https://pypi.python.org/pypi/netts/)
+
+[![GitHub release](https://img.shields.io/github/v/release/alan-turing-institute/netts?include_prereleases)](https://GitHub.com/alan-turing-institute/netts/releases/)
+[![PyPI pyversions](https://img.shields.io/pypi/pyversions/netts.svg)](https://pypi.python.org/pypi/netts/)
 
 **Documentation**: [https://alan-turing-institute.github.io/netts/](https://alan-turing-institute.github.io/netts/)
 
