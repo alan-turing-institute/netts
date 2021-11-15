@@ -33,5 +33,4 @@ nav:
       - CLI Configuration: configuration.md
       - API:
         - CLI: cli.md
-      # - CLI - details: cli.md
   - Pipeline: pipeline.md
