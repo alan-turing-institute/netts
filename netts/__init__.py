@@ -1,6 +1,8 @@
 """
 netts: Toolbox for constructing semantic speech networks from speech transcripts.
-Copyright (C) 2021 University of Cambridge and The Alan Turing Institute
+
+Copyright (C) 2021 Caroline Nettekoven(1), Sarah Morgan(1,2), Oscar Terence Giles(2), Helen Duncan(2), Iain Stenson(2)
+(1) University of Cambridge, (2) The Alan Turing Institute
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

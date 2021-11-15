@@ -18,7 +18,6 @@ echo "I see a man in the dark standing against a light post. It seems to be in t
 
 We can then process a single transcript using the following Python script, which we'll run through step by step.
 
-
 ```python hl_lines="5-7"
 --8<-- "process_transcript.py"
 ```
