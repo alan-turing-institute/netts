@@ -180,7 +180,7 @@ def run(
 
 @app.command()
 def config() -> None:
-    """Create a defauly configuration file"""
+    """Create a default configuration file"""
 
     typer.echo(netts.Config.default())
 
