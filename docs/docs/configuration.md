@@ -1,4 +1,4 @@
-# Configuration
+# Advanced Configuration
 
 Netts can be configured using a [TOML](https://toml.io/en/) configuration file. This allows you to alter the ports used by netts's two servers, and  alter defaults used to preprocess transcripts.
 

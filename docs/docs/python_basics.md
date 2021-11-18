@@ -1,6 +1,6 @@
 # Netts package
 
-If you dont want to use the netts CLI or want more control over netts you can use the netts python package directly. Here we'll run through the [CLI example](/cli_basics) in Python.
+If you dont want to use the netts command line interface (CLI) or want more control over netts you can use the netts python package directly. Here we'll run through the [CLI example](/cli_basics) in Python.
 
 Again make sure you have a transcript in your working directory
 
