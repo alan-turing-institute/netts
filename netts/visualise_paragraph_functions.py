@@ -365,7 +365,7 @@ def get_node_synonyms(ex_stanza, no_noun):
         alt_nn = []
         for mention in coreference.mention:
             mention_info = ex_stanza.sentence[mention.sentenceIndex].token[
-                mention.beginIndex: mention.endIndex  # noqa: E203
+                mention.beginIndex : mention.endIndex  # noqa: E203
             ]
 
             if mention.mentionType in ("NOMINAL", "PROPER"):
@@ -413,7 +413,7 @@ def get_node_synonyms(ex_stanza, no_noun):
         if proper_nn == []:
             for mention in coreference.mention:
                 mention_info = ex_stanza.sentence[mention.sentenceIndex].token[
-                    mention.beginIndex: mention.endIndex  # noqa: E203
+                    mention.beginIndex : mention.endIndex  # noqa: E203
                 ]
                 for token in mention_info:
                     if token.lemma.lower() == token.word.lower():
@@ -463,7 +463,7 @@ def split_node_synonyms(node_name_synonyms, preposition_edges, edges):
                     alt_nns_new = (
                         alt_nns[:a]
                         + [(sentence_idx, part1)]
-                        + alt_nns[a + 1:]  # noqa: E203
+                        + alt_nns[a + 1 :]  # noqa: E203
                     )
                     # part2 = alt_nn.split(preposition)[1].strip()
                     node_name_synonyms[keys[synonym_idx]] = alt_nns_new
@@ -545,7 +545,7 @@ def split_nodes(edges, preposition_edges, no_noun):
                         m = match_idx[0]
                         part1 = (" ").join(node.split(" ")[: m + 1]).strip()
                         part2 = (
-                            (" ").join(node.split(" ")[m + 1:]).strip()  # noqa: E203
+                            (" ").join(node.split(" ")[m + 1 :]).strip()  # noqa: E203
                         )
                         new_edge[n] = part2
                         print(
