@@ -2,7 +2,7 @@
 
 Network of Transcript Semantics (netts) creates networks capturing the semantic content of speech.
 
-![Graph](img/semantic_speech_graph_example.png){ width="95%" }
+![Graph](img/ExampleGraph_alternative_text_pic_2.png){ width="95%" }
 
 <p align="center">
     <em>Network of Transcript Semantics</em>
