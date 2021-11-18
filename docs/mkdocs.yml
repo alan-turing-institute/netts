@@ -27,10 +27,10 @@ nav:
   - Overview: index.md
   - Getting Started: install.md
   - Usage:
-      - CLI: cli_basics.md
+      - Command Line: cli_basics.md
+        - Configuration: configuration.md
       - Python: python_basics.md
       - Postprocess: post-processing.md
-      - CLI Configuration: configuration.md
       - API:
         - CLI: cli.md
   - Pipeline: pipeline.md
