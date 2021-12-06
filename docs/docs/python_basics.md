@@ -56,8 +56,8 @@ Here we use a default configuration object `settings.netts_config.preprocess`.
 
 Finally we plot our graph, save it to file and also [pickle](https://docs.python.org/3/library/pickle.html) our graph object for further analysis later.
 
-
 ### Refining the plot
+
 The network is plotted using [spring-embedding](https://en.wikipedia.org/wiki/Force-directed_graph_drawing), which tries to plot the network such that you get the least overlapping of nodes and edges with each other. This also means that each time you plot the network, it will look slightly different. If you are not happy with the way your network is plotted, try re-running the last few lines of code and look at the transcript.png image file again:
 
 ```python
