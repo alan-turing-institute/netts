@@ -55,3 +55,25 @@ Here we use a default configuration object `settings.netts_config.preprocess`.
 ```
 
 Finally we plot our graph, save it to file and also [pickle](https://docs.python.org/3/library/pickle.html) our graph object for further analysis later.
+
+
+### Refining the plot
+The network is plotted using [spring-embedding](https://en.wikipedia.org/wiki/Force-directed_graph_drawing), which tries to plot the network such that you get the least overlapping of nodes and edges with each other. This also means that each time you plot the network, it will look slightly different. If you are not happy with the way your network is plotted, try re-running the last few lines of code and look at the transcript.png image file again:
+
+```python
+fig, ax = plt.subplots()
+graph.plot_graph(ax)
+
+plt.savefig("transcript.png")
+```
+
+You can also open the figure in an interactive window by running:
+
+```python
+fig, ax = plt.subplots()
+graph.plot_graph(ax)
+
+plt.show()
+```
+
+When resizing the window, we see that the network automatically adjusts to the new window size and the nodes and edges spread out. This usually helps visualisation a lot. We therefore recommend trying out this step when processing your first few transcripts and inspecting the networks.
