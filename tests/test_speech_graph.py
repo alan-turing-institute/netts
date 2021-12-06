@@ -107,7 +107,7 @@ def module_clients() -> Generator[Clients, None, None]:
             port=corenlp_port,
             properties={
                 "annotators": "tokenize,ssplit,pos,lemma,parse,depparse,coref,openie",
-                "timeout": "50000"
+                "timeout": "50000",
             },
         )
 
