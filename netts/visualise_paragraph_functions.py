@@ -6,8 +6,6 @@ Description:
 
 Author:       Caroline Nettekoven, 2020
 """
-# TODO: Sanity check: Is each relation represented only once in the edge? (Also check parallel edges in multiedge graph)
-# TODO: Plot graphs coloured by confidence / extraction type
 from copy import deepcopy
 from itertools import chain
 

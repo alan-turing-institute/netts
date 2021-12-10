@@ -229,7 +229,7 @@ class SpeechGraph:
             raise RuntimeError("self.graph does not exist")
 
         if not ax:
-            _, ax = plt.subplots()
+            _, ax = plt.subplots(figsize=(25.6, 9.6))
 
         # Plot Graph and add edge labels
         pos = nx.spring_layout(self.graph, seed=20)

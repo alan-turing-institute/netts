@@ -1,6 +1,6 @@
 # Netts package
 
-If you dont want to use the netts CLI or want more control over netts you can use the netts python package directly. Here we'll run through the [CLI example](/cli_basics) in Python.
+If you dont want to use the netts command line interface (CLI) or want more control over netts you can use the netts python package directly. Here we'll run through the [CLI example](/cli_basics) in Python.
 
 Again make sure you have a transcript in your working directory
 
@@ -9,7 +9,7 @@ Again make sure you have a transcript in your working directory
 To follow along create this example in a file by running the following command in a terminal
 
 ```bash
-echo "I see a man in the dark standing against a light post. It seems to be in the middle of the night; I think because the lightbulb is working. On the picture there seems to be like a park and... Or trees but in those trees there are little balls of light reflections as well. I cannot see the… Anything else because it’s very dark. But the man on the picture seems to wear a hat and, and has a jacket on and he seems to have a hoodie on as well. The picture is very, very mysterious, which I like about it, but for me I would like to understand more concept, context of the picture." > transcript.txt
+echo "I see a man and he is wearing a jacket. He is standing in the dark against a light post. On the picture there seems to be like a park and... Or trees but in those trees there are little balls of light reflections as well. I cannot see the... Anything else because it’s very dark. But the man on the picture seems to wear a hat and he seems to have a hoodie on as well. The picture is very mysterious, which I like about it, but for me I would like to understand more about the picture." > transcript.txt
 ```
 
 </details>
@@ -55,3 +55,25 @@ Here we use a default configuration object `settings.netts_config.preprocess`.
 ```
 
 Finally we plot our graph, save it to file and also [pickle](https://docs.python.org/3/library/pickle.html) our graph object for further analysis later.
+
+### Refining the plot
+
+The network is plotted using [spring-embedding](https://en.wikipedia.org/wiki/Force-directed_graph_drawing), which tries to plot the network such that you get the least overlapping of nodes and edges with each other. This also means that each time you plot the network, it will look slightly different. If you are not happy with the way your network is plotted, try re-running the last few lines of code and look at the transcript.png image file again:
+
+```python
+fig, ax = plt.subplots()
+graph.plot_graph(ax)
+
+plt.savefig("transcript.png")
+```
+
+You can also open the figure in an interactive window by running:
+
+```python
+fig, ax = plt.subplots()
+graph.plot_graph(ax)
+
+plt.show()
+```
+
+When resizing the window, we see that the network automatically adjusts to the new window size and the nodes and edges spread out. This usually helps visualisation a lot. We therefore recommend trying out this step when processing your first few transcripts and inspecting the networks.

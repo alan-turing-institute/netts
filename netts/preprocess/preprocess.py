@@ -52,11 +52,9 @@ def remove_interjections(
     tokens = nltk.word_tokenize(text_no_contractions)
     tokens_no_interjections = [w for w in tokens if w not in interjections]
 
-    # ToDo: This places spaces between tokens, which may have not existed before
     return " ".join(tokens_no_interjections)
 
 
-# ToDO: Refactor this and figure out exactly what functionality is required
 def remove_irrelevant_text(text: str, be_quiet: bool = True) -> str:
     #
     # ---- Remove double-bracketed speech ----

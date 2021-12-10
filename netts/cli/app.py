@@ -138,7 +138,8 @@ def run(
 
         corenlp_client = CoreNLPClient(
             properties={
-                "annotators": "tokenize,ssplit,pos,lemma,parse,depparse,coref,openie"
+                "annotators": "tokenize,ssplit,pos,lemma,parse,depparse,coref,openie",
+                "timeout": "50000",
             },
             be_quiet=True,
             port=settings.netts_config.server.corenlp.port,
@@ -180,7 +181,7 @@ def run(
 
 @app.command()
 def config() -> None:
-    """Create a defauly configuration file"""
+    """Create a default configuration file"""
 
     typer.echo(netts.Config.default())
 

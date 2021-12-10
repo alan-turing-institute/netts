@@ -106,7 +106,8 @@ def module_clients() -> Generator[Clients, None, None]:
         corenlp_client = OnDemandNLPClient(
             port=corenlp_port,
             properties={
-                "annotators": "tokenize,ssplit,pos,lemma,parse,depparse,coref,openie"
+                "annotators": "tokenize,ssplit,pos,lemma,parse,depparse,coref,openie",
+                "timeout": "50000",
             },
         )
 
