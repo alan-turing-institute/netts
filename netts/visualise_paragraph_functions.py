@@ -410,7 +410,7 @@ def get_node_synonyms(ex_stanza, no_noun):
                 #
                 # Keep track of sentence the reference appeared in
                 alt_nn.append((mention.sentenceIndex, alternative_node_name))
-        if proper_nn == []:
+        if not proper_nn:
             for mention in coreference.mention:
                 mention_info = ex_stanza.sentence[mention.sentenceIndex].token[
                     mention.beginIndex : mention.endIndex  # noqa: E203
@@ -419,7 +419,7 @@ def get_node_synonyms(ex_stanza, no_noun):
                     if token.lemma.lower() == token.word.lower():
                         proper_nn.append(token.lemma.lower())
                         continue
-            if proper_nn == []:
+            if not proper_nn:
                 # If no proper node name could be found (either as noun or as lemma), set first mention of node as proper node name
                 proper_nn.append(alt_nn[0][1])
         node_name_synonyms[proper_nn[0]] = alt_nn
