@@ -1,5 +1,5 @@
 try:
-    from importlib.metadata import version  # type: ignore
+    from importlib.metadata import version
 
 except ImportError:
     from importlib_metadata import version
