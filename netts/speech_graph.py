@@ -108,20 +108,17 @@ class SpeechGraph:
 
                 ex_ollie[i] = extraction
             else:
-                print(
-                    '====== Skipping sentence {}: Sentence has too few tokens: "{}" ======='.format(
-                        i + 1,
-                        (" ").join(
-                            [
-                                token.originalText
-                                for token in sentence.token
-                                if token.originalText
-                            ]
-                        ),
-                    )
+                logger.warning(
+                    '====== Skipping sentence %s: Sentence has too few tokens: "%s" =======',
+                    i + 1,
+                    (" ").join(
+                        [
+                            token.originalText
+                            for token in sentence.token
+                            if token.originalText
+                        ]
+                    ),
                 )
-
-        print("+++++++++++++++++++\n")
 
         # --------------------- Create ollie edges ---------------------------------------
         (
@@ -133,29 +130,27 @@ class SpeechGraph:
 
         edges = ollie_edges
         # --------------------- Create stanza edges ---------------------------------------
-        stanza_edges, stanza_edges_text_excerpts = create_edges_stanza(
-            ex_stanza, be_quiet=False
-        )
+        stanza_edges, stanza_edges_text_excerpts = create_edges_stanza(ex_stanza)
         # If Ollie was unable to detect any edges, use stanza edges
 
         if len(ollie_edges) == 0 and len(stanza_edges) != 0:
             edges = stanza_edges
-            print(
-                "++++ Ollie detected {} edges, but stanza detected {}. Therefore added edges detected by stanza.  ++++".format(
-                    len(ollie_edges), len(stanza_edges)
-                )
+            logger.warning(
+                "++++ Ollie detected %s edges, but stanza detected %s. Therefore added edges detected by stanza.  ++++",
+                len(ollie_edges),
+                len(stanza_edges),
             )
         elif len(ollie_edges) == 0 and len(stanza_edges) == 0:
-            print(
-                "++++ Ollie detected {} edges and stanza also detected {}. No stanza edges were added. ++++".format(
-                    len(ollie_edges), len(stanza_edges)
-                )
+            logger.warning(
+                "++++ Ollie detected %s edges and stanza also detected %s. No stanza edges were added. ++++",
+                len(ollie_edges),
+                len(stanza_edges),
             )
+
         else:
-            print(
-                "++++ Ollie detected {} edges, so no stanza edges were added.  ++++".format(
-                    len(ollie_edges)
-                )
+            logger.warning(
+                "++++ Ollie detected %s edges, so no stanza edges were added.  ++++",
+                len(ollie_edges),
             )
 
         # --------------------- Get word types ---------------------------------------

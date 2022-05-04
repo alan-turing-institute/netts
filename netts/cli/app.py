@@ -6,7 +6,6 @@ from typing import Any, Dict, List, Optional, Union
 
 import typer
 from matplotlib import pyplot as plt
-from typer import colors
 
 import netts
 from netts import SpeechGraphFile
@@ -104,13 +103,7 @@ def run(
         stanza_logger.setLevel(logging.WARNING)
 
     if not input_path.exists():
-        cprint(
-            Color(
-                f"INPUT_PATH: '{input_path}' does not exist. Check path",
-                fg=typer.colors.RED,
-                bold=True,
-            )
-        )
+        logger.warning("INPUT_PATH: '%s' does not exist. Check path", input_path)
         raise typer.Abort
 
     # Get all files
@@ -126,12 +119,7 @@ def run(
     n_missing = len([i for i in all_transcript_files if i.missing])
     n_transcripts = len(all_transcript_files)
 
-    cprint(
-        "Found ",
-        Color(f"{n_transcripts} ", fg=colors.GREEN),
-        "transcripts. Unprocessed: ",
-        Color(f"{n_missing}", fg=colors.BLUE),
-    )
+    logger.warning("Found %s transcripts. Unprocessed: %s", n_transcripts, n_missing)
 
     # Only start the servers if there are files to process
     if force or n_missing > 0:
@@ -141,7 +129,6 @@ def run(
                 "annotators": "tokenize,ssplit,pos,lemma,parse,depparse,coref,openie",
                 "timeout": "50000",
             },
-            be_quiet=True,
             port=settings.netts_config.server.corenlp.port,
         )
 
@@ -174,7 +161,7 @@ def run(
 
             if not plot_file.exists() or force:
 
-                cprint(f"Creating figure: {plot_file}")
+                logger.warning("Creating figure: %s", plot_file)
                 transcript_file.plot_graph()
                 plt.savefig(transcript_file.output_graph_file(fig_format))
 
