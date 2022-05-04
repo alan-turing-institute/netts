@@ -3,11 +3,12 @@ name: check-downloads-on-cron
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    # Run on the first of the month at midnight
+    - cron: '0 0 1 * *'
 
 jobs:
 
-  pre-commit:
+  check-downloads:
     runs-on: ubuntu-latest
     steps:
 
@@ -16,7 +17,7 @@ jobs:
         fetch-depth: 0
 
     - name: Set up Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v3
       with:
         python-version: "3.8"
 
@@ -38,19 +39,14 @@ jobs:
       id: cache
       with:
         path: .venv
-        key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
+        key: venv-${{ runner.os }}-3.8-${{ hashFiles('**/poetry.lock') }}
 
-
-    - name: Install dependencies
+    - name: Install netts
       shell: bash
       run: |
-        python -m poetry env use ${{ matrix.python-version }}
         python -m poetry install
-        python -m poetry run netts install
 
-    - name: Display Python version
-      run: poetry run python -c "import sys; print(sys.version)"
-
-    - name: Generate Report
+    - name: Check downloads work
+      shell: bash
       run: |
-        python -m poetry run pytest tests -m "slow"
+        python -m poetry run netts install
