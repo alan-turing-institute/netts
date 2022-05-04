@@ -33,6 +33,11 @@ We can break this down into the following components:
 1. `transcript.txt` can be replaced with the full path to any `.txt` file.
 2. `outputs` can be replaced with the path to any directory. If the directory does not exist yet netts will create it.
 
+Netts uses [Openie5](https://github.com/dair-iitd/OpenIE-standalone) and [CoreNLP](https://stanfordnlp.github.io/CoreNLP/) under the hood. These are both [Java](https://en.wikipedia.org/wiki/Java_(programming_language)) programmes that we installed in the previous step. We use a [context manager](https://book.pythontips.com/en/latest/context_managers.html) to start the servers, which makes sure they are both automatically shut down when processing finishes.
+
+!!! warning
+    The servers are extremely memory hungry, using ~8GB. If the server fails to start you probably ran out of memory and failed silently. Try on a machine with more memory.
+
 ### Outputs
 
 Once netts processes the transcript the output directory will contain two files:
