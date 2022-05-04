@@ -126,7 +126,7 @@ def run(
 
         corenlp_client = CoreNLPClient(
             properties={
-                "annotators": "tokenize,ssplit,pos,lemma,parse,depparse,coref,openie",
+                "annotators": "tokenize,ssplit,pos,lemma,ner,parse,depparse,coref,natlog,openie",
                 "timeout": "50000",
             },
             port=settings.netts_config.server.corenlp.port,
