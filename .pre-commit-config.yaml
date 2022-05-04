@@ -5,28 +5,28 @@ repos:
     rev: v3.2.0
     hooks:
     -  id: trailing-whitespace
-       exclude: legacy|demo_data\/.* \/.*
+       exclude: demo_data\/.* \/.*
     -  id: end-of-file-fixer
-       exclude: legacy|demo_data\/.* \/.*
+       exclude: demo_data\/.* \/.*
     -  id: check-yaml
-       exclude: legacy|demo_data\/.* \/.*
+       exclude: demo_data\/.* \/.*
     -  id: check-added-large-files
-       exclude: legacy|demo_data\/.* \/.*
+       exclude: demo_data\/.* \/.*
 
 - repo: local
   hooks:
     - id: black
       name: Black
-      entry: poetry run black netts tests examples
-      pass_filenames: false
+      entry: poetry run black
       language: system
+      types: ['python']
 - repo: local
   hooks:
     - id: isort
       name: isort
-      entry: poetry run isort netts tests examples
-      pass_filenames: false
+      entry: poetry run isort
       language: system
+      types: ['python']
 - repo: local
   hooks:
     - id: safety
@@ -39,23 +39,23 @@ repos:
   hooks:
     - id: mypy
       name: MyPy
-      entry: poetry run mypy netts tests
-      pass_filenames: false
+      entry: poetry run mypy
       language: system
+      types: ['python']
 - repo: local
   hooks:
     - id: pylint
       name: Pylint
-      entry: poetry run pylint --jobs=0 netts/ tests/ examples/
-      pass_filenames: false
+      entry: poetry run pylint --jobs=0
       language: system
+      types: ['python']
 - repo: local
   hooks:
     - id: flake8
       name: Flake8
-      entry: poetry run flake8 netts tests examples
-      pass_filenames: false
+      entry: poetry run flake8
       language: system
+      types: ['python']
 - repo: https://github.com/igorshubovych/markdownlint-cli
   rev: v0.29.0
   hooks:
