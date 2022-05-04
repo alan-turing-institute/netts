@@ -603,7 +603,7 @@ def merge_corefs(edges, node_name_synonyms, no_noun, poss_pronouns):
                         proper_node_name = list(node_name_synonyms.keys())[
                             list(node_name_synonyms.keys()).index(node_token)
                         ]
-                        logger.warning(
+                        logger.info(
                             "Replaced '{}' with '{}' in {}".format(
                                 node, proper_node_name, edge
                             )
@@ -624,7 +624,7 @@ def merge_corefs(edges, node_name_synonyms, no_noun, poss_pronouns):
                                     proper_node_name = list(node_name_synonyms.keys())[
                                         ann
                                     ]
-                                    logger.warning(
+                                    logger.info(
                                         "Replaced '{}' with '{}' in {}".format(
                                             node, proper_node_name, edge
                                         )
