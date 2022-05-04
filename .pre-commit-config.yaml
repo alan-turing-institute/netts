@@ -5,13 +5,13 @@ repos:
     rev: v3.2.0
     hooks:
     -  id: trailing-whitespace
-       exclude: demo_data\/.* \/.*
+       exclude: demo_data/
     -  id: end-of-file-fixer
-       exclude: demo_data\/.* \/.*
+       exclude: demo_data/
     -  id: check-yaml
-       exclude: demo_data\/.* \/.*
+       exclude: demo_data/
     -  id: check-added-large-files
-       exclude: demo_data\/.* \/.*
+       exclude: demo_data/
 
 - repo: local
   hooks:
@@ -31,7 +31,6 @@ repos:
   hooks:
     - id: safety
       name: Safety
-      # Ignore pip vulnerability
       entry: poetry run safety check --full-report
       pass_filenames: false
       language: system
@@ -42,6 +41,7 @@ repos:
       entry: poetry run mypy
       language: system
       types: ['python']
+      exclude: examples/
 - repo: local
   hooks:
     - id: pylint
