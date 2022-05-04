@@ -32,7 +32,7 @@ repos:
     - id: safety
       name: Safety
       # Ignore pip vulnerability
-      entry: poetry run safety check --full-report -i 40291
+      entry: poetry run safety check --full-report
       pass_filenames: false
       language: system
 - repo: local
