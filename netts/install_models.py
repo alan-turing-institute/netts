@@ -3,6 +3,7 @@
 import hashlib
 from pathlib import Path
 from typing import Optional
+import ssl
 
 import nltk
 import requests
@@ -93,6 +94,15 @@ def install_nltk_punk() -> DownloadStatus:
         return DownloadStatus.ALREADY_EXISTS
 
     settings.netts_dir.mkdir(exist_ok=True)
+
+    # Disable ssl check
+    try:
+        _create_unverified_https_context = ssl._create_unverified_context
+    except AttributeError:
+        pass
+    else:
+        ssl._create_default_https_context = _create_unverified_https_context
+
     nltk.download("punkt", download_dir=settings.nltk_dir, quiet=True)
 
     return DownloadStatus.SUCCESS
