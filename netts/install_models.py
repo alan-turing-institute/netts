@@ -1,7 +1,6 @@
 """Install NTLK Punkt tokenizer and Standford CoreNLP language models"""
 
 import hashlib
-import zipfile
 from pathlib import Path
 from typing import Optional
 
@@ -140,7 +139,6 @@ def install_language_model(md5: Optional[str] = None) -> DownloadStatus:
 
     settings = get_settings()
     fname = settings.openie_language_model
-    fname_zip = Path(str(fname) + ".zip")
 
     if file_exists(fname, file_hash=md5):
         return DownloadStatus.ALREADY_EXISTS
@@ -151,16 +149,9 @@ def install_language_model(md5: Optional[str] = None) -> DownloadStatus:
 
     logger.info("Downloading: Language model to: %s", fname)
     resp = download_file(
-        str(settings.openie_language_url), fname_zip, "Installing language model"
+        str(settings.openie_language_url), fname, "Installing language model"
     )
     resp.raise_for_status()
-
-    # unzip file
-    with zipfile.ZipFile(fname_zip, "r") as z:
-        z.extractall(settings.openie_data)
-
-    # Remove zip file
-    fname_zip.unlink()
 
     return DownloadStatus.SUCCESS
 
