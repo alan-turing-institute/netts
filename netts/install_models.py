@@ -172,3 +172,4 @@ def install_dependencies() -> None:
     install_corenlp()
     install_openie5(md5="5ffa7a69fc7a04c07451582c40da80d6")
     install_language_model(md5="5f79c2b84ded0a0fcfffe6444bfb9561")
+    
