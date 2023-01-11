@@ -63,12 +63,9 @@ def download_file(
             logger.warning("Downloading from url: %s to %s", url, path)
 
             resp = requests.get(url=url, stream=True)
-            file_size = int(resp.headers.get("content-length"))
             chunk_size = 131072
             with path.open(mode="wb") as f:
-                with tqdm.tqdm(
-                    total=file_size, unit="B", unit_scale=True, desc=description
-                ) as pbar:
+                with tqdm.tqdm(unit="B", unit_scale=True, desc=description) as pbar:
                     for chunk in resp.iter_content(chunk_size=chunk_size):
                         if chunk:
                             f.write(chunk)
