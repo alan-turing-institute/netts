@@ -12,7 +12,7 @@ import tqdm
 
 from netts.config import get_settings
 from netts.logger import logger
-from netts.types import DownloadStatus, IncorrectHash
+from netts.netts_types import DownloadStatus, IncorrectHash
 
 
 def hash_file(file: Path) -> str:

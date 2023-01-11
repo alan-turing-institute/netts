@@ -14,7 +14,7 @@ import requests
 
 from netts.config import Settings, get_settings
 from netts.install_models import download_file, install_corenlp, install_nltk_punk
-from netts.types import DownloadStatus, IncorrectHash
+from netts.netts_types import DownloadStatus, IncorrectHash
 
 LOGGER = logging.getLogger(__name__)
 
