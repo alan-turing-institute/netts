@@ -9,6 +9,7 @@ import nltk
 import requests
 import stanza
 import tqdm
+import gdown
 
 from netts.config import get_settings
 from netts.logger import logger
@@ -58,29 +59,8 @@ def download_file(
     url: str, path: Path, description: Optional[str] = None
 ) -> requests.Response:
 
-    for i in range(2):
-        try:
-            logger.warning("Downloading from url: %s to %s", url, path)
-
-            resp = requests.get(url=url, stream=True)
-            chunk_size = 131072
-            with path.open(mode="wb") as f:
-                with tqdm.tqdm(unit="B", unit_scale=True, desc=description) as pbar:
-                    for chunk in resp.iter_content(chunk_size=chunk_size):
-                        if chunk:
-                            f.write(chunk)
-                            pbar.update(len(chunk))
-
-            break
-
-        except requests.exceptions.ChunkedEncodingError as e:
-            # Allow one failure
-            if i == 0:
-                logger.warning("Download failed, retrying.")
-            else:
-                raise e
-
-    return resp
+    output = str(path)
+    gdown.download(url, output, quiet=False)
 
 
 def install_nltk_punk() -> DownloadStatus:
@@ -138,9 +118,7 @@ def install_openie5(md5: Optional[str] = None) -> DownloadStatus:
         settings.openie_dir.mkdir(parents=True)
 
     logger.info("Downloading: OpenIE 5.1 binary to: %s", fname)
-    resp = download_file(str(settings.openie_url), fname, "Installing Openie5")
-
-    resp.raise_for_status()
+    download_file(str(settings.openie_url), fname, "Installing Openie5")
 
     return DownloadStatus.SUCCESS
 
@@ -158,10 +136,7 @@ def install_language_model(md5: Optional[str] = None) -> DownloadStatus:
         settings.openie_data.mkdir(parents=True)
 
     logger.info("Downloading: Language model to: %s", fname)
-    resp = download_file(
-        str(settings.openie_language_url), fname, "Installing language model"
-    )
-    resp.raise_for_status()
+    download_file(str(settings.openie_language_url), fname, "Installing language model")
 
     return DownloadStatus.SUCCESS
 
@@ -172,4 +147,3 @@ def install_dependencies() -> None:
     install_corenlp()
     install_openie5(md5="5ffa7a69fc7a04c07451582c40da80d6")
     install_language_model(md5="5f79c2b84ded0a0fcfffe6444bfb9561")
-    

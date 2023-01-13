@@ -20,10 +20,10 @@ class Settings(BaseSettings):
 
     netts_dir: Path = NETTS_DIR
     openie_url: HttpUrl = (
-        "https://drive.google.com/file/d/19z8LO-CYOfJfV5agm82PZ2JNWNUPIB6D/view?usp=sharing"
+        "https://drive.google.com/uc?id=19z8LO-CYOfJfV5agm82PZ2JNWNUPIB6D"
     )
     openie_language_url: HttpUrl = (
-        "https://drive.google.com/file/d/0B-5EkZMOlIt2cFdjYUJZdGxSREU/view?usp=sharing&resourcekey=0-X_oNJ6r24s_anMGbKKRdQw"
+        "https://drive.google.com/uc?id=0B-5EkZMOlIt2cFdjYUJZdGxSREU&resourcekey=0-X_oNJ6r24s_anMGbKKRdQw"
     )
     # You can pass a Path or str to the config file and the validator will load it as config_file.Config
     netts_config: config_file.Config = config_file.Config()
