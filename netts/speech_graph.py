@@ -103,10 +103,12 @@ class SpeechGraph:
                 )
                 logger.debug("%s", sentence_text)
                 # prinst("{}".format(sentence_text))
-
-                extraction = openie_client.extract(sentence_text)
-
-                ex_ollie[i] = extraction
+                try:
+                    extraction = openie_client.extract(sentence_text)
+                    ex_ollie[i] = extraction
+                except Exception as e:
+                    logger.warning(f'====== Unknown client error, sentence {i+1} skipped =======')
+                    
             else:
                 logger.warning(
                     '====== Skipping sentence %s: Sentence has too few tokens: "%s" =======',
