@@ -103,11 +103,12 @@ class SpeechGraph:
                 )
                 logger.debug("%s", sentence_text)
                 # prinst("{}".format(sentence_text))
+
                 try:
                     extraction = openie_client.extract(sentence_text)
                     ex_ollie[i] = extraction
                 except Exception as e:
-                    logger.warning(f'====== Unknown client error, sentence {i+1} skipped =======')
+                    logger.warning(f'====== Skipping sentece {i+1}: Unknown Client Error =======')
                     
             else:
                 logger.warning(
