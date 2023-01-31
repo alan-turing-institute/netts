@@ -138,20 +138,20 @@ class SpeechGraph:
 
         if len(ollie_edges) == 0 and len(stanza_edges) != 0:
             edges = stanza_edges
-            logger.warning(
+            logger.info(
                 "++++ Ollie detected %s edges, but stanza detected %s. Therefore added edges detected by stanza.  ++++",
                 len(ollie_edges),
                 len(stanza_edges),
             )
         elif len(ollie_edges) == 0 and len(stanza_edges) == 0:
-            logger.warning(
+            logger.info(
                 "++++ Ollie detected %s edges and stanza also detected %s. No stanza edges were added. ++++",
                 len(ollie_edges),
                 len(stanza_edges),
             )
 
         else:
-            logger.warning(
+            logger.info(
                 "++++ Ollie detected %s edges, so no stanza edges were added.  ++++",
                 len(ollie_edges),
             )

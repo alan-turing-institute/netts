@@ -92,15 +92,15 @@ def run(
     else:
         settings = Settings()
 
-    if very_verbose:
-        logger.setLevel(logging.DEBUG)
-        stanza_logger.setLevel(logging.DEBUG)
-    elif verbose:
-        logger.setLevel(logging.INFO)
-        stanza_logger.setLevel(logging.INFO)
-    else:
-        logger.setLevel(logging.WARNING)
-        stanza_logger.setLevel(logging.WARNING)
+    # if very_verbose:
+    #     # logger.setLevel(logging.DEBUG)
+    #     stanza_logger.setLevel(logging.DEBUG)
+    # elif verbose:
+    #     # logger.setLevel(logging.INFO)
+    #     stanza_logger.setLevel(logging.INFO)
+    # else:
+    #     # logger.setLevel(logging.WARNING)
+    #     stanza_logger.setLevel(logging.WARNING)
 
     if not input_path.exists():
         logger.warning("INPUT_PATH: '%s' does not exist. Check path", input_path)
@@ -119,11 +119,14 @@ def run(
     n_missing = len([i for i in all_transcript_files if i.missing])
     n_transcripts = len(all_transcript_files)
 
-    logger.warning("Found %s transcripts. Unprocessed: %s", n_transcripts, n_missing)
+    if n_missing == 0:
+        logger.warning(f"Found {n_transcripts} transcripts. Unprocessed: {n_missing}.\
+            \nCannot process files that have already been processed!!\
+            \nPlease remove pickled networks and image files from the output directory and try again.")
 
     # Only start the servers if there are files to process
-    if force or n_missing > 0:
-
+    elif force or n_missing > 0:
+        logger.info(f"Found {n_transcripts} transcripts. Unprocessed: {n_missing}")
         corenlp_client = CoreNLPClient(
             properties={
                 "annotators": "tokenize,ssplit,pos,lemma,ner,parse,depparse,coref,natlog,openie",
@@ -131,7 +134,7 @@ def run(
             },
             port=settings.netts_config.server.corenlp.port,
         )
-
+        
         # Doesn't block
         corenlp_client.start()
 
@@ -161,7 +164,7 @@ def run(
 
             if not plot_file.exists() or force:
 
-                logger.warning("Creating figure: %s", plot_file)
+                logger.info("Creating figure: %s", plot_file)
                 transcript_file.plot_graph()
                 plt.savefig(transcript_file.output_graph_file(fig_format))
 
