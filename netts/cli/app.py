@@ -127,7 +127,7 @@ def run(
     # Only start the servers if there are files to process
     elif force or n_missing > 0:
         logger.info(f"Found {n_transcripts} transcripts. Unprocessed: {n_missing}")
-        corenlp_client = CoreNLPClient(
+        corenlp_client = CoreNLPClient(be_quiet=True,
             properties={
                 "annotators": "tokenize,ssplit,pos,lemma,ner,parse,depparse,coref,natlog,openie",
                 "timeout": "50000",
