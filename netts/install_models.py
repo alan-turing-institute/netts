@@ -147,7 +147,6 @@ def install_language_model(md5: Optional[str] = None) -> DownloadStatus:
 
     logger.info("Downloading: Language model to: %s", fname)
     resp = download_file(str(settings.openie_language_url), fname_zip, "Installing language model")
-    resp.raise_for_status()
 
     with zipfile.ZipFile(fname_zip, "r") as z:
         z.extractall(settings.openie_data)
