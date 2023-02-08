@@ -1,6 +1,7 @@
 """Install NTLK Punkt tokenizer and Standford CoreNLP language models"""
 
 import hashlib
+import zipfile
 from pathlib import Path
 from typing import Optional
 import ssl
@@ -59,8 +60,16 @@ def download_file(
     url: str, path: Path, description: Optional[str] = None
 ) -> requests.Response:
 
-    output = str(path)
-    gdown.download(url, output, quiet=False)
+    for i in range(2):
+        try:
+            output = str(path)
+            resp = gdown.download(url, output, quiet=False)
+        except Exception as e:
+            if i == 0:
+                logger.warning("Download failed, retrying.")
+            else:
+                raise e
+    return resp
 
 
 def install_nltk_punk() -> DownloadStatus:
@@ -127,6 +136,7 @@ def install_language_model(md5: Optional[str] = None) -> DownloadStatus:
 
     settings = get_settings()
     fname = settings.openie_language_model
+    fname_zip = Path(str(fname) + ".zip")
 
     if file_exists(fname, file_hash=md5):
         return DownloadStatus.ALREADY_EXISTS
@@ -136,7 +146,13 @@ def install_language_model(md5: Optional[str] = None) -> DownloadStatus:
         settings.openie_data.mkdir(parents=True)
 
     logger.info("Downloading: Language model to: %s", fname)
-    download_file(str(settings.openie_language_url), fname, "Installing language model")
+    resp = download_file(str(settings.openie_language_url), fname_zip, "Installing language model")
+    resp.raise_for_status()
+
+    with zipfile.ZipFile(fname_zip, "r") as z:
+        z.extractall(settings.openie_data)
+
+    fname_zip.unlink()
 
     return DownloadStatus.SUCCESS
 

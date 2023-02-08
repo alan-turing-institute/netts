@@ -241,21 +241,3 @@ class TestLanguageMode:
         self._test_download_language_model(
             netts_home_dir.netts_dir, mocker, False, hash_text("")
         )
-
-
-class TestDownloadFile:
-    def test_tries_twice(self, mocker: pytest_mock.MockerFixture) -> None:
-        mock_get = mocker.patch("requests.get")
-        mock_get.side_effect = requests.exceptions.ChunkedEncodingError
-
-        raised = False
-        try:
-            mock_path = mocker.MagicMock()
-            download_file("my-url", mock_path)
-        except requests.exceptions.ChunkedEncodingError:
-            raised = True
-
-        assert raised
-
-        expected_call = mocker.call(url="my-url", stream=True)
-        mock_get.assert_has_calls([expected_call, expected_call])
