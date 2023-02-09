@@ -60,15 +60,13 @@ def download_file(
     url: str, path: Path, description: Optional[str] = None
 ) -> requests.Response:
 
-    for i in range(2):
-        try:
-            output = str(path)
-            resp = gdown.download(url, output, quiet=False)
-        except Exception as e:
-            if i == 0:
-                logger.warning("Download failed, retrying.")
-            else:
-                raise e
+    try:
+        output = str(path)
+        resp = gdown.download(url, output, quiet=False)
+    except Exception as e:
+            logger.warning("Download failed, retrying.")
+            raise e
+
     return resp
 
 
@@ -136,9 +134,11 @@ def install_language_model(md5: Optional[str] = None) -> DownloadStatus:
 
     settings = get_settings()
     fname = settings.openie_language_model
-    fname_zip = Path(str(fname) + ".zip")
+    fname_zip = Path(str(fname))
 
     if file_exists(fname, file_hash=md5):
+        logger.warning(f"Outcome using exists(): {fname.exists()}")
+        logger.warning(f"Language model already exists: {fname}")
         return DownloadStatus.ALREADY_EXISTS
 
     if not settings.openie_data.exists():
@@ -148,10 +148,7 @@ def install_language_model(md5: Optional[str] = None) -> DownloadStatus:
     logger.info("Downloading: Language model to: %s", fname)
     resp = download_file(str(settings.openie_language_url), fname_zip, "Installing language model")
 
-    with zipfile.ZipFile(fname_zip, "r") as z:
-        z.extractall(settings.openie_data)
 
-    fname_zip.unlink()
 
     return DownloadStatus.SUCCESS
 

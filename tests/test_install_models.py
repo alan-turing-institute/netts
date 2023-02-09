@@ -187,7 +187,7 @@ class TestLanguageMode:
         # Mock the download_file function to keep it fast
         if mock:
             mocker.patch(
-                "netts.install_models.download_file", side_effect=mock_zip_file
+                "netts.install_models.download_file", side_effect=mock_download_file
             )
         # pylint: disable=import-outside-toplevel
         from netts.install_models import install_language_model
@@ -202,7 +202,7 @@ class TestLanguageMode:
             settings.openie_data,
             os.listdir(settings.openie_data),
         )
-
+        
         assert settings.openie_language_model.exists()
 
         # Check we don't download when it already exists
