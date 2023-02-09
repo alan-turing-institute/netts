@@ -4,15 +4,17 @@ import hashlib
 import zipfile
 from pathlib import Path
 from typing import Optional
+import ssl
 
 import nltk
 import requests
 import stanza
 import tqdm
+import gdown
 
 from netts.config import get_settings
 from netts.logger import logger
-from netts.types import DownloadStatus, IncorrectHash
+from netts.netts_types import DownloadStatus, IncorrectHash
 
 
 def hash_file(file: Path) -> str:
@@ -58,30 +60,12 @@ def download_file(
     url: str, path: Path, description: Optional[str] = None
 ) -> requests.Response:
 
-    for i in range(2):
-        try:
-            logger.warning("Downloading from url: %s to %s", url, path)
-
-            resp = requests.get(url=url, stream=True)
-            file_size = int(resp.headers.get("content-length"))
-            chunk_size = 131072
-            with path.open(mode="wb") as f:
-                with tqdm.tqdm(
-                    total=file_size, unit="B", unit_scale=True, desc=description
-                ) as pbar:
-                    for chunk in resp.iter_content(chunk_size=chunk_size):
-                        if chunk:
-                            f.write(chunk)
-                            pbar.update(len(chunk))
-
-            break
-
-        except requests.exceptions.ChunkedEncodingError as e:
-            # Allow one failure
-            if i == 0:
-                logger.warning("Download failed, retrying.")
-            else:
-                raise e
+    try:
+        output = str(path)
+        resp = gdown.download(url, output, quiet=False)
+    except Exception as e:
+            logger.warning("Download failed, retrying.")
+            raise e
 
     return resp
 
@@ -97,6 +81,15 @@ def install_nltk_punk() -> DownloadStatus:
         return DownloadStatus.ALREADY_EXISTS
 
     settings.netts_dir.mkdir(exist_ok=True)
+
+    # Disable ssl check
+    try:
+        _create_unverified_https_context = ssl._create_unverified_context
+    except AttributeError:
+        pass
+    else:
+        ssl._create_default_https_context = _create_unverified_https_context
+
     nltk.download("punkt", download_dir=settings.nltk_dir, quiet=True)
 
     return DownloadStatus.SUCCESS
@@ -132,9 +125,7 @@ def install_openie5(md5: Optional[str] = None) -> DownloadStatus:
         settings.openie_dir.mkdir(parents=True)
 
     logger.info("Downloading: OpenIE 5.1 binary to: %s", fname)
-    resp = download_file(str(settings.openie_url), fname, "Installing Openie5")
-
-    resp.raise_for_status()
+    download_file(str(settings.openie_url), fname, "Installing Openie5")
 
     return DownloadStatus.SUCCESS
 
@@ -143,9 +134,11 @@ def install_language_model(md5: Optional[str] = None) -> DownloadStatus:
 
     settings = get_settings()
     fname = settings.openie_language_model
-    fname_zip = Path(str(fname) + ".zip")
+    fname_zip = Path(str(fname))
 
     if file_exists(fname, file_hash=md5):
+        logger.warning(f"Outcome using exists(): {fname.exists()}")
+        logger.warning(f"Language model already exists: {fname}")
         return DownloadStatus.ALREADY_EXISTS
 
     if not settings.openie_data.exists():
@@ -153,17 +146,9 @@ def install_language_model(md5: Optional[str] = None) -> DownloadStatus:
         settings.openie_data.mkdir(parents=True)
 
     logger.info("Downloading: Language model to: %s", fname)
-    resp = download_file(
-        str(settings.openie_language_url), fname_zip, "Installing language model"
-    )
-    resp.raise_for_status()
+    resp = download_file(str(settings.openie_language_url), fname_zip, "Installing language model")
 
-    # unzip file
-    with zipfile.ZipFile(fname_zip, "r") as z:
-        z.extractall(settings.openie_data)
 
-    # Remove zip file
-    fname_zip.unlink()
 
     return DownloadStatus.SUCCESS
 

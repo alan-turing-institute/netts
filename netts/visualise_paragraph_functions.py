@@ -7,13 +7,15 @@ Description:
 Author:       Caroline Nettekoven, 2020
 """
 # pylint: disable=logging-format-interpolation
+from netts.logger import logger
+
 from copy import deepcopy
 from itertools import chain
 
 import numpy as np
 import pandas as pd
 
-from netts.logger import logger
+
 
 
 def create_edges_ollie(ex_ollie):
@@ -84,8 +86,8 @@ def create_edges_ollie(ex_ollie):
                             },
                         )
                         ollie_edges.append(a)
-                        logger.warning("  {} | {} | {}".format(node1, relation, node2))
-    logger.warning("++++ Created {} edges (ollie) ++++".format(len(ollie_edges)))
+                        logger.info("  {} | {} | {}".format(node1, relation, node2))
+    logger.info("++++ Created {} edges (ollie) ++++".format(len(ollie_edges)))
     return (
         ollie_edges,
         ollie_edges_text_excerpts,
@@ -159,7 +161,7 @@ def get_word_types(ex_stanza):
                 # get adjectives
                 elif token.pos == "JJ" and token.lemma not in adjectives:
                     adjectives.append(token.lemma)
-    logger.warning("++++ Obtained word types ++++")
+    logger.info("++++ Obtained word types ++++")
     return no_noun, poss_pronouns, dts, nouns, nouns_origtext, adjectives
 
 
@@ -187,7 +189,7 @@ def get_adj_edges(ex_stanza):
                 # if sentence.token[target_idx].pos == ""
                 # logger.warning('{}'.format((' ').join(
                 #     [token.word.lower() for token in sentence.token if token.word.lower()])))
-                logger.warning(
+                logger.info(
                     " {} | {} | {}".format(source_word, relation, target_word)
                 )
                 adjective_info = (
@@ -206,7 +208,7 @@ def get_adj_edges(ex_stanza):
                 if target_word not in adjectives:
                     adjectives.append(target_word)
                 adjective_edges.append(adjective_info)
-        logger.warning("++++ Created {} adj edges ++++".format(len(adjective_edges)))
+        logger.info("++++ Created {} adj edges ++++".format(len(adjective_edges)))
         return adjectives, adjective_edges
 
 
@@ -236,7 +238,7 @@ def get_prep_edges(ex_stanza):
                 # logger.warning('  {} | {} | {}'.format(
                 #     sentence.token[source_idx].word.lower(), preposition, sentence.token[target_idx].word.lower()))
                 # Do not extract "kind of". Leads to cluttering.
-                logger.warning(
+                logger.info(
                     "  {} | {} | {}".format(source_word, preposition, target_word)
                 )
                 invalid_preposition_edges = ["kind of", "sort of", "type of"]
@@ -258,7 +260,7 @@ def get_prep_edges(ex_stanza):
                     )
                     prepositions.append(preposition)
                     preposition_edges.append(preposition_info)
-    logger.warning(
+    logger.info(
         "++++ Created {} preposition edges ++++".format(len(preposition_edges))
     )
     return prepositions, preposition_edges
@@ -298,7 +300,7 @@ def get_obl_edges(ex_stanza):
                     continue
 
                 source_word = source_word[0]
-                logger.warning(
+                logger.info(
                     " {} | {} | {}".format(source_word, oblique, target_word)
                 )
                 oblique_info = (
@@ -316,7 +318,7 @@ def get_obl_edges(ex_stanza):
                 )
                 obliques.append(oblique)
                 oblique_edges.append(oblique_info)
-    logger.warning("++++ Created {} oblique edges ++++".format(len(oblique_edges)))
+    logger.info("++++ Created {} oblique edges ++++".format(len(oblique_edges)))
     return obliques, oblique_edges
 
 
@@ -333,7 +335,7 @@ def add_obl_edges(edges, oblique_edges):
                     edge_info[2]["relation"] == oblique_edge[0]
                     and edge_info[2]["node2_args"][0] == oblique_edge_text
                 ):
-                    logger.warning(
+                    logger.info(
                         "{} : {} \t {} : {}".format(
                             edge_info[2]["relation"],
                             oblique_edge[0],
@@ -356,7 +358,7 @@ def add_obl_edges(edges, oblique_edges):
                     )
                     if new_oblique_edge not in edges:
                         edges.append(new_oblique_edge)
-    logger.warning(
+    logger.info(
         "++++ Added {} oblique edges. Total edges: {} ++++".format(
             len(oblique_edges), len(edges)
         )
@@ -434,8 +436,8 @@ def get_node_synonyms(ex_stanza, no_noun):
                 # If no proper node name could be found (either as noun or as lemma), set first mention of node as proper node name
                 proper_nn.append(alt_nn[0][1])
         node_name_synonyms[proper_nn[0]] = alt_nn
-    logger.warning(node_name_synonyms)
-    logger.warning(
+    logger.info(node_name_synonyms)
+    logger.info(
         "++++ Obtained {} node synonyms ++++".format(len(node_name_synonyms))
     )
     return node_name_synonyms
@@ -485,7 +487,7 @@ def split_node_synonyms(node_name_synonyms, preposition_edges, edges):
                             values[n] = alt_nns_new
                     if preposition_edge not in edges:
                         edges.append(preposition_edge)
-    logger.warning("++++ Split node name synonyms on prepositions. ++++")
+    logger.info("++++ Split node name synonyms on prepositions. ++++")
     return edges, node_name_synonyms
 
 
@@ -535,7 +537,7 @@ def split_nodes(edges, preposition_edges, no_noun):
                         for p1 in p1_words:
                             p1_list.append(p1 not in x.split(" "))
                     if any(p1_list and p2_list):
-                        logger.warning(
+                        logger.info(
                             "{} \t\t|\t {}  -- Adding {}".format(
                                 part1, part2, preposition_edge
                             )
@@ -561,7 +563,7 @@ def split_nodes(edges, preposition_edges, no_noun):
                             (" ").join(node.split(" ")[m + 1 :]).strip()  # noqa: E203
                         )
                         new_edge[n] = part2
-                        logger.warning(
+                        logger.info(
                             "{} \t\t|\t {}  -- Adding {}".format(
                                 part1, part2, preposition_edge
                             )
@@ -569,7 +571,7 @@ def split_nodes(edges, preposition_edges, no_noun):
                 edges[e] = tuple(new_edge)
                 if preposition_edge not in edges:
                     edges.append(preposition_edge)
-    logger.warning("++++ Split nodes on prepositions. ++++")
+    logger.info("++++ Split nodes on prepositions. ++++")
     return edges
 
 
@@ -635,7 +637,7 @@ def merge_corefs(edges, node_name_synonyms, no_noun, poss_pronouns):
                     # logger.warning('Moving on...')
                     pass
         edges[e] = tuple(new_edge)
-    logger.warning("++++ Merged nodes that are referenced several times. ++++")
+    logger.info("++++ Merged nodes that are referenced several times. ++++")
     return edges, orig_edges
 
 
@@ -672,7 +674,7 @@ def clean_nodes(edges, nouns, adjectives):
                 new_node_name = node_adjective[0]
                 new_edge[n] = new_node_name
         edges[e] = tuple(new_edge)
-    logger.warning("++++ Cleaned nodes. ++++")
+    logger.info("++++ Cleaned nodes. ++++")
     return edges
 
 
@@ -708,7 +710,7 @@ def clean_parallel_edges(edges):
 
     # Of the duplicate rows, pick the row that most represents the proper relation (highest confidence in Ollie for example)
     all_chosen_rows = []
-    logger.warning("@@@@%s", {boo_similar[0].shape[0]})
+    logger.info("@@@@%s", {boo_similar[0].shape[0]})
     for b in range(0, boo_similar[0].shape[0]):
         # If both extracted by Ollie, keep the one with the higher confidence
 
@@ -736,7 +738,7 @@ def clean_parallel_edges(edges):
             chosen_row = duplicate_rows.index[-1]
             if chosen_row not in all_chosen_rows:
                 all_chosen_rows.append(chosen_row)
-                logger.warning(
+                logger.info(
                     "\n--- Duplicates ---{}\n --- Chosen --- :\n{}".format(
                         duplicate_rows, duplicate_rows.iloc[-1].to_frame().T
                     )
@@ -752,7 +754,7 @@ def clean_parallel_edges(edges):
         clean_edges.append(edges[row])
 
     # Return edges without duplicates
-    logger.warning("++++ Cleaned parallel edges from duplicates. ++++")
+    logger.info("++++ Cleaned parallel edges from duplicates. ++++")
     return clean_edges
 
 
@@ -761,7 +763,7 @@ def add_adj_edges(edges, adjective_edges, add_adjective_edges):
     if add_adjective_edges:
         for adjective_edge in adjective_edges:
             edges.append(adjective_edge)
-    logger.warning("++++ Added adjective edges: {} ++++".format(add_adjective_edges))
+    logger.info("++++ Added adjective edges: {} ++++".format(add_adjective_edges))
     return edges
 
 
@@ -771,7 +773,7 @@ def add_prep_edges(edges, preposition_edges, add_all_preposition_edges):
         for preposition_edge in preposition_edges:
             if preposition_edge not in edges:
                 edges.append(preposition_edge)
-    logger.warning(
+    logger.info(
         "++++ Added all preposition edges: {} ++++".format(add_all_preposition_edges)
     )
     return edges
@@ -792,5 +794,5 @@ def get_unconnected_nodes(edges, orig_edges, nouns):
         node_is_in_network = any(noun.lower() in node.lower() for node in list_of_nodes)
         if not node_is_in_network:
             unconnected_nodes.append(noun)
-    logger.warning("++++ Obtained unconnected nodes ++++")
+    logger.info("++++ Obtained unconnected nodes ++++")
     return unconnected_nodes
