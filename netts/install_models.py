@@ -137,7 +137,6 @@ def install_language_model(md5: Optional[str] = None) -> DownloadStatus:
     fname_zip = Path(str(fname))
 
     if file_exists(fname, file_hash=md5):
-        logger.warning(f"Outcome using exists(): {fname.exists()}")
         logger.warning(f"Language model already exists: {fname}")
         return DownloadStatus.ALREADY_EXISTS
 
