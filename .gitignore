@@ -1,6 +1,6 @@
 # Test artefacts
 tests/test_data/actual_test_plot_graph.png
-
+output_folder/
 untracked/
 
 package_names
