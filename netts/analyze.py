@@ -1,4 +1,3 @@
-#!/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/venv python
 # ------------------------------------------------------------------------------
 # Script name:  analyze.py
 #
