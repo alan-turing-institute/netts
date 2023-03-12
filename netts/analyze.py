@@ -137,3 +137,270 @@ def get_parallel_edges(G, same_sentence=True):
         pe_df = pe_df[pe_df.duplicated(
             subset=['sent', 'n1', 'n2'], keep=False)]
     return pe_df
+
+
+def calculate_basic_descriptors(G):
+    """
+    Calculates basic descriptors of the graph.
+
+    Args:
+        G (nx.Graph): A networkx graph.
+
+    Returns:
+        Tuple: A tuple containing:
+            - n_words (int): The number of words in the graph.
+            - n_sents (int): The number of sentences in the graph.
+            - n_nodes (int): The number of nodes in the graph.
+            - n_edges (int): The number of edges in the graph.
+            - n_unconnected_nodes (int): The number of unconnected nodes in the graph.
+            - average_total_degree (float): The average total degree of the nodes in the graph.
+    """
+
+    n_words = G.graph['tokens']
+    n_sents = G.graph['sentences']
+    mean_sentence_length = int(n_words) / int(n_sents)
+    n_nodes = len(G.nodes())
+    n_edges = G.size()
+    n_unconnected_nodes = len(G.graph['unconnected_nodes'])
+    average_total_degree = (n_edges * 2) / n_nodes
+    return (n_words, n_sents, n_nodes, n_edges, n_unconnected_nodes, average_total_degree)
+
+
+def calculate_edge_properties(G):
+    """
+    Calculates edge properties of the graph.
+
+    Args:
+        G (nx.Graph): A networkx graph.
+
+    Returns:
+        Tuple: A tuple containing:
+            - parallel_edges (int): The number of parallel edges in the graph.
+            - n_bidirectional_edges (int): The number of bidirectional edges in the graph.
+    """
+    arr = nx.to_numpy_matrix(G)
+    parallel_edges = np.sum(arr >= 2)
+    n_bidirectional_edges = print_bidirectional_edges(G, quiet=True)
+    return (parallel_edges, n_bidirectional_edges)
+
+
+def calculate_recurrence_measures(G):
+    """
+    Calculates recurrence measures of the graph.
+
+    Args:
+        G (nx.Graph): A networkx graph.
+
+    Returns:
+        Tuple: A tuple containing:
+            - L1 (int): The number of self-loop edges in the graph.
+            - L2 (int): The number of cycles of length 2 in the graph.
+            - L3 (int): The number of cycles of length 3 in the graph.
+    """
+    cycles = list(nx.simple_cycles(G))
+    cycle_lengths = [len(cycle) for cycle in cycles]
+    L1 = len(list(nx.selfloop_edges(G)))
+    L2 = cycle_lengths.count(2)
+    L3 = cycle_lengths.count(3)
+    return (L1, L2, L3)
+
+
+def calculate_weakly_connected_components(G):
+    """
+    Calculates weakly connected components of the graph.
+
+    Args:
+        G (nx.Graph): A networkx graph.
+
+    Returns:
+        Tuple: A tuple containing:
+            - sizes_weakly_conn_components (list): A list of the sizes of the weakly connected components in the graph.
+            - number_weakly_conn_components (int): The number of weakly connected components in the graph.
+            - cc_size_mean (float): The mean size of the weakly connected components in the graph.
+            - cc_size_med (float): The median size of the weakly connected components in the graph.
+            - cc_size_sd (float): The standard deviation of the sizes of the weakly connected components in the graph.
+            - cc_size_max (int): The size of the largest weakly connected component in the graph.
+    """
+    sizes_weakly_conn_components = [len(c) for c in sorted(
+        nx.weakly_connected_components(G), key=len, reverse=True)]
+    number_weakly_conn_components = len(sizes_weakly_conn_components)
+    cc_sizes = np.array(sizes_weakly_conn_components)
+    cc_size_mean = np.mean(cc_sizes, axis=0)
+    cc_size_med = np.median(cc_sizes, axis=0)
+    cc_size_sd = np.std(cc_sizes, axis=0)
+    cc_size_max = np.max(cc_sizes)
+    return (sizes_weakly_conn_components, number_weakly_conn_components, cc_size_mean, cc_size_med, cc_size_sd, cc_size_max)
+
+
+def calculate_degree_centrality(G):
+    """
+    Calculates degree centrality of the nodes in the graph.
+
+    Args:
+        G (nx.Graph): A networkx graph.
+
+    Returns:
+        Tuple: A tuple containing:
+            - max_deg_cent (float): The maximum degree centrality value in the graph.
+            - max_deg_node (str): The node with the maximum degree centrality value in the graph.
+    """
+    degree_cents = nx.degree_centrality(G)
+    degree_cents = dict(sorted(degree_cents.items(),
+                        key=lambda item: item[1], reverse=True))
+    max_deg_cent = next(iter(degree_cents.items()))[1]
+    max_deg_node = next(iter(degree_cents.items()))[0]
+    return (max_deg_cent, max_deg_node)
+
+
+def calculate_indegree_centrality(G):
+    """
+    Calculates indegree centrality of the nodes in the graph.
+
+    Args:
+        G (nx.Graph): A networkx graph.
+
+    Returns:
+        Tuple: A tuple containing:
+            - max_indegree_centrality_value (float): The maximum indegree centrality value in the graph.
+    """
+
+    in_degree_cents = nx.in_degree_centrality(G)
+    in_degree_cents = dict(
+        sorted(in_degree_cents.items(), key=lambda item: item[1], reverse=True))
+    max_indeg_cent = next(iter(in_degree_cents.items()))
+    max_indegree_centrality_value = max_indeg_cent[1]
+    return (max_indegree_centrality_value,)
+
+
+def calculate_outdegree_centrality(G):
+    """
+    Calculates outdegree centrality of the nodes in the graph.
+
+    Args:
+        G (nx.Graph): A networkx graph.
+
+    Returns:
+        Tuple: A tuple containing:
+            - max_outdegree_centrality_value (float): The maximum outdegree centrality value in the graph.
+    """
+    out_degree_cents = nx.out_degree_centrality(G)
+    out_degree_cents = dict(
+        sorted(out_degree_cents.items(), key=lambda item: item[1], reverse=True))
+    max_outdeg_cent = next(iter(out_degree_cents.items()))
+    max_outdegree_centrality_value = max_outdeg_cent[1]
+    return (max_outdegree_centrality_value,)
+
+
+def calculate_confidence_measures(G):
+    """Calculates the mean confidence measure of a given graph.
+
+    Parameters
+    ----------
+    G : networkx.Graph
+        Graph to calculate the mean confidence measure of.
+
+    Returns
+    -------
+    mean_confidence : float or np.nan
+        Mean confidence measure of the graph. Returns np.nan if there are no edges with confidence measures in the graph.
+    """
+    confidence_vals = [edge[2]['confidence']
+                       for edge in G.edges(data=True) if 'confidence' in edge[2]]
+    if confidence_vals == []:
+        confidence_vals = np.nan
+    mean_confidence = np.mean(confidence_vals)
+    return mean_confidence
+
+
+def calculate_all_properties(G):
+    """Calculates various properties of a given graph, including basic descriptors, edge properties, recurrence measures, weakly connected components, degree centrality, and confidence measures.
+
+     Parameters
+     ----------
+     G : networkx.Graph
+         Graph to calculate properties of.
+
+     Returns
+     -------
+     df : pandas.DataFrame
+         DataFrame containing the calculated properties of the graph.
+     """
+    # Calculate basic descriptors
+    n_words, n_sents, n_nodes, n_edges, n_unconnected_nodes, average_total_degree = calculate_basic_descriptors(
+        G)
+
+    # Calculate edge properties
+    parallel_edges, n_bidirectional_edges = calculate_edge_properties(G)
+
+    # Calculate recurrence measures
+    L1, L2, L3 = calculate_recurrence_measures(G)
+
+    # Calculate weakly connected components
+    sizes_weakly_conn_components, number_weakly_conn_components, cc_size_mean, cc_size_med, cc_size_sd, cc_size_max = calculate_weakly_connected_components(
+        G)
+
+    # Calculate degree centrality
+    max_deg_cent, max_deg_node = calculate_degree_centrality(G)
+
+    # Calculate indegree centrality
+    max_indegree_centrality_value = calculate_indegree_centrality(G)[0]
+
+    # Calculate outdegree centrality
+    max_outdegree_centrality_value = calculate_outdegree_centrality(G)[0]
+
+    # Calculate confidence measures
+    mean_confidence = calculate_confidence_measures(G)
+
+    # Create data frame
+    data = {'n_words': n_words,
+            'n_sents': n_sents,
+            'n_nodes': n_nodes,
+            'n_edges': n_edges,
+            'n_unconnected_nodes': n_unconnected_nodes,
+            'average_total_degree': average_total_degree,
+            'parallel_edges': parallel_edges,
+            'n_bidirectional_edges': n_bidirectional_edges,
+            'L1': L1,
+            'L2': L2,
+            'L3': L3,
+            'sizes_weakly_conn_components': sizes_weakly_conn_components,
+            'number_weakly_conn_components': number_weakly_conn_components,
+            'cc_size_mean': cc_size_mean,
+            'cc_size_med': cc_size_med,
+            'cc_size_sd': cc_size_sd,
+            'cc_size_max': cc_size_max,
+            'max_deg_cent': max_deg_cent,
+            'max_deg_node': max_deg_node,
+            'max_indegree_centrality_value': max_indegree_centrality_value,
+            'max_outdegree_centrality_value': max_outdegree_centrality_value,
+            'mean_confidence': mean_confidence}
+
+    df = pd.DataFrame(data=data)
+    return df
+
+
+def graph_properties(graphs, filelist):
+    """Generates a DataFrame with graph properties for a list of graphs.
+
+    Parameters
+    ----------
+    graphs : list of networkx.Graph
+        List of all graphs.
+    filelist : list of str
+        List of all graph files.
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        DataFrame with graph properties.
+    """
+    properties = []
+    for G, filename in zip(graphs, filelist):
+        # --- Basic graph descriptors ---
+        props = calculate_all_properties(G)
+        # --- Add filename ---
+        props['filename'] = os.path.basename(filename)
+        properties.append(props)
+    # --- Concatenate dataframes ---
+    df = pd.concat(properties, axis=1)
+    return df
