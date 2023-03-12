@@ -17,6 +17,7 @@ import sys
 sys.path.append(
     '/Users/CN/Documents/Projects/Cambridge/cambridge_language_analysis/')
 import numpy as np
+import pickle
 
 
 def print_bidirectional_edges(G, quiet=True):
@@ -352,40 +353,50 @@ def calculate_all_properties(G):
     mean_confidence = calculate_confidence_measures(G)
 
     # Create data frame
-    data = {'n_words': n_words,
-            'n_sents': n_sents,
-            'n_nodes': n_nodes,
-            'n_edges': n_edges,
-            'n_unconnected_nodes': n_unconnected_nodes,
-            'average_total_degree': average_total_degree,
-            'parallel_edges': parallel_edges,
-            'n_bidirectional_edges': n_bidirectional_edges,
-            'L1': L1,
-            'L2': L2,
-            'L3': L3,
-            'sizes_weakly_conn_components': sizes_weakly_conn_components,
-            'number_weakly_conn_components': number_weakly_conn_components,
-            'cc_size_mean': cc_size_mean,
-            'cc_size_med': cc_size_med,
-            'cc_size_sd': cc_size_sd,
-            'cc_size_max': cc_size_max,
-            'max_deg_cent': max_deg_cent,
-            'max_deg_node': max_deg_node,
-            'max_indegree_centrality_value': max_indegree_centrality_value,
-            'max_outdegree_centrality_value': max_outdegree_centrality_value,
-            'mean_confidence': mean_confidence}
+    df = pd.DataFrame({'words': [n_words],
+                       'sentences': [n_sents],
+                       'nodes': [n_nodes],
+                       'edges': [n_edges],
+                       'unconnected': [n_unconnected_nodes],
+                       'average_total_degree': [average_total_degree],
+                       'parallel_edges': [parallel_edges],
+                       'bidirectional_edges': [n_bidirectional_edges],
+                       'L1': [L1],
+                       'L2': [L2],
+                       'L3': [L3],
+                       'sizes_connected_components': [sizes_weakly_conn_components],
+                       'connected_components': [number_weakly_conn_components],
+                       'cc_size_mean': [cc_size_mean],
+                       'cc_size_med': [cc_size_med],
+                       'cc_size_sd': [cc_size_sd],
+                       'cc_size_max': [cc_size_max],
+                       'max_degree_centrality': [max_deg_cent],
+                       'max_degree_node': [max_deg_node],
+                       'max_indegree_centrality_value': [max_indegree_centrality_value],
+                       'max_outdegree_centrality_value': [max_outdegree_centrality_value],
+                       'mean_confidence': [mean_confidence]})
 
-    df = pd.DataFrame(data=data)
     return df
 
 
-def graph_properties(graphs, filelist):
+def import_graphs(filelist):
+    """Imports graphs from a list of files.
+    Input: list of files
+    Output: list of graphs
+    """
+    graphs = []
+    for file in filelist:
+        with open(file, "rb") as graph_file:
+            graph = pickle.load(graph_file)
+            graphs.append(graph)
+    return graphs
+
+
+def graph_properties(filelist):
     """Generates a DataFrame with graph properties for a list of graphs.
 
     Parameters
     ----------
-    graphs : list of networkx.Graph
-        List of all graphs.
     filelist : list of str
         List of all graph files.
 
@@ -394,6 +405,8 @@ def graph_properties(graphs, filelist):
     df : pandas.DataFrame
         DataFrame with graph properties.
     """
+    graphs = import_graphs(filelist)
+
     properties = []
     for G, filename in zip(graphs, filelist):
         # --- Basic graph descriptors ---
@@ -402,5 +415,5 @@ def graph_properties(graphs, filelist):
         props['filename'] = os.path.basename(filename)
         properties.append(props)
     # --- Concatenate dataframes ---
-    df = pd.concat(properties, axis=1)
+    df = pd.concat(properties, axis=0, ignore_index=True)
     return df
