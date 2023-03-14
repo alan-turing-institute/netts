@@ -1,9 +1,9 @@
 [tool.poetry]
 name = "netts"
-version = "0.2.1"
+version = "0.3.1"
 description = "Toolbox for constructing NETworks of Transcript Semantics."
 authors = [
-    "Caroline Nettekoven <crn29@cam.ac.uk>",
+    "Caroline Nettekoven <crn29@cantab.ac.uk>",
     "Sarah Morgan <sem91@cam.ac.uk>",
     "Oscar Terence Giles <ogiles@turing.ac.uk>",
     "Helen Duncan <hduncan@turing.ac.uk>",
@@ -40,6 +40,7 @@ requests = "^2.26.0"
 tqdm = "^4.62.2"
 rtoml = "^0.7.0"
 typer = {version = "^0.4.1", extras = ["all"]}
+gdown = "^4.6.0"
 
 [tool.poetry.dev-dependencies]
 isort = "^5.9.3"

@@ -23,6 +23,8 @@ pip install git+https://github.com/alan-turing-institute/netts
 
 ## Install Additional Dependencies
 
+Netts requires the Java Runtime Environment. Instructions for downloading and installing for your operating system can be found [here](https://docs.oracle.com/goldengate/1212/gg-winux/GDRAD/java.htm#BGBFHBEA).
+
 Netts requires additional dependencies including [CoreNLP](https://stanfordnlp.github.io/CoreNLP/) and [OpenIE](https://github.com/dair-iitd/OpenIE-standalone). You can install them either directly from the netts CLI or in Python.
 
 === "CLI"

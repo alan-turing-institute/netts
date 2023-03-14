@@ -40,7 +40,9 @@ pip install git+https://github.com/alan-turing-institute/netts
 
 ### Additional dependencies
 
-Netts requires a few additional dependencies to work which you can download with the netts CLI that was installed by pip
+Netts requires the Java Runtime Environment. Instructions for downloading and installing for your operating system can be found [here](https://docs.oracle.com/goldengate/1212/gg-winux/GDRAD/java.htm#BGBFHBEA).
+
+Netts also requires a few additional dependencies to work which you can download with the netts CLI that was installed by pip
 
 ```bash
 netts install
@@ -54,7 +56,7 @@ The quickest way to process a transcript is with the CLI.
 netts run transcript.txt outputs
 ```
 
-where `transcript.txt` is a text file containing transcribed speech and `outputs` is the name of a directory to write the outputs to.
+where `transcript.txt` is a text file containing transcribed speech and `outputs` is the name of a directory to write the outputs to. Additional logging information can be found in `netts_log.log`.
 
 ## Contributors
 
