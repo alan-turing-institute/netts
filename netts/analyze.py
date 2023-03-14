@@ -11,7 +11,6 @@
 # ------------------------------------------------------------------------------
 import networkx as nx
 import os
-import os.path as op
 import pandas as pd
 import sys
 sys.path.append(
