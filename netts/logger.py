@@ -2,12 +2,12 @@ import logging
 from pathlib import Path
 from rich.logging import RichHandler
 
-log_file = f"{Path(__file__).resolve().parent.parent}/netts_log.log"
+log_file = f"netts_log.log"
 
 logger = logging.getLogger('netts')
 
 file_handler = logging.FileHandler(log_file)
-console_handler = RichHandler(markup=True)
+console_handler = RichHandler(markup=True, show_path=False)
 
 logger.setLevel(logging.INFO)
 file_handler.setLevel(logging.INFO)

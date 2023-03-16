@@ -51,7 +51,7 @@ def file_exists(path: Path, file_hash: Optional[str] = None) -> bool:
             raise IncorrectHash(
                 f"Hash of {path}: {real_hash},  does not match `file_hash`: {file_hash}"
             )
-    logger.info("File installed: %s , md5 hash: %s", path, real_hash)
+    # logger.info("File installed: %s , md5 hash: %s", path, real_hash)
 
     return True
 
@@ -117,14 +117,15 @@ def install_openie5(md5: Optional[str] = None) -> DownloadStatus:
     settings = get_settings()
     fname = settings.openie
 
+    logger.info("Downloading: OpenIE 5.1 binary to: %s", fname)
+
     if file_exists(fname, file_hash=md5):
         logger.warning("OpenIE 5.1 binary already exists: %s", settings.openie)
         return DownloadStatus.ALREADY_EXISTS
 
     if not settings.openie_dir.exists():
         settings.openie_dir.mkdir(parents=True)
-
-    logger.info("Downloading: OpenIE 5.1 binary to: %s", fname)
+    
     download_file(str(settings.openie_url), fname, "Installing Openie5")
 
     return DownloadStatus.SUCCESS
@@ -136,6 +137,8 @@ def install_language_model(md5: Optional[str] = None) -> DownloadStatus:
     fname = settings.openie_language_model
     fname_zip = Path(str(fname))
 
+    logger.info("Downloading: Language model to: %s", fname)
+
     if file_exists(fname, file_hash=md5):
         logger.warning(f"Language model already exists: {fname}")
         return DownloadStatus.ALREADY_EXISTS
@@ -144,7 +147,6 @@ def install_language_model(md5: Optional[str] = None) -> DownloadStatus:
         logger.info("Creating dir %s", settings.openie_data)
         settings.openie_data.mkdir(parents=True)
 
-    logger.info("Downloading: Language model to: %s", fname)
     resp = download_file(str(settings.openie_language_url), fname_zip, "Installing language model")
 
 

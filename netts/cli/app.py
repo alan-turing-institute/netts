@@ -101,7 +101,7 @@ def run(
     and pickle graph objects to OUTPUT_DIR.
     Optionally save a figure of the graph network"""
     
-    logger.info(f"For logging information, please check {Path(__file__).resolve().parent.parent.parent}/outputs")
+    logger.info(f"For logging information, please check {logger.handlers[0].baseFilename}")
 
     if config_file:
         settings = Settings(config_file=config_file)
