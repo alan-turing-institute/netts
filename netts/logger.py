@@ -1,7 +1,8 @@
 import logging
+from pathlib import Path
 from rich.logging import RichHandler
 
-log_file = "outputs/netts_log.log"
+log_file = f"{Path(__file__).resolve().parent.parent}/netts_log.log"
 
 logger = logging.getLogger('netts')
 
