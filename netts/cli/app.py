@@ -16,17 +16,6 @@ from netts.logger import logger, stanza_logger
 
 import threading, itertools, sys, time
 
-# Animation so the user knows that something is happening...
-done = False
-def animate():
-    for c in itertools.cycle(['|', '/', '-', '\\']):
-        if done:
-            break
-        sys.stdout.write('\rRunning transcripts... ' + c)
-        sys.stdout.flush()
-        time.sleep(0.1)
-    sys.stdout.write('\rDone!     ')
-
 
 app = typer.Typer()
 
@@ -149,9 +138,7 @@ def run(
     elif force or n_missing > 0:
         logger.info(f"Found {n_transcripts} transcripts. Unprocessed: {n_missing}")
 
-        t = threading.Thread(target=animate)
-        t.daemon = True
-        t.start()
+        print("Starting CoreNLP Server...")
 
         corenlp_client = CoreNLPClient(be_quiet=True,
             properties={
@@ -171,6 +158,7 @@ def run(
         openie_client.connect()
 
         preprocess_config = settings.netts_config.preprocess
+        print("Processing Transcript(s)...")
 
         for transcript_file in all_transcript_files:
             if transcript_file.missing or force:
@@ -182,7 +170,7 @@ def run(
         corenlp_client.stop()
         openie_client.close()
 
-        done = True
+        
 
     # Save figures
     if figure:
@@ -195,7 +183,7 @@ def run(
                 logger.info("Creating figure: %s", plot_file)
                 transcript_file.plot_graph()
                 plt.savefig(transcript_file.output_graph_file(fig_format))
-    done = True
+
 
 @app.command()
 def config() -> None:
