@@ -1,5 +1,6 @@
 import datetime
 import logging
+from rich.logging import RichHandler
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
@@ -13,8 +14,21 @@ from netts.clients import CoreNLPClient, OpenIEClient
 from netts.config import Settings, get_settings
 from netts.logger import logger, stanza_logger
 
-app = typer.Typer()
+import threading, itertools, sys, time
 
+# Animation so the user knows that something is happening...
+done = False
+def animate():
+    for c in itertools.cycle(['|', '/', '-', '\\']):
+        if done:
+            break
+        sys.stdout.write('\rRunning transcripts... ' + c)
+        sys.stdout.flush()
+        time.sleep(0.1)
+    sys.stdout.write('\rDone!     ')
+
+
+app = typer.Typer()
 
 # pylint: disable=C0103
 @dataclass
@@ -86,21 +100,28 @@ def run(
     """Process transcript(s) in INPUT_DIR
     and pickle graph objects to OUTPUT_DIR.
     Optionally save a figure of the graph network"""
+    
+    logger.info(f"For logging information, please check {Path(__file__).resolve().parent.parent.parent}/outputs")
 
     if config_file:
         settings = Settings(config_file=config_file)
     else:
         settings = Settings()
 
-    # if very_verbose:
-    #     # logger.setLevel(logging.DEBUG)
-    #     stanza_logger.setLevel(logging.DEBUG)
-    # elif verbose:
-    #     # logger.setLevel(logging.INFO)
-    #     stanza_logger.setLevel(logging.INFO)
-    # else:
-    #     # logger.setLevel(logging.WARNING)
-    #     stanza_logger.setLevel(logging.WARNING)
+    stanza_logger.handlers[0].setLevel(logging.INFO)
+    logger.handlers[0].setLevel(logging.INFO)
+
+    if very_verbose:
+        stanza_logger.handlers[1].setLevel(logging.INFO)
+        logger.handlers[1].setLevel(logging.INFO)
+
+    elif verbose:
+        stanza_logger.handlers[1].setLevel(logging.WARNING)
+        logger.handlers[1].setLevel(logging.INFO)
+    else:
+        stanza_logger.handlers[1].setLevel(logging.WARNING)
+        logger.handlers[1].setLevel(logging.WARNING)
+        
 
     if not input_path.exists():
         logger.warning("INPUT_PATH: '%s' does not exist. Check path", input_path)
@@ -127,6 +148,11 @@ def run(
     # Only start the servers if there are files to process
     elif force or n_missing > 0:
         logger.info(f"Found {n_transcripts} transcripts. Unprocessed: {n_missing}")
+
+        t = threading.Thread(target=animate)
+        t.daemon = True
+        t.start()
+
         corenlp_client = CoreNLPClient(be_quiet=True,
             properties={
                 "annotators": "tokenize,ssplit,pos,lemma,ner,parse,depparse,coref,natlog,openie",
@@ -156,6 +182,8 @@ def run(
         corenlp_client.stop()
         openie_client.close()
 
+        done = True
+
     # Save figures
     if figure:
         for transcript_file in all_transcript_files:
@@ -167,7 +195,7 @@ def run(
                 logger.info("Creating figure: %s", plot_file)
                 transcript_file.plot_graph()
                 plt.savefig(transcript_file.output_graph_file(fig_format))
-
+    done = True
 
 @app.command()
 def config() -> None:

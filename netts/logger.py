@@ -1,19 +1,29 @@
 import logging
+from rich.logging import RichHandler
 
-log_file = "netts_log.log"
+log_file = "outputs/netts_log.log"
+
 logger = logging.getLogger('netts')
-logger.setLevel(logging.INFO)
 
 file_handler = logging.FileHandler(log_file)
-file_formatter = logging.Formatter(fmt="%(asctime)s %(levelname)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-file_handler.setFormatter(file_formatter)
-file_handler.setLevel(logging.INFO)
-logger.addHandler(file_handler)
+console_handler = RichHandler(markup=True)
 
-log_handler = logging.StreamHandler()
-log_formatter = logging.Formatter(fmt="%(asctime)s %(levelname)s: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-log_handler.setFormatter(log_formatter)
-log_handler.setLevel(logging.WARNING)
-logger.addHandler(log_handler)
+logger.setLevel(logging.INFO)
+file_handler.setLevel(logging.INFO)
+console_handler.setLevel(logging.INFO)
+
+fmt_file = '%(levelname)s %(asctime)s [%(filename)s:%(funcName)s:%(lineno)d] %(message)s'
+fmt_console = '%(message)s'
+
+file_formatter = logging.Formatter(fmt_file)
+console_formatter = logging.Formatter(fmt_console)
+
+file_handler.setFormatter(file_formatter)
+console_handler.setFormatter(console_formatter)
+
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
 
 stanza_logger = logging.getLogger("stanza")
+stanza_logger.addHandler(file_handler)
+stanza_logger.addHandler(console_handler)
