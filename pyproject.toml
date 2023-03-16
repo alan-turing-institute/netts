@@ -39,7 +39,7 @@ pydantic = {extras = ["dotenv"], version = "^1.8.2"}
 requests = "^2.26.0"
 tqdm = "^4.62.2"
 rtoml = "^0.8.0"
-rich "^13.3.2"
+rich = "^13.3.2"
 typer = {version = "^0.4.1", extras = ["all"]}
 gdown = "^4.6.0"
 
